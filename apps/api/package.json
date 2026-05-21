@@ -5,6 +5,10 @@
   "dependencies": {
     "@repo/database": "workspace:*",
     "@repo/schemas": "workspace:*",
-    "@repo/trpc": "workspace:*"
+    "@repo/trpc": "workspace:*",
+    "@trpc/server": "^10.45.4",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
   }
 }
