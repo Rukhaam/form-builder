@@ -2,5 +2,9 @@
   "name": "@repo/services",
   "version": "1.0.0",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "exports": {
+    "./clients/google-oauth": "./clients/google-oauth.js",
+    "./user": "./user/index.js"
+  }
 }

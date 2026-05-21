@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "main": "index.js",
+  "exports": "./index.js",
   "scripts": {
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",

@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import * as trpcExpress from '@trpc/server/adapters/express';
-import { appRouter } from '@repo/trpc/server'; // Importing from the new package
-import { createContext } from '@repo/trpc/server/context'; // For passing DB/Auth
+import { appRouter } from '@repo/trpc/server/index.js'; 
+import { createContext } from '@repo/trpc/server/context.js';
 
 const app = express();
 app.use(cors());

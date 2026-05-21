@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "main": "index.js",
+  "exports": "./index.js",
   "dependencies": {
     "zod": "^3.23.8"
   }
