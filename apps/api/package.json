@@ -3,7 +3,8 @@
   "private": true,
   "main": "index.js",
   "dependencies": {
-    "@repo/db": "workspace:*",
-    "@repo/schemas": "workspace:*"
+    "@repo/database": "workspace:*",
+    "@repo/schemas": "workspace:*",
+    "@repo/trpc": "workspace:*"
   }
 }
