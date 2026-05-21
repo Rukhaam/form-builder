@@ -1,0 +1,8 @@
+{
+  "name": "@repo/web",
+  "private": true,
+  "dependencies": {
+    "@repo/db": "workspace:*",
+    "@repo/schemas": "workspace:*"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "@repo/api",
+  "private": true,
+  "main": "index.js",
+  "dependencies": {
+    "@repo/db": "workspace:*",
+    "@repo/schemas": "workspace:*"
+  }
+}
