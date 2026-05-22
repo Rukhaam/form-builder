@@ -10,9 +10,17 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:4000/api/auth/google/callback';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
+function redirectWithOAuthError(res, error) {
+  res.redirect(`${FRONTEND_URL}/login?error=${encodeURIComponent(error)}`);
+}
 
 oauthRouter.get('/google', (req, res) => {
-  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=profile email`;
+  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+    redirectWithOAuthError(res, 'oauth_not_configured');
+    return;
+  }
+
+  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(GOOGLE_CLIENT_ID)}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${encodeURIComponent('profile email')}&prompt=select_account`;
   res.redirect(url);
 });
 
@@ -20,6 +28,11 @@ oauthRouter.get('/google/callback', async (req, res) => {
   const { code } = req.query;
 
   try {
+    if (!code) {
+      redirectWithOAuthError(res, 'oauth_missing_code');
+      return;
+    }
+
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -40,6 +53,10 @@ oauthRouter.get('/google/callback', async (req, res) => {
     });
     
     const googleUser = await userResponse.json();
+    if (!userResponse.ok || !googleUser.email) {
+      throw new Error('Failed to fetch Google profile');
+    }
+
     let user = await db.select().from(users).where(eq(users.email, googleUser.email)).limit(1).then(res => res[0]);
 
     if (!user) {
@@ -52,19 +69,32 @@ oauthRouter.get('/google/callback', async (req, res) => {
       user = newUser;
     } else {
       if (user.authProvider === 'LOCAL') {
+        redirectWithOAuthError(res, 'manual_account_exists');
+        return;
+      }
+
+      if (user.authProvider !== 'GOOGLE') {
+        redirectWithOAuthError(res, 'oauth_account_mismatch');
+        return;
+      }
+
+      if (!user.providerId) {
         const [updatedUser] = await db.update(users)
-          .set({ authProvider: 'GOOGLE', providerId: googleUser.id, isEmailVerified: true })
+          .set({ providerId: googleUser.id, isEmailVerified: true })
           .where(eq(users.id, user.id))
           .returning();
         user = updatedUser;
+      } else if (user.providerId !== googleUser.id) {
+        redirectWithOAuthError(res, 'oauth_account_mismatch');
+        return;
       }
     }
 
     const { accessToken, refreshToken } = generateTokens(user);
-    res.redirect(`${FRONTEND_URL}/auth/success?accessToken=${accessToken}&refreshToken=${refreshToken}`);
+    res.redirect(`${FRONTEND_URL}/auth/success?accessToken=${encodeURIComponent(accessToken)}&refreshToken=${encodeURIComponent(refreshToken)}`);
 
   } catch (error) {
     console.error('OAuth Error:', error);
-    res.redirect(`${FRONTEND_URL}/login?error=oauth_failed`);
+    redirectWithOAuthError(res, 'oauth_failed');
   }
 });

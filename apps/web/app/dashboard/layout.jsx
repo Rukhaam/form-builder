@@ -1,0 +1,149 @@
+'use client';
+
+import { useSelector, useDispatch } from 'react-redux';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { BarChart3, LayoutDashboard, LogOut } from 'lucide-react';
+import { logoutSuccess, setCredentials } from '@/store/slices/authSlice';
+import { cn } from '@/lib/utils';
+
+function getUserFromAccessToken(token) {
+  try {
+    const payload = token.split('.')[1];
+    if (!payload) return null;
+
+    const normalizedPayload = payload
+      .replace(/-/g, '+')
+      .replace(/_/g, '/')
+      .padEnd(Math.ceil(payload.length / 4) * 4, '=');
+    const decoded = JSON.parse(window.atob(normalizedPayload));
+
+    if (decoded.exp && decoded.exp * 1000 <= Date.now()) {
+      return null;
+    }
+
+    if (!decoded.id || !decoded.email) {
+      return null;
+    }
+
+    return { id: decoded.id, email: decoded.email };
+  } catch {
+    return null;
+  }
+}
+
+export default function DashboardLayout({ children }) {
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const router = useRouter();
+  const pathname = usePathname();
+  const dispatch = useDispatch();
+  const [mounted, setMounted] = useState(false);
+  const [sessionUser, setSessionUser] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+
+    if (!token) {
+      router.replace('/login');
+      return;
+    }
+
+    const tokenUser = getUserFromAccessToken(token);
+
+    if (!tokenUser) {
+      dispatch(logoutSuccess());
+      router.replace('/login');
+      return;
+    }
+
+    setSessionUser(tokenUser);
+
+    if (!isAuthenticated || !user) {
+      dispatch(setCredentials({ user: tokenUser }));
+    }
+
+    setMounted(true);
+  }, [dispatch, isAuthenticated, router, user]);
+
+  const handleLogout = () => {
+    dispatch(logoutSuccess());
+    router.push('/login');
+  };
+
+  // Prevent flashing the dashboard before redirecting
+  if (!mounted) return null;
+
+  const navItems = [
+    { href: '/dashboard', label: 'My Forms', icon: LayoutDashboard, active: pathname === '/dashboard' },
+    { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3, active: pathname.startsWith('/dashboard/analytics') },
+  ];
+
+  return (
+    <div className="flex min-h-screen bg-[radial-gradient(circle_at_top_left,#e0f2fe,transparent_32%),linear-gradient(135deg,#f8fafc,#eef2ff_48%,#fff7ed)] text-slate-950">
+      {/* SIDEBAR */}
+      <aside className="flex w-64 flex-col border-r border-white/60 bg-white/65 shadow-xl shadow-slate-200/60 backdrop-blur-xl">
+        <div className="flex h-16 items-center border-b border-white/70 px-6">
+          <div className="flex size-9 items-center justify-center rounded-xl bg-slate-950 text-sm font-bold text-white">
+            FB
+          </div>
+          <Link  href={'/'}>
+           <span className="ml-3 text-lg font-bold text-slate-950">FormBuilder</span>
+          </Link>
+         
+        </div>
+        
+        <nav className="flex-1 space-y-2 px-4 py-6">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition',
+                  item.active
+                    ? 'bg-slate-950 text-white shadow-lg shadow-slate-300/70'
+                    : 'text-slate-600 hover:bg-white/70 hover:text-slate-950',
+                )}
+              >
+                <Icon className="size-4" />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* User Profile & Logout at bottom */}
+        <div className="border-t border-white/70 p-4">
+          <div className="mb-3 rounded-2xl border border-white/70 bg-white/65 p-3 shadow-sm">
+            <div className="text-xs font-semibold uppercase text-slate-400">Signed in</div>
+            <div className="mt-1 truncate text-sm font-semibold text-slate-950">
+              {user?.email || sessionUser?.email || 'Loading...'}
+            </div>
+          </div>
+          <button 
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 rounded-xl bg-red-50 px-4 py-3 text-left text-sm font-semibold text-red-600 transition hover:bg-red-100"
+          >
+            <LogOut className="size-4" />
+            Log out
+          </button>
+        </div>
+      </aside>
+
+      {/* MAIN CONTENT AREA */}
+      <main className="flex h-screen flex-1 flex-col overflow-hidden">
+        <header className="flex h-16 items-center border-b border-white/60 bg-white/55 px-8 backdrop-blur-xl">
+          <h1 className="text-xl font-semibold text-slate-950">
+            {pathname.startsWith('/dashboard/analytics') ? 'Analytics' : 'Dashboard'}
+          </h1>
+        </header>
+        
+        <div className="flex-1 overflow-auto p-8">
+          {children}
+        </div>
+      </main>
+    </div>
+  );
+}

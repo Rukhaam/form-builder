@@ -1,5 +1,6 @@
 import { db } from "@repo/database";
 import jwt from "jsonwebtoken";
+import { ACCESS_TOKEN_SECRET } from "./utils/jwt.js";
 
 /**
  * Creates context for an incoming request
@@ -12,10 +13,11 @@ export const createContext = ({ req, res }) => {
   if (authHeader && authHeader.startsWith("Bearer ")) {
     const token = authHeader.split(" ")[1];
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, ACCESS_TOKEN_SECRET);
       user = decoded;
-    } catch (error) {
-      console.error("Invalid token");
+    } catch {
+      // Protected procedures perform the authoritative auth check.
+      // Context only hydrates an optional user when a valid token is present.
     }
   }
 

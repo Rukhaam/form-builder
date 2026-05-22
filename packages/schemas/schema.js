@@ -73,6 +73,30 @@ export const addFieldSchema = formFieldSchema.extend({
   formId: z.string().uuid("Invalid Form ID"),
 });
 
+export const saveEditorFormSchema = z.object({
+  formId: z.string().uuid("Invalid Form ID").optional(),
+  title: z
+    .string()
+    .min(1, "Form title is required")
+    .max(100, "Title is too long"),
+  description: z
+    .string()
+    .max(500, "Description cannot exceed 500 characters")
+    .optional()
+    .nullable(),
+  visibility: z.enum(["PUBLIC", "UNLISTED"]).default("PUBLIC"),
+  status: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT"),
+  isExpired: z.boolean().optional().default(false),
+  expiresAt: z.union([z.string().datetime(), z.date(), z.null()]).optional(),
+  maxResponses: z.number().int().min(1, "Must be at least 1").nullable().optional(),
+  fields: z.array(
+    formFieldSchema.extend({
+      id: z.string().uuid("Invalid field ID").optional(),
+      options: z.array(z.string()).nullable().optional(),
+    }),
+  ),
+});
+
 export const forgotPasswordSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
 });

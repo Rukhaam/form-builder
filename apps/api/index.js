@@ -12,7 +12,12 @@ import { oauthRouter } from './oauth.js';
 const app = express();
 app.use(helmet())
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+}));
 
 app.use('/api/auth', oauthRouter);
 

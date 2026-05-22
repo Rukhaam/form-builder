@@ -47,6 +47,7 @@ export const forms = pgTable("forms", {
   createdAt: timestamp("created_at").defaultNow(),
   isExpired: boolean("is_expired").default(false).notNull(),
   expiresAt: timestamp("expires_at"),
+  maxResponses: integer("max_responses"),
 });
 
 export const formFields = pgTable("form_fields", {
