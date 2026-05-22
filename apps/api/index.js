@@ -1,13 +1,22 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import * as trpcExpress from '@trpc/server/adapters/express';
-import { appRouter } from '@repo/trpc/server/index.js'; 
+import helmet from 'helmet';
+
+
+import { appRouter, startCronJobs } from '@repo/trpc/server/index.js'; 
 import { createContext } from '@repo/trpc/server/context.js';
+import { oauthRouter } from './oauth.js'; 
 
 const app = express();
+app.use(helmet())
+
 app.use(cors());
 
-// The API is just a shell that forwards requests to the tRPC package
+app.use('/api/auth', oauthRouter);
+
+
 app.use(
   '/trpc',
   trpcExpress.createExpressMiddleware({
@@ -16,6 +25,9 @@ app.use(
   })
 );
 
-app.listen(4000, () => {
-  console.log('API running on port 4000');
+const PORT = process.env.PORT || 4000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 API running on port ${PORT}`);
+  startCronJobs();
 });

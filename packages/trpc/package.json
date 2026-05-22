@@ -6,12 +6,20 @@
   "exports": {
     "./server/index.js": "./server/index.js",
     "./server/context.js": "./server/context.js",
+    "./server/utils/jwt.js": "./server/utils/jwt.js",
     "./client/index.js": "./client/index.js"
   },
   "dependencies": {
-    "@trpc/server": "^10.0.0",
-    "@trpc/client": "^10.0.0",
     "@repo/database": "workspace:*",
-    "@repo/schemas": "workspace:*"
+    "@repo/schemas": "workspace:*",
+    "@trpc/client": "^10.0.0",
+    "@trpc/server": "^10.0.0",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.30.10",
+    "jsonwebtoken": "^9.0.3",
+    "node-cron": "^4.2.1",
+    "resend": "^6.12.3",
+    "zod": "^3.23.8"
   }
 }
