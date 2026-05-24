@@ -6,8 +6,10 @@ const initialState = {
   description: '',
   visibility: 'PUBLIC',
   status: 'DRAFT',
+  password: null,
   expiresAt: null,
   maxResponses: null,
+  category: '',
   fields: [], // Array of objects: { id, type, label, required, options, order }
   activeFieldId: null, // For highlighting the field currently being edited
   isSaving: false,
@@ -19,14 +21,16 @@ export const formEditorSlice = createSlice({
   reducers: {
     // 1. Load an existing form from the database into Redux
     loadForm: (state, action) => {
-      const { id, title, description, visibility, status, expiresAt, maxResponses, fields } = action.payload;
+      const { id, title, description, visibility, status, expiresAt, maxResponses, password, category, fields } = action.payload;
       state.formId = id;
       state.title = title;
       state.description = description || '';
       state.visibility = visibility || 'PUBLIC';
       state.status = status || 'DRAFT';
+      state.password = password || null;
       state.expiresAt = expiresAt || null;
       state.maxResponses = maxResponses || null;
+      state.category = category || '';
       state.fields = fields || [];
       state.activeFieldId = null;
     },
@@ -35,13 +39,15 @@ export const formEditorSlice = createSlice({
     
     // 3. Update the main form details
     updateMetadata: (state, action) => {
-      const { title, description, visibility, status, expiresAt, maxResponses } = action.payload;
+      const { title, description, visibility, status, expiresAt, maxResponses, password, category } = action.payload;
       if (title !== undefined) state.title = title;
       if (description !== undefined) state.description = description;
       if (visibility !== undefined) state.visibility = visibility;
       if (status !== undefined) state.status = status;
       if (expiresAt !== undefined) state.expiresAt = expiresAt;
       if (maxResponses !== undefined) state.maxResponses = maxResponses;
+      if (password !== undefined) state.password = password;
+      if (category !== undefined) state.category = category;
     },
 
     // 4. Add a new field to the bottom of the canvas
@@ -54,7 +60,7 @@ export const formEditorSlice = createSlice({
         label: 'New Question',
         required: false,
         order: state.fields.length,
-        options: hasOptions ? ['Option 1', 'Option 2'] : null,
+        options: hasOptions ? ['Option 1', 'Option 2'] : null,    
       };
       state.fields.push(newField);
       state.activeFieldId = newField.id; // Auto-select the new field

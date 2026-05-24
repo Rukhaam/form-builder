@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { ArrowLeft, CheckCircle2, Send } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Send, Lock } from 'lucide-react';
 
 import { Footer } from '@/components/site/Footer';
 import { Navbar } from '@/components/site/Navbar';
@@ -14,8 +14,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { trpc } from '@/utils/trpc';
 import { cn } from '@/lib/utils';
 
-const OPTION_FIELD_TYPES = new Set(['single_select', 'multi_select', 'checkbox']);
-
+// Updated to match uppercase Database ENUMs
+const OPTION_FIELD_TYPES = new Set(['SINGLE_SELECT', 'MULTI_SELECT', 'CHECKBOX', 'MULTIPLE_CHOICE']);
+const themeClasses = {
+  light: "bg-slate-50 text-slate-900",
+  dark: "bg-slate-950 text-white border-slate-800",
+  neon: "bg-fuchsia-950 text-fuchsia-50 border-fuchsia-800 shadow-[0_0_50px_rgba(217,70,239,0.3)]",
+};
 function isEmptyAnswer(field, value) {
   if (!field.required) return false;
   if (Array.isArray(value)) return value.length === 0;
@@ -23,7 +28,10 @@ function isEmptyAnswer(field, value) {
 }
 
 function FieldInput({ field, value, onChange }) {
-  if (field.type === 'long_text') {
+  // Normalize the type to handle both 'LONG_TEXT' and 'long_text' gracefully
+  const normalizedType = field.type?.toUpperCase() || '';
+
+  if (normalizedType === 'LONG_TEXT') {
     return (
       <textarea
         value={value || ''}
@@ -34,7 +42,8 @@ function FieldInput({ field, value, onChange }) {
     );
   }
 
-  if (field.type === 'single_select') {
+  // Maps to your standard MULTIPLE_CHOICE or custom single_select enums
+  if (normalizedType === 'SINGLE_SELECT' || normalizedType === 'MULTIPLE_CHOICE') {
     return (
       <div className="grid gap-2">
         {(field.options || []).map((option) => (
@@ -53,7 +62,7 @@ function FieldInput({ field, value, onChange }) {
     );
   }
 
-  if (field.type === 'multi_select' || field.type === 'checkbox') {
+  if (normalizedType === 'MULTI_SELECT' || normalizedType === 'CHECKBOX') {
     const selected = Array.isArray(value) ? value : [];
     return (
       <div className="grid gap-2">
@@ -78,9 +87,10 @@ function FieldInput({ field, value, onChange }) {
     );
   }
 
+  // Default fallback for SHORT_TEXT, EMAIL, NUMBER, etc.
   return (
     <Input
-      type={field.type === 'email' ? 'email' : field.type === 'number' ? 'number' : 'text'}
+      type={normalizedType === 'EMAIL' ? 'email' : normalizedType === 'NUMBER' ? 'number' : 'text'}
       value={value || ''}
       onChange={(event) => onChange(event.target.value)}
       className="h-11 border-white/80 bg-white/80"
@@ -92,13 +102,28 @@ function FieldInput({ field, value, onChange }) {
 export default function PublicFormResponsePage() {
   const params = useParams();
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
+  
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [formPassword, setFormPassword] = useState('');
+  const [unlockedFields, setUnlockedFields] = useState(null);
 
+  // Using your new custom public route
   const { data, isLoading, isError } = trpc.form.getPublicFormBySlug.useQuery(
     { slug: slug || '' },
     { enabled: Boolean(slug) },
   );
+
+  const unlockMutation = trpc.form.verifyFormPassword.useMutation({
+    onSuccess: (result) => {
+      setUnlockedFields(result.fields);
+      toast.success('Form unlocked');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Incorrect password');
+    },
+  });
+
   const submitMutation = trpc.form.submitResponse.useMutation({
     onSuccess: () => {
       setSubmitted(true);
@@ -110,19 +135,29 @@ export default function PublicFormResponsePage() {
     },
   });
 
+  const fieldsToRender = unlockedFields || data?.fields;
+
   const firstMissingField = useMemo(() => {
-    if (!data?.fields) return null;
-    return data.fields.find((field) => isEmptyAnswer(field, answers[field.id]));
-  }, [answers, data?.fields]);
+    if (!fieldsToRender) return null;
+    return fieldsToRender.find((field) => isEmptyAnswer(field, answers[field.id]));
+  }, [answers, fieldsToRender]);
 
   const handleAnswerChange = (fieldId, value) => {
     setAnswers((current) => ({ ...current, [fieldId]: value }));
+  };
+
+  const handleUnlock = (event) => {
+    event.preventDefault();
+    if (!formPassword) return;
+    unlockMutation.mutate({ formId: data.form.id, password: formPassword });
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
     if (!data?.form) return;
+    
+    // Client-side validation interceptor
     if (firstMissingField) {
       toast.error(`Answer "${firstMissingField.label}" before submitting`);
       return;
@@ -142,7 +177,7 @@ export default function PublicFormResponsePage() {
   };
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_right,#dcfce7,transparent_32%),linear-gradient(135deg,#f8fafc,#eef2ff_50%,#fff7ed)] text-slate-950">
+   <main className={cn("min-h-screen", themeClasses[data.form.theme || 'light'])}>
       <Navbar />
 
       <section className="mx-auto max-w-3xl px-4 pb-20 pt-32">
@@ -161,6 +196,33 @@ export default function PublicFormResponsePage() {
           <div className="rounded-[2rem] border border-white/70 bg-white/70 p-10 text-center shadow-xl shadow-slate-200/60 backdrop-blur-xl">
             <h1 className="text-2xl font-black text-slate-950">Form unavailable</h1>
             <p className="mt-2 text-sm text-slate-600">This form may be private, expired, or unpublished.</p>
+          </div>
+        ) : data.isProtected && !unlockedFields ? (
+          <div className="rounded-[2rem] border border-white/70 bg-white/70 p-10 text-center shadow-xl shadow-slate-200/60 backdrop-blur-xl max-w-md mx-auto mt-12">
+            <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+              <Lock className="size-8" />
+            </div>
+            <h1 className="text-2xl font-black text-slate-950">{data.form.title}</h1>
+            <p className="mt-2 mb-6 text-sm text-slate-600">This form is password protected. Enter the password to access.</p>
+            
+            <form onSubmit={handleUnlock} className="space-y-4 max-w-xs mx-auto">
+              <Input 
+                type="password"
+                placeholder="Enter password"
+                value={formPassword}
+                onChange={(e) => setFormPassword(e.target.value)}
+                required
+                className="h-12 text-center text-lg border-white/80 bg-white/80"
+              />
+              <Button 
+                type="submit" 
+                size="lg" 
+                className="w-full h-12 bg-slate-950 text-white hover:bg-slate-800" 
+                disabled={unlockMutation.isLoading}
+              >
+                {unlockMutation.isLoading ? 'Unlocking...' : 'Access form'}
+              </Button>
+            </form>
           </div>
         ) : submitted ? (
           <div className="rounded-[2rem] border border-white/70 bg-white/70 p-10 text-center shadow-xl shadow-slate-200/60 backdrop-blur-xl">
@@ -190,30 +252,38 @@ export default function PublicFormResponsePage() {
               )}
             </section>
 
-            {data.fields.map((field, index) => (
-              <section key={field.id} className="animate-rise-in rounded-2xl border border-white/70 bg-white/70 p-5 shadow-xl shadow-slate-200/60 backdrop-blur-xl">
-                <label className="mb-3 block text-sm font-bold text-slate-950">
-                  {index + 1}. {field.label}
-                  {field.required && <span className="ml-1 text-red-500">*</span>}
-                </label>
-                <FieldInput
-                  field={field}
-                  value={answers[field.id]}
-                  onChange={(value) => handleAnswerChange(field.id, value)}
-                />
-                {OPTION_FIELD_TYPES.has(field.type) && (!field.options || field.options.length === 0) && (
-                  <p className="mt-2 text-xs font-medium text-slate-500">This choice field has no options yet.</p>
-                )}
-              </section>
-            ))}
+            {fieldsToRender.map((field, index) => {
+              const normalizedType = field.type?.toUpperCase() || '';
+              return (
+                <section key={field.id} className="animate-rise-in rounded-2xl border border-white/70 bg-white/70 p-5 shadow-xl shadow-slate-200/60 backdrop-blur-xl">
+                  <label className="mb-3 block text-sm font-bold text-slate-950">
+                    {index + 1}. {field.label}
+                    {field.required && <span className="ml-1 text-red-500">*</span>}
+                  </label>
+                  <FieldInput
+                    field={field}
+                    value={answers[field.id]}
+                    onChange={(value) => handleAnswerChange(field.id, value)}
+                  />
+                  {OPTION_FIELD_TYPES.has(normalizedType) && (!field.options || field.options.length === 0) && (
+                    <p className="mt-2 text-xs font-medium text-slate-500">This choice field has no options yet.</p>
+                  )}
+                </section>
+              );
+            })}
 
-            {data.fields.length === 0 && (
+            {fieldsToRender.length === 0 && (
               <section className="rounded-2xl border border-white/70 bg-white/70 p-8 text-center shadow-xl shadow-slate-200/60 backdrop-blur-xl">
                 <p className="text-sm font-medium text-slate-600">This form has no questions yet.</p>
               </section>
             )}
 
-            <Button type="submit" size="lg" className="h-12 w-full bg-slate-950 text-white hover:bg-slate-800" disabled={submitMutation.isLoading}>
+            <Button 
+              type="submit" 
+              size="lg" 
+              className="h-12 w-full bg-slate-950 text-white hover:bg-slate-800" 
+              disabled={submitMutation.isLoading}
+            >
               <Send className="mr-2 size-4" />
               {submitMutation.isLoading ? 'Submitting...' : 'Submit response'}
             </Button>

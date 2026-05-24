@@ -14,6 +14,7 @@
     "@repo/schemas": "workspace:*",
     "@trpc/client": "^10.0.0",
     "@trpc/server": "^10.0.0",
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.30.10",

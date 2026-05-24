@@ -19,6 +19,7 @@ import {
   Sparkles,
   TextCursorInput,
   Trash2,
+  Lock,
 } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -83,7 +84,7 @@ export default function FormEditorPage() {
   const formIdParam = Array.isArray(params.formID) ? params.formID[0] : params.formID;
   const isNew = formIdParam === 'new';
   const editorState = useSelector((state) => state.formEditor);
-  const { title, description, visibility, status, fields, activeFieldId } = editorState;
+  const { title, description, visibility, status, fields, activeFieldId, password, category } = editorState;
 
   const { data: existingForm, isLoading: isFetching } = trpc.form.getFormEditor.useQuery(
     { formId: formIdParam },
@@ -100,6 +101,7 @@ export default function FormEditorPage() {
         status: data.form.status,
         expiresAt: data.form.expiresAt,
         maxResponses: data.form.maxResponses,
+        category: data.form.category,
         fields: data.fields,
       }));
 
@@ -127,6 +129,7 @@ export default function FormEditorPage() {
         visibility: existingForm.form.visibility,
         status: existingForm.form.status,
         expiresAt: existingForm.form.expiresAt,
+        category: existingForm.form.category,
         maxResponses: existingForm.form.maxResponses,
         fields: existingForm.fields,
       }));
@@ -211,6 +214,8 @@ export default function FormEditorPage() {
       status: nextStatus,
       expiresAt: editorState.expiresAt?.toString() || null,
       maxResponses: editorState.maxResponses ? parseInt(editorState.maxResponses, 10) : null,
+      password: password || undefined,
+      category: category || undefined,
       fields: cleanFields,
     });
   };
@@ -218,54 +223,58 @@ export default function FormEditorPage() {
   if (!isNew && isFetching) {
     return (
       <div className="mx-auto max-w-6xl space-y-5">
-        <Skeleton className="h-12 w-1/3" />
+        <Skeleton className="h-16 w-full rounded-2xl" />
         <Skeleton className="h-[520px] w-full rounded-2xl" />
       </div>
     );
   }
 
   return (
-    <div className="-m-8 min-h-[calc(100vh-4rem)] bg-[radial-gradient(circle_at_top_left,#dff7ef,transparent_32%),linear-gradient(135deg,#f8fafc,#eef2ff_48%,#fff7ed)] text-slate-950">
-      <header className="sticky top-0 z-20 border-b border-white/50 bg-white/70 px-8 py-4 shadow-sm backdrop-blur-xl gap-6S">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex min-w-0 items-center gap-4">
-            <Link
-              href="/dashboard"
-              className="inline-flex size-9 items-center justify-center rounded-lg border border-white/70 bg-white/75 text-slate-500 shadow-sm transition hover:text-slate-950"
-            >
-              <ArrowLeft className="size-4" />
-            </Link>
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2 text-xs font-medium uppercase text-slate-500">
-                <span>{isNew ? 'New form' : 'Editing form'}</span>
-                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700">{status}</span>
-              </div>
-              <h1 className="truncate text-xl font-semibold text-slate-950">{title || 'Untitled Form'}</h1>
-            </div>
-          </div>
+    <div className="-m-0 min-h-[calc(100vh-4rem)] bg-[radial-gradient(circle_at_top_left,#dff7ef,transparent_32%),linear-gradient(135deg,#f8fafc,#eef2ff_48%,#fff7ed)] text-slate-950">
+      
 
-          <div className="flex items-center gap-2">
-            {!isNew && (
-              <Link
-                href={`/dashboard/analytics/${formIdParam}`}
-                className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'bg-white/80')}
-              >
-                Analytics
-              </Link>
-            )}
-            <Button variant="outline" size="sm" className="bg-white/80" onClick={() => handleSave('DRAFT')} disabled={saveMutation.isLoading}>
-              <Save className="mr-2 size-4" />
-              {saveMutation.isLoading ? 'Saving...' : 'Save draft'}
-            </Button>
-            <Button size="sm" className="bg-slate-950 text-white hover:bg-slate-800" onClick={() => handleSave('PUBLISHED')} disabled={saveMutation.isLoading}>
-              <Send className="mr-2 size-4" />
-              Publish
-            </Button>
+      <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-white/50 bg-white/70 px-8 shadow-sm backdrop-blur-xl">
+        <div className="flex min-w-0 flex-1 items-center gap-4">
+          <Link
+            href="/dashboard"
+            className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/70 bg-white/75 text-slate-500 shadow-sm transition hover:text-slate-950 hover:bg-white"
+          >
+            <ArrowLeft className="size-4" />
+          </Link>
+          
+          <div className="flex min-w-0 flex-col justify-center">
+            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              <span>{isNew ? 'New form' : 'Editing form'}</span>
+              <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700">{status}</span>
+            </div>
+            <h1 className="truncate text-lg font-semibold leading-tight text-slate-950">
+              {title || 'Untitled Form'}
+            </h1>
           </div>
         </div>
-      </header>
 
-      <div className="grid gap-5 p-6 lg:grid-cols-[260px_minmax(0,1fr)_320px]">
+        <div className="flex shrink-0 items-center gap-3 pl-4">
+          {!isNew && (
+            <Link
+              href={`/dashboard/analytics/${formIdParam}`}
+              className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'bg-white/80 shadow-sm')}
+            >
+              Analytics
+            </Link>
+          )}
+          <Button variant="outline" size="sm" className="bg-white/80 shadow-sm" onClick={() => handleSave('DRAFT')} disabled={saveMutation.isLoading}>
+            <Save className="mr-2 size-4" />
+            {saveMutation.isLoading ? 'Saving...' : 'Save draft'}
+          </Button>
+          <Button size="sm" className="bg-slate-950 text-white shadow-sm hover:bg-slate-800" onClick={() => handleSave('PUBLISHED')} disabled={saveMutation.isLoading}>
+            <Send className="mr-2 size-4" />
+            Publish
+          </Button>
+        </div>
+      </header>
+      {/* 🚀 END FIXED HEADER */}
+
+      <div className="grid gap-8 p-6 lg:grid-cols-[260px_minmax(0,1fr)_320px]">
         <aside className="h-fit rounded-2xl border border-white/70 bg-white/65 p-4 shadow-xl shadow-slate-200/60 backdrop-blur-xl">
           <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-900">
             <Sparkles className="size-4 text-emerald-600" />
@@ -291,7 +300,7 @@ export default function FormEditorPage() {
 
         <main className="space-y-5">
           <section className="rounded-2xl border border-white/70 bg-white/70 p-5 shadow-xl shadow-slate-200/60 backdrop-blur-xl">
-            <div className="grid gap-4 md:grid-cols-[1fr_180px]">
+            <div className="grid gap-4 md:grid-cols-[1fr_180px_180px]">
               <label className="space-y-2">
                 <span className="text-xs font-semibold uppercase text-slate-500">Title</span>
                 <Input
@@ -300,6 +309,21 @@ export default function FormEditorPage() {
                   className="h-11 border-white/80 bg-white/80 text-lg font-semibold"
                   placeholder="Form title"
                 />
+              </label>
+              <label className="space-y-2">
+                <span className="text-xs font-semibold uppercase text-slate-500">Category</span>
+                <select
+                  value={category || ''}
+                  onChange={(event) => dispatch(updateMetadata({ category: event.target.value }))}
+                  className="h-11 w-full rounded-lg border border-white/80 bg-white/80 px-3 text-sm font-medium outline-none transition focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+                >
+                  <option value="">No Category</option>
+                  <option value="Education">Education</option>
+                  <option value="Feedback">Feedback</option>
+                  <option value="HR & Recruiting">HR & Recruiting</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Other">Other</option>
+                </select>
               </label>
               <label className="space-y-2">
                 <span className="text-xs font-semibold uppercase text-slate-500">Visibility</span>
@@ -322,7 +346,8 @@ export default function FormEditorPage() {
                 placeholder="A short note for people filling out this form"
               />
             </label>
-            <div className="mt-4 grid gap-4 border-t border-slate-200/60 pt-4 md:grid-cols-2">
+            
+            <div className="mt-4 grid gap-4 border-t border-slate-200/60 pt-4 md:grid-cols-3">
               <div className="space-y-2 flex flex-col">
                 <span className="text-xs font-semibold uppercase text-slate-500">Expire form on date</span>
                 <Popover>
@@ -360,16 +385,29 @@ export default function FormEditorPage() {
                   </PopoverContent>
                 </Popover>
               </div>
-              <label className="space-y-2">
+              <label className="space-y-2 flex flex-col">
                 <span className="text-xs font-semibold uppercase text-slate-500">Max responses</span>
                 <Input
                   type="number"
                   min="1"
                   value={editorState.maxResponses || ''}
                   onChange={(event) => dispatch(updateMetadata({ maxResponses: event.target.value ? parseInt(event.target.value, 10) : null }))}
-                  className="h-11 border-white/80 bg-white/80"
+                  className="h-11 w-full border-white/80 bg-white/80"
                   placeholder="Unlimited"
                 />
+              </label>
+              <label className="space-y-2 flex flex-col">
+                <span className="text-xs font-semibold uppercase text-slate-500">Password</span>
+                <div className="relative w-full">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+                  <Input
+                    type="password"
+                    value={password || ''}
+                    onChange={(event) => dispatch(updateMetadata({ password: event.target.value }))}
+                    className="h-11 w-full pl-9 border-white/80 bg-white/80"
+                    placeholder="Leave blank for none"
+                  />
+                </div>
               </label>
             </div>
           </section>

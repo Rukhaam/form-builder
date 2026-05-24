@@ -15,6 +15,7 @@ import {
 import { eq, and, inArray, desc, count } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import bcrypt from "bcrypt"; // <-- Added bcrypt for secure hashing
 
 function slugifyTitle(title) {
   const slug = title
@@ -49,6 +50,59 @@ async function createUniqueSlug(title) {
 
 export const formRouter = router({
   // --- CREATOR ROUTES (PROTECTED) ---
+
+  // 2. Clone a template into the user's account
+  createFromTemplate: protectedProcedure
+    .input(z.object({ templateId: z.string().uuid() }))
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user.id;
+
+      // Fetch the template form
+      const [templateForm] = await db
+        .select()
+        .from(forms)
+        .where(eq(forms.id, input.templateId))
+        .limit(1);
+
+      if (!templateForm) throw new TRPCError({ code: 'NOT_FOUND', message: 'Template not found' });
+
+      // Fetch the template's fields
+      const templateFields = await db
+        .select()
+        .from(formFields)
+        .where(eq(formFields.formId, input.templateId));
+
+      // 1. Create the new cloned form for the user
+      const slug = await createUniqueSlug(templateForm.title);
+      const [newForm] = await db
+        .insert(forms)
+        .values({
+          userId,
+          title: templateForm.title,
+          description: templateForm.description,
+          theme: templateForm.theme, // Copy the theme!
+          slug,
+          visibility: 'UNLISTED', // Keep it unlisted until they publish
+          status: 'DRAFT',
+          isTemplate: false, // This is a real form now, not a template
+        })
+        .returning();
+
+      // 2. Clone all the fields
+      if (templateFields.length > 0) {
+        const fieldsToInsert = templateFields.map(field => ({
+          formId: newForm.id,
+          type: field.type,
+          label: field.label,
+          required: field.required,
+          order: field.order,
+          options: field.options,
+        }));
+        await db.insert(formFields).values(fieldsToInsert);
+      }
+
+      return { message: "Template cloned successfully", formId: newForm.id };
+    }),
 
   create: protectedProcedure
     .input(createFormSchema)
@@ -131,6 +185,16 @@ export const formRouter = router({
           : null,
       }));
 
+      // Password Hashing Logic
+      let hashedPassword = undefined;
+      if (input.password !== undefined) {
+        if (input.password === null || input.password.trim() === "") {
+          hashedPassword = null; // Clear the password
+        } else {
+          hashedPassword = await bcrypt.hash(input.password, 10);
+        }
+      }
+
       let targetForm;
 
       if (input.formId) {
@@ -154,8 +218,10 @@ export const formRouter = router({
             description: input.description ?? null,
             visibility: input.visibility,
             status: input.status,
+            category: input.category ?? null,
             expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
             maxResponses: input.maxResponses ?? null,
+            ...(hashedPassword !== undefined && { password: hashedPassword }),
           })
           .where(and(eq(forms.id, input.formId), eq(forms.userId, userId)))
           .returning();
@@ -171,8 +237,10 @@ export const formRouter = router({
             slug,
             visibility: input.visibility,
             status: input.status,
+            category: input.category ?? null,
             expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
             maxResponses: input.maxResponses ?? null,
+            ...(hashedPassword !== undefined && { password: hashedPassword }),
           })
           .returning();
       }
@@ -289,7 +357,6 @@ export const formRouter = router({
 
       return { form, fields };
     }),
-  // --- ADD THIS TO YOUR CREATOR ROUTES (PROTECTED) ---
 
   getFormAnalytics: protectedProcedure
     .input(
@@ -354,7 +421,6 @@ export const formRouter = router({
         .from(fieldResponses)
         .where(inArray(fieldResponses.submissionId, submissionIds));
 
-      // 6. Data Transformation
       const formattedSubmissions = submissions.map((sub) => {
         const answersForThisSub = responses.filter(
           (r) => r.submissionId === sub.id,
@@ -395,6 +461,16 @@ export const formRouter = router({
         },
       };
     }),
+
+  getTemplates: publicProcedure.query(async () => {
+    const templates = await db
+      .select()
+      .from(forms)
+      .where(eq(forms.isTemplate, true))
+      .orderBy(desc(forms.createdAt));
+    return templates;
+  }),
+
   // --- RESPONDER ROUTES (PUBLIC) ---
 
   getPublicForms: publicProcedure.query(async () => {
@@ -424,6 +500,7 @@ export const formRouter = router({
           createdAt: form.createdAt,
           fieldCount: fieldTotal?.value ?? 0,
           submissionCount: submissionTotal?.value ?? 0,
+          isProtected: !!form.password, // Let the directory know if it's locked
         };
       }),
     );
@@ -452,6 +529,23 @@ export const formRouter = router({
         });
       }
 
+      // Safe Form Object (Never leak the hashed password to the frontend!)
+      const safeForm = {
+        id: form.id,
+        title: form.title,
+        description: form.description,
+        slug: form.slug,
+      };
+
+      // GATEKEEPER: If password exists, scrub the fields and return locked state
+      if (form.password) {
+        return {
+          form: safeForm,
+          fields: [],
+          isProtected: true, 
+        };
+      }
+
       const fields = await db
         .select()
         .from(formFields)
@@ -459,14 +553,51 @@ export const formRouter = router({
         .orderBy(formFields.order);
 
       return {
-        form: {
-          id: form.id,
-          title: form.title,
-          description: form.description,
-          slug: form.slug,
-        },
+        form: safeForm,
         fields,
+        isProtected: false,
       };
+    }),
+
+  // NEW ROUTE: Unlock a password-protected form
+  verifyFormPassword: publicProcedure
+    .input(
+      z.object({
+        formId: z.string().uuid(),
+        password: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const [form] = await db
+        .select()
+        .from(forms)
+        .where(eq(forms.id, input.formId))
+        .limit(1);
+
+      if (!form || !form.password) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Form is not protected or does not exist",
+        });
+      }
+
+      const isValid = await bcrypt.compare(input.password, form.password);
+      
+      if (!isValid) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Incorrect password",
+        });
+      }
+
+      // Unlock successful! Fetch and return the protected fields
+      const fields = await db
+        .select()
+        .from(formFields)
+        .where(eq(formFields.formId, form.id))
+        .orderBy(formFields.order);
+
+      return { fields };
     }),
 
   submitResponse: publicProcedure

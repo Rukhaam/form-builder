@@ -85,6 +85,10 @@ export const saveEditorFormSchema = z.object({
     .optional()
     .nullable(),
   visibility: z.enum(["PUBLIC", "UNLISTED"]).default("PUBLIC"),
+  password: z.string().nullable().optional(),
+  theme: z.string().optional().default("light"),
+  isTemplate: z.boolean().optional().default(false),
+  category: z.string().optional(),
   status: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT"),
   isExpired: z.boolean().optional().default(false),
   expiresAt: z.union([z.string().datetime(), z.date(), z.null()]).optional(),
