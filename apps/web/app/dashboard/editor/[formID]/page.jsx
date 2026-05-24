@@ -86,7 +86,6 @@ export default function FormEditorPage() {
   const isNew = formIdParam === 'new';
   const editorState = useSelector((state) => state.formEditor);
   
-  // 🚀 Added theme to our destructuring
   const { title, description, visibility, status, fields, activeFieldId, password, category, theme } = editorState;
 
   const { data: existingForm, isLoading: isFetching } = trpc.form.getFormEditor.useQuery(
@@ -121,6 +120,9 @@ export default function FormEditorPage() {
       toast.error(error.message || 'Could not save this form');
     },
   });
+
+  // 🚀 Derived state to handle both tRPC v4 and v5 syntax safely
+  const isSaving = saveMutation.isLoading || saveMutation.isPending;
 
   useEffect(() => {
     if (isNew) {
@@ -221,8 +223,8 @@ export default function FormEditorPage() {
       maxResponses: editorState.maxResponses ? parseInt(editorState.maxResponses, 10) : null,
       password: password || undefined,
       category: category || undefined,
-      theme: theme || 'light', // 🚀 Ensure theme is included payload
-      isTemplate: !!category,  // 🚀 Automatically mark as a template if a category is selected
+      theme: theme || 'light',
+      isTemplate: !!category,
       fields: cleanFields,
     });
   };
@@ -263,23 +265,24 @@ export default function FormEditorPage() {
           {!isNew && (
             <Link
               href={`/dashboard/analytics/${formIdParam}`}
-              className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'bg-white/80 shadow-sm')}
+              className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'bg-white/80 shadow-sm', isSaving && 'pointer-events-none opacity-50')}
             >
               Analytics
             </Link>
           )}
-          <Button variant="outline" size="sm" className="bg-white/80 shadow-sm" onClick={() => handleSave('DRAFT')} disabled={saveMutation.isLoading}>
+          {/* 🚀 Save Buttons Disabled during Save */}
+          <Button variant="outline" size="sm" className="bg-white/80 shadow-sm" onClick={() => handleSave('DRAFT')} disabled={isSaving}>
             <Save className="mr-2 size-4" />
-            {saveMutation.isLoading ? 'Saving...' : 'Save draft'}
+            {isSaving && status === 'DRAFT' ? 'Saving...' : 'Save draft'}
           </Button>
-          <Button size="sm" className="bg-slate-950 text-white shadow-sm hover:bg-slate-800" onClick={() => handleSave('PUBLISHED')} disabled={saveMutation.isLoading}>
+          <Button size="sm" className="bg-slate-950 text-white shadow-sm hover:bg-slate-800" onClick={() => handleSave('PUBLISHED')} disabled={isSaving}>
             <Send className="mr-2 size-4" />
-            Publish
+            {isSaving && status === 'PUBLISHED' ? 'Publishing...' : 'Publish'}
           </Button>
         </div>
       </header>
 
-      <div className="grid gap-8 p-6 lg:grid-cols-[260px_minmax(0,1fr)_320px]">
+      <div className={cn("grid gap-8 p-6 lg:grid-cols-[260px_minmax(0,1fr)_320px] transition-opacity duration-300", isSaving && "pointer-events-none opacity-60")}>
         <aside className="h-fit rounded-2xl border border-white/70 bg-white/65 p-4 shadow-xl shadow-slate-200/60 backdrop-blur-xl">
           <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-900">
             <Sparkles className="size-4 text-emerald-600" />
@@ -292,8 +295,9 @@ export default function FormEditorPage() {
                 <button
                   key={fieldType.value}
                   type="button"
+                  disabled={isSaving}
                   onClick={() => handleAddField(fieldType.value)}
-                  className="flex h-11 items-center gap-3 rounded-xl border border-white/70 bg-white/70 px-3 text-left text-sm font-medium text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50"
+                  className="flex h-11 items-center gap-3 rounded-xl border border-white/70 bg-white/70 px-3 text-left text-sm font-medium text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50 disabled:opacity-50 disabled:hover:translate-y-0"
                 >
                   <Icon className="size-4 text-slate-500" />
                   {fieldType.label}
@@ -309,6 +313,7 @@ export default function FormEditorPage() {
               <label className="space-y-2">
                 <span className="text-xs font-semibold uppercase text-slate-500">Title</span>
                 <Input
+                  disabled={isSaving}
                   value={title}
                   onChange={(event) => dispatch(updateMetadata({ title: event.target.value }))}
                   className="h-11 border-white/80 bg-white/80 text-lg font-semibold"
@@ -318,9 +323,10 @@ export default function FormEditorPage() {
               <label className="space-y-2">
                 <span className="text-xs font-semibold uppercase text-slate-500">Category (Template)</span>
                 <select
+                  disabled={isSaving}
                   value={category || ''}
                   onChange={(event) => dispatch(updateMetadata({ category: event.target.value }))}
-                  className="h-11 w-full rounded-lg border border-white/80 bg-white/80 px-3 text-sm font-medium outline-none transition focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+                  className="h-11 w-full rounded-lg border border-white/80 bg-white/80 px-3 text-sm font-medium outline-none transition focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100 disabled:opacity-50"
                 >
                   <option value="">None</option>
                   <option value="Education">Education</option>
@@ -333,9 +339,10 @@ export default function FormEditorPage() {
               <label className="space-y-2">
                 <span className="text-xs font-semibold uppercase text-slate-500">Visibility</span>
                 <select
+                  disabled={isSaving}
                   value={visibility}
                   onChange={(event) => dispatch(updateMetadata({ visibility: event.target.value }))}
-                  className="h-11 w-full rounded-lg border border-white/80 bg-white/80 px-3 text-sm font-medium outline-none transition focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+                  className="h-11 w-full rounded-lg border border-white/80 bg-white/80 px-3 text-sm font-medium outline-none transition focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100 disabled:opacity-50"
                 >
                   <option value="PUBLIC">Public</option>
                   <option value="UNLISTED">Unlisted</option>
@@ -346,23 +353,24 @@ export default function FormEditorPage() {
             <label className="mt-4 block space-y-2">
               <span className="text-xs font-semibold uppercase text-slate-500">Description</span>
               <textarea
+                disabled={isSaving}
                 value={description}
                 onChange={(event) => dispatch(updateMetadata({ description: event.target.value }))}
-                className="min-h-20 w-full resize-none rounded-xl border border-white/80 bg-white/80 px-3 py-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+                className="min-h-20 w-full resize-none rounded-xl border border-white/80 bg-white/80 px-3 py-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100 disabled:opacity-50"
                 placeholder="A short note for people filling out this form"
               />
             </label>
             
             <div className="mt-4 grid gap-4 border-t border-slate-200/60 pt-4 md:grid-cols-4">
-              {/* 🚀 Added Theme Selector to the grid */}
               <label className="space-y-2 flex flex-col">
                 <span className="text-xs font-semibold uppercase text-slate-500 flex items-center gap-1">
                   <Palette className="size-3" /> Theme
                 </span>
                 <select
+                  disabled={isSaving}
                   value={theme || 'light'}
                   onChange={(event) => dispatch(updateMetadata({ theme: event.target.value }))}
-                  className="h-11 w-full rounded-lg border border-white/80 bg-white/80 px-3 text-sm font-medium outline-none transition focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+                  className="h-11 w-full rounded-lg border border-white/80 bg-white/80 px-3 text-sm font-medium outline-none transition focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100 disabled:opacity-50"
                 >
                   <option value="light">Light Mode</option>
                   <option value="dark">Dark Mode</option>
@@ -375,6 +383,7 @@ export default function FormEditorPage() {
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
+                      disabled={isSaving}
                       variant="outline"
                       className={cn(
                         'h-11 w-full justify-start text-left font-normal border-white/80 bg-white/80 hover:bg-white/90',
@@ -411,6 +420,7 @@ export default function FormEditorPage() {
               <label className="space-y-2 flex flex-col">
                 <span className="text-xs font-semibold uppercase text-slate-500">Max responses</span>
                 <Input
+                  disabled={isSaving}
                   type="number"
                   min="1"
                   value={editorState.maxResponses || ''}
@@ -425,6 +435,7 @@ export default function FormEditorPage() {
                 <div className="relative w-full">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
                   <Input
+                    disabled={isSaving}
                     type="password"
                     value={password || ''}
                     onChange={(event) => dispatch(updateMetadata({ password: event.target.value }))}
@@ -453,15 +464,17 @@ export default function FormEditorPage() {
                   <div className="min-w-0 flex-1 space-y-3">
                     <div className="grid gap-3 md:grid-cols-[1fr_180px]">
                       <Input
+                        disabled={isSaving}
                         value={field.label}
                         onChange={(event) => dispatch(updateField({ id: field.id, updates: { label: event.target.value } }))}
                         className="h-10 border-white/80 bg-white/80 font-medium"
                         placeholder="Question label"
                       />
                       <select
+                        disabled={isSaving}
                         value={field.type}
                         onChange={(event) => handleFieldTypeChange(field, event.target.value)}
-                        className="h-10 rounded-lg border border-white/80 bg-white/80 px-3 text-sm font-medium outline-none transition focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+                        className="h-10 rounded-lg border border-white/80 bg-white/80 px-3 text-sm font-medium outline-none transition focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100 disabled:opacity-50"
                       >
                         {FIELD_TYPES.map((fieldType) => (
                           <option key={fieldType.value} value={fieldType.value}>
@@ -476,17 +489,18 @@ export default function FormEditorPage() {
                         {(field.options || []).map((option, optionIndex) => (
                           <div key={`${field.id}-${optionIndex}`} className="flex items-center gap-2">
                             <Input
+                              disabled={isSaving}
                               value={option}
                               onChange={(event) => handleOptionChange(field, optionIndex, event.target.value)}
                               className="h-9 border-white/80 bg-white/80"
                               placeholder={`Option ${optionIndex + 1}`}
                             />
-                            <Button variant="ghost" size="icon-sm" onClick={() => handleRemoveOption(field, optionIndex)}>
+                            <Button disabled={isSaving} variant="ghost" size="icon-sm" onClick={() => handleRemoveOption(field, optionIndex)}>
                               <Trash2 className="size-4 text-slate-500" />
                             </Button>
                           </div>
                         ))}
-                        <Button variant="outline" size="sm" className="bg-white/70" onClick={() => handleAddOption(field)}>
+                        <Button disabled={isSaving} variant="outline" size="sm" className="bg-white/70" onClick={() => handleAddOption(field)}>
                           <Plus className="mr-2 size-4" />
                           Add option
                         </Button>
@@ -495,13 +509,13 @@ export default function FormEditorPage() {
                   </div>
 
                   <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon-sm" onClick={() => moveField(index, -1)} disabled={index === 0}>
+                    <Button disabled={isSaving || index === 0} variant="ghost" size="icon-sm" onClick={() => moveField(index, -1)}>
                       <ChevronUp className="size-4" />
                     </Button>
-                    <Button variant="ghost" size="icon-sm" onClick={() => moveField(index, 1)} disabled={index === fields.length - 1}>
+                    <Button disabled={isSaving || index === fields.length - 1} variant="ghost" size="icon-sm" onClick={() => moveField(index, 1)}>
                       <ChevronDown className="size-4" />
                     </Button>
-                    <Button variant="ghost" size="icon-sm" onClick={() => dispatch(removeField(field.id))}>
+                    <Button disabled={isSaving} variant="ghost" size="icon-sm" onClick={() => dispatch(removeField(field.id))}>
                       <Trash2 className="size-4 text-red-500" />
                     </Button>
                   </div>
@@ -512,8 +526,9 @@ export default function FormEditorPage() {
                     <GripVertical className="size-4" />
                     {fieldTypeLabel(field.type)}
                   </div>
-                  <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
+                  <label className={cn("flex items-center gap-2 text-sm font-medium text-slate-700", isSaving ? "cursor-not-allowed opacity-50" : "cursor-pointer")}>
                     <input
+                      disabled={isSaving}
                       type="checkbox"
                       checked={field.required}
                       onChange={(event) => dispatch(updateField({ id: field.id, updates: { required: event.target.checked } }))}

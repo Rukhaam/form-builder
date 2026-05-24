@@ -17,13 +17,13 @@ export default function TemplatesPage() {
   const [activeCategory, setActiveCategory] = useState('All');
 
   // Fetch templates from your new tRPC route
-  const { data: templates, isLoading } = trpc.form.getTemplates.useQuery();
-  console.log('Fetched templates:', templates); // Debug log to check fetched data
+const { data, isLoading } = trpc.form.getTemplates.useQuery();
+  const templates = data?.templates || [];
 
-  const dynamicCategories = ['All', ...new Set((templates || []).map(t => t.category || 'General'))];
+const dynamicCategories = ['All', ...new Set((templates || []).map(t => t.category || 'General'))];
 
   // Mutation to clone the template
-  const cloneMutation = trpc.form.createFromTemplate.useMutation({
+const cloneMutation = trpc.form.createFromTemplate.useMutation({
     onSuccess: (data) => {
       toast.success('Template cloned successfully!');
       router.push(`/dashboard/editor/${data.formId}`);
@@ -34,9 +34,9 @@ export default function TemplatesPage() {
     }
   });
 
-  const filteredTemplates = templates?.filter(t => 
+const filteredTemplates = templates.filter(t => 
     activeCategory === 'All' ? true : (t.category || 'General') === activeCategory
-  ) || [];
+  );
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-950 selection:bg-violet-200 selection:text-violet-900">
@@ -136,7 +136,6 @@ export default function TemplatesPage() {
           </div>
         )}
       </section>
-
       <Footer />
     </main>
   );

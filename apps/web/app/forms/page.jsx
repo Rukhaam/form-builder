@@ -1,7 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, FileText, Inbox, Search, Users } from 'lucide-react';
+import { ArrowRight, FileText, Inbox, Search, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { Footer } from '@/components/site/Footer';
 import { Navbar } from '@/components/site/Navbar';
@@ -9,6 +10,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { trpc } from '@/utils/trpc';
 import { cn } from '@/lib/utils';
+import { usePagination } from '@/hooks/usePagination';
 
 function formatDate(value) {
   if (!value) return 'Recently published';
@@ -20,7 +22,12 @@ function formatDate(value) {
 }
 
 export default function PublicFormsPage() {
-  const { data: forms = [], isLoading } = trpc.form.getPublicForms.useQuery();
+  const [page, setPage] = useState(1);
+  const limit = 12;
+
+  const { data, isLoading } = trpc.form.getPublicForms.useQuery({ page, limit });
+  const forms = data?.forms || [];
+  const pagination = data?.pagination || { total: 0, totalPages: 1 };
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#dff7ef,transparent_34%),linear-gradient(135deg,#f8fafc,#eef2ff_48%,#fff7ed)] text-slate-950">
@@ -65,48 +72,73 @@ export default function PublicFormsPage() {
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {forms.map((form, index) => (
-              <article
-                key={form.id}
-                className="animate-rise-in rounded-2xl border border-white/70 bg-white/70 p-5 shadow-xl shadow-slate-200/60 backdrop-blur-xl transition hover:-translate-y-1 hover:border-emerald-200"
-                style={{ animationDelay: `${index * 70}ms` }}
-              >
-                <div className="mb-5 flex items-start justify-between gap-4">
-                  <span className="flex size-11 items-center justify-center rounded-2xl bg-slate-950 text-white">
-                    <FileText className="size-5" />
-                  </span>
-                  <span className="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-slate-600 shadow-sm">
-                    {formatDate(form.createdAt)}
-                  </span>
-                </div>
-
-                <h2 className="line-clamp-2 text-xl font-black text-slate-950">{form.title}</h2>
-                <p className="mt-3 line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-slate-600">
-                  {form.description || 'No description provided.'}
-                </p>
-
-                <div className="mt-5 grid grid-cols-2 gap-2">
-                  <div className="rounded-xl bg-white/70 p-3">
-                    <div className="text-xs font-bold uppercase text-slate-400">Fields</div>
-                    <div className="mt-1 text-xl font-black text-slate-950">{form.fieldCount}</div>
+          <>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {forms.map((form, index) => (
+                <article
+                  key={form.id}
+                  className="animate-rise-in rounded-2xl border border-white/70 bg-white/70 p-5 shadow-xl shadow-slate-200/60 backdrop-blur-xl transition hover:-translate-y-1 hover:border-emerald-200"
+                  style={{ animationDelay: `${index * 70}ms` }}
+                >
+                  <div className="mb-5 flex items-start justify-between gap-4">
+                    <span className="flex size-11 items-center justify-center rounded-2xl bg-slate-950 text-white">
+                      <FileText className="size-5" />
+                    </span>
+                    <span className="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-slate-600 shadow-sm">
+                      {formatDate(form.createdAt)}
+                    </span>
                   </div>
-                  <div className="rounded-xl bg-white/70 p-3">
-                    <div className="flex items-center gap-1.5 text-xs font-bold uppercase text-slate-400">
-                      <Users className="size-3" />
-                      Answers
+
+                  <h2 className="line-clamp-2 text-xl font-black text-slate-950">{form.title}</h2>
+                  <p className="mt-3 line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-slate-600">
+                    {form.description || 'No description provided.'}
+                  </p>
+
+                  <div className="mt-5 grid grid-cols-2 gap-2">
+                    <div className="rounded-xl bg-white/70 p-3">
+                      <div className="text-xs font-bold uppercase text-slate-400">Fields</div>
+                      <div className="mt-1 text-xl font-black text-slate-950">{form.fieldCount}</div>
                     </div>
-                    <div className="mt-1 text-xl font-black text-slate-950">{form.submissionCount}</div>
+                    <div className="rounded-xl bg-white/70 p-3">
+                      <div className="flex items-center gap-1.5 text-xs font-bold uppercase text-slate-400">
+                        <Users className="size-3" />
+                        Answers
+                      </div>
+                      <div className="mt-1 text-xl font-black text-slate-950">{form.submissionCount}</div>
+                    </div>
                   </div>
-                </div>
 
-                <Link href={`/forms/${form.slug}`} className={cn(buttonVariants({ size: 'lg' }), 'mt-5 w-full bg-slate-950 text-white hover:bg-slate-800')}>
-                  Answer form
-                  <ArrowRight className="ml-2 size-4" />
-                </Link>
-              </article>
-            ))}
-          </div>
+                  <Link href={`/forms/${form.slug}`} className={cn(buttonVariants({ size: 'lg' }), 'mt-5 w-full bg-slate-950 text-white hover:bg-slate-800')}>
+                    Answer form
+                    <ArrowRight className="ml-2 size-4" />
+                  </Link>
+                </article>
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            {pagination.totalPages > 1 && (
+              <div className="mt-12 flex items-center justify-center gap-4">
+                <Button 
+                  variant="outline" 
+                  disabled={page === 1} 
+                  onClick={() => setPage(p => p - 1)}
+                >
+                  <ChevronLeft className="mr-2 size-4" /> Previous
+                </Button>
+                <span className="text-sm font-bold text-slate-600">
+                  Page {page} of {pagination.totalPages}
+                </span>
+                <Button 
+                  variant="outline" 
+                  disabled={page === pagination.totalPages} 
+                  onClick={() => setPage(p => p + 1)}
+                >
+                  Next <ChevronRight className="ml-2 size-4" />
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </section>
 

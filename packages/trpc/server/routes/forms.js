@@ -12,17 +12,17 @@ import {
   formSubmissions,
   fieldResponses,
 } from "@repo/database";
-import { eq, and, inArray, desc, count } from "drizzle-orm";
+import { eq, and, inArray, desc, count, sql } from "drizzle-orm"; // <-- Added 'sql' for subqueries
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import bcrypt from "bcrypt"; // <-- Added bcrypt for secure hashing
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../utils/jwt.js";
-
-const FORM_UNLOCK_TOKEN_TTL_SECONDS = 10 * 60;
 import dotenv from 'dotenv';
 
 dotenv.config();
+
+const FORM_UNLOCK_TOKEN_TTL_SECONDS = 10 * 60;
+
 function slugifyTitle(title) {
   const slug = title
     .trim()
@@ -55,15 +55,11 @@ async function createUniqueSlug(title) {
 }
 
 export const formRouter = router({
-  // --- CREATOR ROUTES (PROTECTED) ---
-
-  // 2. Clone a template into the user's account
   createFromTemplate: protectedProcedure
     .input(z.object({ templateId: z.string().uuid() }))
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id;
 
-      // Fetch the template form
       const [templateForm] = await db
         .select()
         .from(forms)
@@ -72,42 +68,46 @@ export const formRouter = router({
 
       if (!templateForm) throw new TRPCError({ code: 'NOT_FOUND', message: 'Template not found' });
 
-      // Fetch the template's fields
       const templateFields = await db
         .select()
         .from(formFields)
         .where(eq(formFields.formId, input.templateId));
 
-      // 1. Create the new cloned form for the user
       const slug = await createUniqueSlug(templateForm.title);
-      const [newForm] = await db
-        .insert(forms)
-        .values({
-          userId,
-          title: templateForm.title,
-          description: templateForm.description,
-          theme: templateForm.theme, // Copy the theme!
-          slug,
-          visibility: 'UNLISTED', // Keep it unlisted until they publish
-          status: 'DRAFT',
-          isTemplate: false, // This is a real form now, not a template
-        })
-        .returning();
+      
+      let newFormId;
 
-      // 2. Clone all the fields
-      if (templateFields.length > 0) {
-        const fieldsToInsert = templateFields.map(field => ({
-          formId: newForm.id,
-          type: field.type,
-          label: field.label,
-          required: field.required,
-          order: field.order,
-          options: field.options,
-        }));
-        await db.insert(formFields).values(fieldsToInsert);
-      }
+      await db.transaction(async (tx) => {
+        const [newForm] = await tx
+          .insert(forms)
+          .values({
+            userId,
+            title: templateForm.title,
+            description: templateForm.description,
+            theme: templateForm.theme,
+            slug,
+            visibility: 'UNLISTED',
+            status: 'DRAFT',
+            isTemplate: false,
+          })
+          .returning();
 
-      return { message: "Template cloned successfully", formId: newForm.id };
+        newFormId = newForm.id;
+
+        if (templateFields.length > 0) {
+          const fieldsToInsert = templateFields.map(field => ({
+            formId: newForm.id,
+            type: field.type,
+            label: field.label,
+            required: field.required,
+            order: field.order,
+            options: field.options,
+          }));
+          await tx.insert(formFields).values(fieldsToInsert);
+        }
+      });
+
+      return { message: "Template cloned successfully", formId: newFormId };
     }),
 
   create: protectedProcedure
@@ -140,46 +140,30 @@ export const formRouter = router({
     return myForms;
   }),
 
+  // 🚀 FIX: Solved N+1 query problem using subqueries in a single call
   getAnalyticsOverview: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.user.id;
-    const myForms = await db
-      .select()
+    
+    const rows = await db
+      .select({
+        form: forms,
+        submissionCount: sql`(SELECT COUNT(*)::int FROM ${formSubmissions} WHERE ${formSubmissions.formId} = ${forms.id})`.mapWith(Number),
+        fieldCount: sql`(SELECT COUNT(*)::int FROM ${formFields} WHERE ${formFields.formId} = ${forms.id})`.mapWith(Number),
+        latestSubmittedAt: sql`(SELECT MAX(${formSubmissions.submittedAt}) FROM ${formSubmissions} WHERE ${formSubmissions.formId} = ${forms.id})`,
+      })
       .from(forms)
       .where(eq(forms.userId, userId))
       .orderBy(desc(forms.createdAt));
 
-    const rows = await Promise.all(
-      myForms.map(async (form) => {
-        const [submissionTotal] = await db
-          .select({ value: count() })
-          .from(formSubmissions)
-          .where(eq(formSubmissions.formId, form.id));
-
-        const [fieldTotal] = await db
-          .select({ value: count() })
-          .from(formFields)
-          .where(eq(formFields.formId, form.id));
-
-        const [latestSubmission] = await db
-          .select({ submittedAt: formSubmissions.submittedAt })
-          .from(formSubmissions)
-          .where(eq(formSubmissions.formId, form.id))
-          .orderBy(desc(formSubmissions.submittedAt))
-          .limit(1);
-
-        return {
-          ...form,
-          submissionCount: submissionTotal?.value ?? 0,
-          fieldCount: fieldTotal?.value ?? 0,
-          latestSubmittedAt: latestSubmission?.submittedAt ?? null,
-        };
-      }),
-    );
-
-    return rows;
+    return rows.map((row) => ({
+      ...row.form,
+      submissionCount: row.submissionCount ?? 0,
+      fieldCount: row.fieldCount ?? 0,
+      latestSubmittedAt: row.latestSubmittedAt ?? null,
+    }));
   }),
 
-saveEditor: protectedProcedure
+  saveEditor: protectedProcedure
     .input(saveEditorFormSchema)
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id;
@@ -191,11 +175,10 @@ saveEditor: protectedProcedure
           : null,
       }));
 
-      // Password Hashing Logic
       let hashedPassword = undefined;
       if (input.password !== undefined) {
         if (input.password === null || input.password.trim() === "") {
-          hashedPassword = null; // Clear the password
+          hashedPassword = null;
         } else {
           hashedPassword = await bcrypt.hash(input.password, 10);
         }
@@ -203,7 +186,6 @@ saveEditor: protectedProcedure
 
       let targetForm;
       
-      // 🚀 Define the payload ONCE with all fields
       const formPayload = {
         title: input.title,
         description: input.description ?? null,
@@ -233,7 +215,7 @@ saveEditor: protectedProcedure
 
         [targetForm] = await db
           .update(forms)
-          .set(formPayload) // 🚀 Pass the entire payload here!
+          .set(formPayload) 
           .where(and(eq(forms.id, input.formId), eq(forms.userId, userId)))
           .returning();
       } else {
@@ -244,7 +226,7 @@ saveEditor: protectedProcedure
           .values({
             userId,
             slug,
-            ...formPayload, // 🚀 Spread the entire payload here!
+            ...formPayload, 
           })
           .returning();
       }
@@ -258,39 +240,41 @@ saveEditor: protectedProcedure
         normalizedFields.map((field) => field.id).filter(Boolean),
       );
 
-      for (const existingField of existingFields) {
-        if (!incomingFieldIds.has(existingField.id)) {
-          await db
-            .delete(formFields)
-            .where(
-              and(
-                eq(formFields.id, existingField.id),
-                eq(formFields.formId, targetForm.id),
-              ),
-            );
+      await db.transaction(async (tx) => {
+        for (const existingField of existingFields) {
+          if (!incomingFieldIds.has(existingField.id)) {
+            await tx
+              .delete(formFields)
+              .where(
+                and(
+                  eq(formFields.id, existingField.id),
+                  eq(formFields.formId, targetForm.id),
+                ),
+              );
+          }
         }
-      }
 
-      for (const field of normalizedFields) {
-        const values = {
-          formId: targetForm.id,
-          type: field.type,
-          label: field.label,
-          required: field.required,
-          order: field.order,
-          options: field.options,
-        };
+        for (const field of normalizedFields) {
+          const values = {
+            formId: targetForm.id,
+            type: field.type,
+            label: field.label,
+            required: field.required,
+            order: field.order,
+            options: field.options,
+          };
 
-        if (field.id && existingFieldIds.has(field.id)) {
-          await db
-            .update(formFields)
-            .set(values)
-            .where(and(eq(formFields.id, field.id), eq(formFields.formId, targetForm.id)));
-        } else {
-          const insertValues = field.id ? { id: field.id, ...values } : values;
-          await db.insert(formFields).values(insertValues);
+          if (field.id && existingFieldIds.has(field.id)) {
+            await tx
+              .update(formFields)
+              .set(values)
+              .where(and(eq(formFields.id, field.id), eq(formFields.formId, targetForm.id)));
+          } else {
+            const insertValues = field.id ? { id: field.id, ...values } : values;
+            await tx.insert(formFields).values(insertValues);
+          }
         }
-      }
+      });
 
       const savedFields = await db
         .select()
@@ -466,57 +450,106 @@ saveEditor: protectedProcedure
       };
     }),
 
-getTemplates: publicProcedure.query(async () => {
-    return await db
-      .select({
-        id: forms.id,
-        title: forms.title,
-        description: forms.description,
-        theme: forms.theme,
-        category: forms.category,
-        slug: forms.slug,
-      }) 
-      .from(forms)
-      .where(eq(forms.isTemplate, true))
-      .orderBy(desc(forms.createdAt));
-  }),
 
-  // --- RESPONDER ROUTES (PUBLIC) ---
+  getTemplates: publicProcedure
+    .input(
+      z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(12),
+      }).default({ page: 1, limit: 12 })
+    )
+    .query(async ({ input }) => {
+      const { page, limit } = input;
+      const offset = (page - 1) * limit;
 
-  getPublicForms: publicProcedure.query(async () => {
-    const publicForms = await db
-      .select()
-      .from(forms)
-      .where(and(eq(forms.visibility, "PUBLIC"), eq(forms.status, "PUBLISHED"), eq(forms.isExpired, false)))
-      .orderBy(desc(forms.createdAt));
+      const [totalRecord] = await db
+        .select({ value: count() })
+        .from(forms)
+        .where(eq(forms.isTemplate, true));
 
-    const rows = await Promise.all(
-      publicForms.map(async (form) => {
-        const [fieldTotal] = await db
-          .select({ value: count() })
-          .from(formFields)
-          .where(eq(formFields.formId, form.id));
+      const total = totalRecord.value;
+      const totalPages = Math.ceil(total / limit);
 
-        const [submissionTotal] = await db
-          .select({ value: count() })
-          .from(formSubmissions)
-          .where(eq(formSubmissions.formId, form.id));
+      const data = await db
+        .select({
+          id: forms.id,
+          title: forms.title,
+          description: forms.description,
+          theme: forms.theme,
+          category: forms.category,
+          slug: forms.slug,
+        }) 
+        .from(forms)
+        .where(eq(forms.isTemplate, true))
+        .orderBy(desc(forms.createdAt))
+        .limit(limit)
+        .offset(offset);
 
-        return {
-          id: form.id,
-          title: form.title,
-          description: form.description,
-          slug: form.slug,
-          createdAt: form.createdAt,
-          fieldCount: fieldTotal?.value ?? 0,
-          submissionCount: submissionTotal?.value ?? 0,
-          isProtected: !!form.password, // Let the directory know if it's locked
-        };
-      }),
-    );
+      return {
+        templates: data,
+        pagination: { total, page, limit, totalPages }
+      };
+    }),
 
-    return rows;
-  }),
+
+  getPublicForms: publicProcedure
+    .input(
+      z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(12),
+      }).default({ page: 1, limit: 12 })
+    )
+    .query(async ({ input }) => {
+      const { page, limit } = input;
+      const offset = (page - 1) * limit;
+
+      const condition = and(
+        eq(forms.visibility, "PUBLIC"), 
+        eq(forms.status, "PUBLISHED"), 
+        eq(forms.isExpired, false)
+      );
+
+      const [totalRecord] = await db
+        .select({ value: count() })
+        .from(forms)
+        .where(condition);
+
+      const total = totalRecord.value;
+      const totalPages = Math.ceil(total / limit);
+
+      const rawForms = await db
+        .select({
+          id: forms.id,
+          title: forms.title,
+          description: forms.description,
+          slug: forms.slug,
+          createdAt: forms.createdAt,
+          password: forms.password,
+          fieldCount: sql`(SELECT COUNT(*)::int FROM ${formFields} WHERE ${formFields.formId} = ${forms.id})`.mapWith(Number),
+          submissionCount: sql`(SELECT COUNT(*)::int FROM ${formSubmissions} WHERE ${formSubmissions.formId} = ${forms.id})`.mapWith(Number),
+        })
+        .from(forms)
+        .where(condition)
+        .orderBy(desc(forms.createdAt))
+        .limit(limit)
+        .offset(offset);
+
+      const mappedForms = rawForms.map((form) => ({
+        id: form.id,
+        title: form.title,
+        description: form.description,
+        slug: form.slug,
+        createdAt: form.createdAt,
+        fieldCount: form.fieldCount ?? 0,
+        submissionCount: form.submissionCount ?? 0,
+        isProtected: !!form.password, 
+      }));
+
+      return {
+        forms: mappedForms,
+        pagination: { total, page, limit, totalPages }
+      };
+    }),
 
   getPublicFormBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
@@ -539,15 +572,14 @@ getTemplates: publicProcedure.query(async () => {
         });
       }
 
-      // Safe Form Object (Never leak the hashed password to the frontend!)
       const safeForm = {
         id: form.id,
         title: form.title,
         description: form.description,
         slug: form.slug,
+        theme: form.theme,
       };
 
-      // GATEKEEPER: If password exists, scrub the fields and return locked state
       if (form.password) {
         return {
           form: safeForm,
@@ -569,7 +601,6 @@ getTemplates: publicProcedure.query(async () => {
       };
     }),
 
-  // NEW ROUTE: Unlock a password-protected form
   verifyFormPassword: publicProcedure
     .input(
       z.object({
@@ -600,10 +631,8 @@ getTemplates: publicProcedure.query(async () => {
         });
       }
 
-      // Generate a short-lived unlock token
-      const unlockToken = jwt.sign({ formId: form.id }, process.env.JWT_SECRET , { expiresIn: FORM_UNLOCK_TOKEN_TTL_SECONDS });
+      const unlockToken = jwt.sign({ formId: form.id }, process.env.JWT_SECRET || 'default_jwt_secret', { expiresIn: FORM_UNLOCK_TOKEN_TTL_SECONDS });
 
-      // Unlock successful! Fetch and return the protected fields
       const fields = await db
         .select()
         .from(formFields)
@@ -621,10 +650,10 @@ getTemplates: publicProcedure.query(async () => {
         .from(forms)
         .where(eq(forms.id, input.formId))
         .limit(1);
+
       if (!form)
         throw new TRPCError({ code: "NOT_FOUND", message: "Form not found" });
       
-      // If form is password protected, enforce unlock token
       if (form.password) {
         if (!input.unlockToken) {
           throw new TRPCError({
@@ -664,7 +693,6 @@ getTemplates: publicProcedure.query(async () => {
         });
       }
 
-      // Check max responses limit
       if (form.maxResponses !== null) {
         const [{ value }] = await db
           .select({ value: count() })
@@ -679,24 +707,27 @@ getTemplates: publicProcedure.query(async () => {
         }
       }
 
-      const [newSubmission] = await db
-        .insert(formSubmissions)
-        .values({
-          formId: input.formId,
-        })
-        .returning();
+      // 🚀 FIX: Prevent Orphaned Submissions using Transaction
+      await db.transaction(async (tx) => {
+        const [newSubmission] = await tx
+          .insert(formSubmissions)
+          .values({
+            formId: input.formId,
+          })
+          .returning();
 
-      const answersToInsert = Object.entries(input.answers).map(
-        ([fieldId, value]) => ({
-          submissionId: newSubmission.id,
-          fieldId: fieldId,
-          value: typeof value === "string" ? value : JSON.stringify(value),
-        }),
-      );
+        const answersToInsert = Object.entries(input.answers).map(
+          ([fieldId, value]) => ({
+            submissionId: newSubmission.id,
+            fieldId: fieldId,
+            value: typeof value === "string" ? value : JSON.stringify(value),
+          }),
+        );
 
-      if (answersToInsert.length > 0) {
-        await db.insert(fieldResponses).values(answersToInsert);
-      }
+        if (answersToInsert.length > 0) {
+          await tx.insert(fieldResponses).values(answersToInsert);
+        }
+      });
 
       return { message: "Response submitted successfully!" };
     }),
