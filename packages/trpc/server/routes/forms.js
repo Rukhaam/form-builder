@@ -16,7 +16,13 @@ import { eq, and, inArray, desc, count } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import bcrypt from "bcrypt"; // <-- Added bcrypt for secure hashing
+import jwt from "jsonwebtoken";
+import { JWT_SECRET } from "../utils/jwt.js";
 
+const FORM_UNLOCK_TOKEN_TTL_SECONDS = 10 * 60;
+import dotenv from 'dotenv';
+
+dotenv.config();
 function slugifyTitle(title) {
   const slug = title
     .trim()
@@ -173,7 +179,7 @@ export const formRouter = router({
     return rows;
   }),
 
-  saveEditor: protectedProcedure
+saveEditor: protectedProcedure
     .input(saveEditorFormSchema)
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id;
@@ -196,6 +202,20 @@ export const formRouter = router({
       }
 
       let targetForm;
+      
+      // 🚀 Define the payload ONCE with all fields
+      const formPayload = {
+        title: input.title,
+        description: input.description ?? null,
+        visibility: input.visibility,
+        status: input.status,
+        expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
+        maxResponses: input.maxResponses ?? null,
+        theme: input.theme ?? "light",          
+        isTemplate: input.isTemplate ?? false,  
+        category: input.category ?? null,       
+        ...(hashedPassword !== undefined && { password: hashedPassword }),
+      };
 
       if (input.formId) {
         const [ownedForm] = await db
@@ -213,16 +233,7 @@ export const formRouter = router({
 
         [targetForm] = await db
           .update(forms)
-          .set({
-            title: input.title,
-            description: input.description ?? null,
-            visibility: input.visibility,
-            status: input.status,
-            category: input.category ?? null,
-            expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
-            maxResponses: input.maxResponses ?? null,
-            ...(hashedPassword !== undefined && { password: hashedPassword }),
-          })
+          .set(formPayload) // 🚀 Pass the entire payload here!
           .where(and(eq(forms.id, input.formId), eq(forms.userId, userId)))
           .returning();
       } else {
@@ -232,15 +243,8 @@ export const formRouter = router({
           .insert(forms)
           .values({
             userId,
-            title: input.title,
-            description: input.description ?? null,
             slug,
-            visibility: input.visibility,
-            status: input.status,
-            category: input.category ?? null,
-            expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
-            maxResponses: input.maxResponses ?? null,
-            ...(hashedPassword !== undefined && { password: hashedPassword }),
+            ...formPayload, // 🚀 Spread the entire payload here!
           })
           .returning();
       }
@@ -462,13 +466,19 @@ export const formRouter = router({
       };
     }),
 
-  getTemplates: publicProcedure.query(async () => {
-    const templates = await db
-      .select()
+getTemplates: publicProcedure.query(async () => {
+    return await db
+      .select({
+        id: forms.id,
+        title: forms.title,
+        description: forms.description,
+        theme: forms.theme,
+        category: forms.category,
+        slug: forms.slug,
+      }) 
       .from(forms)
       .where(eq(forms.isTemplate, true))
       .orderBy(desc(forms.createdAt));
-    return templates;
   }),
 
   // --- RESPONDER ROUTES (PUBLIC) ---
@@ -590,6 +600,9 @@ export const formRouter = router({
         });
       }
 
+      // Generate a short-lived unlock token
+      const unlockToken = jwt.sign({ formId: form.id }, process.env.JWT_SECRET , { expiresIn: FORM_UNLOCK_TOKEN_TTL_SECONDS });
+
       // Unlock successful! Fetch and return the protected fields
       const fields = await db
         .select()
@@ -597,7 +610,7 @@ export const formRouter = router({
         .where(eq(formFields.formId, form.id))
         .orderBy(formFields.order);
 
-      return { fields };
+      return { fields, unlockToken };
     }),
 
   submitResponse: publicProcedure
@@ -610,6 +623,34 @@ export const formRouter = router({
         .limit(1);
       if (!form)
         throw new TRPCError({ code: "NOT_FOUND", message: "Form not found" });
+      
+      // If form is password protected, enforce unlock token
+      if (form.password) {
+        if (!input.unlockToken) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "This form is password protected. Missing unlock token.",
+          });
+        }
+        try {
+          const decoded = jwt.verify(input.unlockToken, process.env.JWT_SECRET || 'default_jwt_secret');
+          if (decoded.formId !== input.formId) {
+             throw new Error("Token mismatch");
+          }
+        } catch (error) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Invalid or expired unlock token",
+          });
+        }
+      }
+
+      if (form.isTemplate) {
+        throw new TRPCError({ 
+          code: "FORBIDDEN", 
+          message: "This is a read-only template. Clone it to your workspace to accept responses." 
+        });
+      }
       if (form.visibility !== "PUBLIC" || form.status !== "PUBLISHED") {
         throw new TRPCError({
           code: "FORBIDDEN",

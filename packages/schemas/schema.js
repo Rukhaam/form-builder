@@ -86,9 +86,9 @@ export const saveEditorFormSchema = z.object({
     .nullable(),
   visibility: z.enum(["PUBLIC", "UNLISTED"]).default("PUBLIC"),
   password: z.string().nullable().optional(),
-  theme: z.string().optional().default("light"),
-  isTemplate: z.boolean().optional().default(false),
-  category: z.string().optional(),
+ theme: z.string().default("light").optional(),
+  isTemplate: z.boolean().default(false).optional(),
+  category: z.string().nullable().optional(),
   status: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT"),
   isExpired: z.boolean().optional().default(false),
   expiresAt: z.union([z.string().datetime(), z.date(), z.null()]).optional(),
@@ -139,5 +139,12 @@ export const resetPasswordSchema = z
 
 export const submitFormSchema = z.object({
   formId: z.string().uuid("Invalid Form ID"),
+  unlockToken: z.string().min(1).optional(),
   answers: z.record(z.string().uuid(), z.any()), 
 });
+
+
+export const submitReviewSchema = z.object({
+  formId: z.string().uuid("Invalid Form ID"),
+  rating: z.number().min(1, "Rating must be at least 1").max(5, "Rating cannot be more than 5").int(),
+})

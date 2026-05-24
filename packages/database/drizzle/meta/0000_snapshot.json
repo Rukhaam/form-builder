@@ -1,10 +1,75 @@
 {
-  "id": "8ecbe482-4560-49ef-acf3-c278c17ca8cf",
+  "id": "bac2b475-1e1b-40cb-8336-5f703cc5e24d",
   "prevId": "00000000-0000-0000-0000-000000000000",
-  "version": "5",
-  "dialect": "pg",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "form_fields": {
+    "public.field_responses": {
+      "name": "field_responses",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "submission_id": {
+          "name": "submission_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "field_id": {
+          "name": "field_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "field_responses_submission_id_form_submissions_id_fk": {
+          "name": "field_responses_submission_id_form_submissions_id_fk",
+          "tableFrom": "field_responses",
+          "tableTo": "form_submissions",
+          "columnsFrom": [
+            "submission_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "field_responses_field_id_form_fields_id_fk": {
+          "name": "field_responses_field_id_form_fields_id_fk",
+          "tableFrom": "field_responses",
+          "tableTo": "form_fields",
+          "columnsFrom": [
+            "field_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.form_fields": {
       "name": "form_fields",
       "schema": "",
       "columns": {
@@ -24,6 +89,7 @@
         "type": {
           "name": "type",
           "type": "field_type",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
@@ -70,9 +136,131 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "forms": {
+    "public.form_reviews": {
+      "name": "form_reviews",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "form_id": {
+          "name": "form_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rating": {
+          "name": "rating",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "form_reviews_form_id_forms_id_fk": {
+          "name": "form_reviews_form_id_forms_id_fk",
+          "tableFrom": "form_reviews",
+          "tableTo": "forms",
+          "columnsFrom": [
+            "form_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "form_reviews_user_id_users_id_fk": {
+          "name": "form_reviews_user_id_users_id_fk",
+          "tableFrom": "form_reviews",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.form_submissions": {
+      "name": "form_submissions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "form_id": {
+          "name": "form_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "submitted_at": {
+          "name": "submitted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "form_submissions_form_id_forms_id_fk": {
+          "name": "form_submissions_form_id_forms_id_fk",
+          "tableFrom": "form_submissions",
+          "tableTo": "forms",
+          "columnsFrom": [
+            "form_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.forms": {
       "name": "forms",
       "schema": "",
       "columns": {
@@ -110,6 +298,7 @@
         "status": {
           "name": "status",
           "type": "status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
           "default": "'DRAFT'"
@@ -117,9 +306,36 @@
         "visibility": {
           "name": "visibility",
           "type": "visibility",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
           "default": "'PUBLIC'"
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "theme": {
+          "name": "theme",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'light'"
+        },
+        "is_template": {
+          "name": "is_template",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -138,6 +354,12 @@
         "expires_at": {
           "name": "expires_at",
           "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "max_responses": {
+          "name": "max_responses",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         }
@@ -167,9 +389,12 @@
             "slug"
           ]
         }
-      }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "users": {
+    "public.users": {
       "name": "users",
       "schema": "",
       "columns": {
@@ -195,9 +420,10 @@
         "auth_provider": {
           "name": "auth_provider",
           "type": "auth_provider",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": "'EMAIL'"
+          "default": "'LOCAL'"
         },
         "provider_id": {
           "name": "provider_id",
@@ -243,47 +469,58 @@
             "email"
           ]
         }
-      }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {
-    "auth_provider": {
+    "public.auth_provider": {
       "name": "auth_provider",
-      "values": {
-        "LOCAL": "LOCAL",
-        "GOOGLE": "GOOGLE",
-        "GITHUB": "GITHUB"
-      }
+      "schema": "public",
+      "values": [
+        "LOCAL",
+        "GOOGLE",
+        "GITHUB"
+      ]
     },
-    "field_type": {
+    "public.field_type": {
       "name": "field_type",
-      "values": {
-        "short_text": "short_text",
-        "long_text": "long_text",
-        "email": "email",
-        "number": "number",
-        "single_select": "single_select",
-        "multi_select": "multi_select",
-        "checkbox": "checkbox"
-      }
+      "schema": "public",
+      "values": [
+        "short_text",
+        "long_text",
+        "email",
+        "number",
+        "single_select",
+        "multi_select",
+        "checkbox"
+      ]
     },
-    "status": {
+    "public.status": {
       "name": "status",
-      "values": {
-        "DRAFT": "DRAFT",
-        "PUBLISHED": "PUBLISHED",
-        "ARCHIVED": "ARCHIVED"
-      }
+      "schema": "public",
+      "values": [
+        "DRAFT",
+        "PUBLISHED",
+        "ARCHIVED"
+      ]
     },
-    "visibility": {
+    "public.visibility": {
       "name": "visibility",
-      "values": {
-        "PUBLIC": "PUBLIC",
-        "UNLISTED": "UNLISTED"
-      }
+      "schema": "public",
+      "values": [
+        "PUBLIC",
+        "UNLISTED"
+      ]
     }
   },
   "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
   "_meta": {
     "columns": {},
     "schemas": {},

@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  formId: null, // null means it's a new form
+  formId: null, 
   title: 'Untitled Form',
   description: '',
   visibility: 'PUBLIC',
@@ -10,8 +10,8 @@ const initialState = {
   expiresAt: null,
   maxResponses: null,
   category: '',
-  fields: [], // Array of objects: { id, type, label, required, options, order }
-  activeFieldId: null, // For highlighting the field currently being edited
+  fields: [],
+  activeFieldId: null, 
   isSaving: false,
 };
 
@@ -55,7 +55,7 @@ export const formEditorSlice = createSlice({
       const type = action.payload.type;
       const hasOptions = ['single_select', 'multi_select', 'checkbox'].includes(type);
       const newField = {
-        id: action.payload.id, // We'll pass a UUID here
+        id: action.payload.id,
         type,
         label: 'New Question',
         required: false,
@@ -63,10 +63,10 @@ export const formEditorSlice = createSlice({
         options: hasOptions ? ['Option 1', 'Option 2'] : null,    
       };
       state.fields.push(newField);
-      state.activeFieldId = newField.id; // Auto-select the new field
+      state.activeFieldId = newField.id; 
     },
 
-    // 5. Update a specific field's settings (label, required, etc.)
+   
     updateField: (state, action) => {
       const { id, updates } = action.payload;
       const index = state.fields.findIndex(f => f.id === id);

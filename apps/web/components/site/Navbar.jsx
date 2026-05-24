@@ -13,8 +13,9 @@ import { cn } from '@/lib/utils';
 const NAV_LINKS = [
   { label: 'Browse forms', href: '/forms' },
   { label: 'Pricing', href: '/pricing' },
-  { label: 'Features', href: '/#features' },
+  { label: 'Templates', href: '/templates' },
   { label: 'About Us', href: '/about' },
+
 ];
 
 export function Navbar() {

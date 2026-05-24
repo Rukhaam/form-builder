@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, BarChart3, CheckCircle2, FileText, ListChecks, ShieldCheck, Sparkles, Wand2, Loader2, Globe } from 'lucide-react';
+import { ArrowRight, BarChart3, CheckCircle2, FileText, ListChecks, ShieldCheck, Sparkles, Wand2, Loader2, Globe,Palette } from 'lucide-react';
 import SplitText from '@/components/ui/SplitText';
 
 import { Footer } from '@/components/site/Footer';
@@ -28,7 +28,26 @@ const features = [
     copy: 'Publish forms to a browsable public gallery while keeping private work inside your dashboard.',
   },
 ];
-
+const templatesPreview = [
+  {
+    title: "Customer Satisfaction Survey",
+    category: "Feedback",
+    description: "Measure customer happiness and gather actionable feedback with this clean, multi-step survey.",
+    imageUrl: "https://pub-749dd85c25e04947af34140aef9172fc.r2.dev/form-builder/ChatGPT%20Image%20May%2024%2C%202026%2C%2001_23_49%20PM.png"
+  },
+  {
+    title: "Job Application Form",
+    category: "HR & Recruiting",
+    description: "Streamline your hiring process. Collect resumes, portfolios, and contact info in one professional place.",
+    imageUrl: "https://pub-749dd85c25e04947af34140aef9172fc.r2.dev/form-builder/ChatGPT%20Image%20May%2024%2C%202026%2C%2001_41_39%20PM.png"
+  },
+  {
+    title: "Event Registration",
+    category: "Marketing",
+    description: "Boost attendance with a frictionless signup form. Includes custom fields for capacity and waitlisting.",
+    imageUrl: "https://pub-749dd85c25e04947af34140aef9172fc.r2.dev/form-builder/ChatGPT%20Image%20May%2024%2C%202026%2C%2001_44_26%20PM.png"
+  }
+];
 const faqs = [
   {
     question: 'Can people answer forms without an account?',
@@ -442,44 +461,68 @@ export default function Home() {
       </section>
 
       {/* Community Gallery Section */}
-      <section className="mx-auto max-w-7xl px-4 py-16">
-        <div className="relative overflow-hidden rounded-[3rem] bg-slate-950 p-8 text-white shadow-2xl md:p-16">
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-          <div className="absolute -top-24 -right-24 size-96 rounded-full bg-violet-600 blur-3xl opacity-30"></div>
-          
-          <div className="relative z-10 grid gap-12 lg:grid-cols-[1fr_1fr] items-center">
-            <div>
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-4 py-2 text-xs font-bold uppercase tracking-wider text-emerald-300 border border-emerald-500/30">
-                <FileText className="size-4" />
-                Public gallery
-              </div>
-              <h2 className="text-4xl font-black tracking-tight md:text-5xl lg:text-6xl text-balance">Answer forms from the community.</h2>
-              <p className="mt-6 text-lg leading-relaxed text-slate-300 text-balance">
-                Published forms show up in one clean place, ready for visitors to open and submit without needing an account.
-              </p>
-              <Link href="/forms" className={cn(buttonVariants({ size: 'lg' }), 'mt-8 h-14 rounded-xl bg-white px-8 text-lg font-bold text-slate-950 transition hover:scale-105 hover:bg-slate-100')}>
-                Explore forms
-                <ArrowRight className="ml-2 size-5" />
-              </Link>
+
+      <section className="relative border-t border-slate-200/60 bg-slate-50 py-24">
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="mb-16 flex flex-col items-center text-center">
+            <div className="inline-flex items-center gap-2 rounded-full bg-violet-100 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-violet-700 mb-6">
+              <Palette className="size-4" /> Templates
             </div>
-            <div className="grid gap-4 perspective-1000">
-              {['Customer research', 'Workshop signup', 'Product feedback'].map((name, index) => (
-                <div 
-                  key={name} 
-                  className="transform rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-all duration-300 hover:translate-x-2 hover:bg-white/10 hover:border-white/20"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-xl font-bold">{name}</div>
-                      <div className="mt-2 text-sm font-medium text-slate-400">{index + 4} fields ready to answer</div>
-                    </div>
-                    <div className="flex size-12 items-center justify-center rounded-full bg-emerald-500/20">
-                      <ArrowRight className="size-6 text-emerald-400" />
-                    </div>
+            <h2 className="text-4xl font-black tracking-tight text-slate-950 md:text-5xl">Don't start from scratch.</h2>
+            <p className="mt-4 max-w-2xl text-lg text-slate-600">
+              Choose from dozens of beautiful, pre-built templates and themes designed for conversion.
+            </p>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-3">
+            {templatesPreview.map((tpl, i) => (
+              <div key={i} className="group flex flex-col justify-between rounded-[2rem] border border-slate-200/80 bg-white shadow-xl shadow-slate-200/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
+                
+                {/* Visual Mockup */}
+               <div className="relative h-56 w-full overflow-hidden rounded-t-[2rem] bg-slate-100 transition-colors">
+                 <img 
+                   src={tpl.imageUrl} 
+                   alt={tpl.title} 
+                   className="h-full w-full object-cover object-top" 
+                 />
+                </div>
+                
+                {/* Content & CTA */}
+                <div className="flex flex-1 flex-col p-8">
+                  <span className="mb-4 w-fit rounded-lg bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    {tpl.category}
+                  </span>
+                  <h3 className="mb-3 text-2xl font-bold text-slate-950">{tpl.title}</h3>
+                  <p className="mb-8 text-sm font-medium leading-relaxed text-slate-600">
+                    {tpl.description}
+                  </p>
+                  
+                  <div className="mt-auto">
+                    <Link
+                      href={user ? "/templates" : "/register"}
+                      className={cn(
+                        buttonVariants({ size: 'lg' }), 
+                        "w-full rounded-xl transition-all duration-300",
+                        user 
+                          ? "bg-slate-950 text-white hover:bg-slate-800" 
+                          : "bg-white text-black hover:bg-black hover:text-white shadow-md hover:shadow-lg"
+                      )}
+                    >
+                      {user ? "Use template" : "Sign up to use"}
+                      <ArrowRight className="ml-2 size-4" />
+                    </Link>
                   </div>
                 </div>
-              ))}
-            </div>
+
+              </div>
+            ))}
+          </div>
+          
+          <div className="mt-12 flex justify-center">
+            <Link href="/templates" className="group flex items-center text-sm font-bold text-violet-600 hover:text-violet-700">
+              View all templates
+              <ArrowRight className="ml-1 size-4 transition-transform group-hover:translate-x-1" />
+            </Link>
           </div>
         </div>
       </section>
@@ -506,7 +549,47 @@ export default function Home() {
           ))}
         </div>
       </section>
-
+      <section className="mx-auto max-w-7xl px-4 py-16">
+        <div className="relative overflow-hidden rounded-[3rem] bg-slate-950 p-8 text-white shadow-2xl md:p-16">
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+          <div className="absolute -top-24 -right-24 size-96 rounded-full bg-violet-600 blur-3xl opacity-30"></div>
+          
+          <div className="relative z-10 grid gap-12 lg:grid-cols-[1fr_1fr] items-center">
+            <div>
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-4 py-2 text-xs font-bold uppercase tracking-wider text-emerald-300 border border-emerald-500/30">
+                <FileText className="size-4" />
+                Public gallery
+              </div>
+              <h2 className="text-4xl font-black tracking-tight md:text-5xl lg:text-6xl text-balance">Answer forms from the community.</h2>
+              <p className="mt-6 text-lg leading-relaxed text-slate-300 text-balance">
+                Published forms show up in one clean place, ready for visitors to open and submit without needing an account.
+              </p>
+              <Link href="/forms" className={cn(buttonVariants({ size: 'lg' }), 'mt-8 h-14 rounded-xl bg-white px-8 text-lg font-bold text-slate-950 transition hover:scale-105 hover:bg-slate-100 hover:text-white')}>
+                Explore forms
+                <ArrowRight className="ml-2 size-5" />
+              </Link>
+            </div>
+            <div className="grid gap-4 perspective-1000">
+              {['Customer research', 'Workshop signup', 'Product feedback'].map((name, index) => (
+                <div 
+                  key={name} 
+                  className="transform rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-all duration-300 hover:translate-x-2 hover:bg-white/10 hover:border-white/20"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xl font-bold">{name}</div>
+                      <div className="mt-2 text-sm font-medium text-slate-400">{index + 4} fields ready to answer</div>
+                    </div>
+                    <div className="flex size-12 items-center justify-center rounded-full bg-emerald-500/20">
+                      <ArrowRight className="size-6 text-emerald-400" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
       <Footer />
     </main>
   );

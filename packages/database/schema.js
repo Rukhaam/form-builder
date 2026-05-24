@@ -78,3 +78,11 @@ export const fieldResponses = pgTable('field_responses', {
   fieldId: uuid('field_id').references(() => formFields.id, { onDelete: 'cascade' }).notNull(),
   value: text('value').notNull(), 
 });
+
+export const formReviews = pgTable('form_reviews',{
+  id:uuid('id').primaryKey().defaultRandom(),
+  formId:uuid('form_id').references(() => forms.id, { onDelete: 'cascade' }).notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  rating: integer('rating').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})

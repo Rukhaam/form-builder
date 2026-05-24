@@ -20,6 +20,7 @@ import {
   TextCursorInput,
   Trash2,
   Lock,
+  Palette,
 } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -84,7 +85,9 @@ export default function FormEditorPage() {
   const formIdParam = Array.isArray(params.formID) ? params.formID[0] : params.formID;
   const isNew = formIdParam === 'new';
   const editorState = useSelector((state) => state.formEditor);
-  const { title, description, visibility, status, fields, activeFieldId, password, category } = editorState;
+  
+  // 🚀 Added theme to our destructuring
+  const { title, description, visibility, status, fields, activeFieldId, password, category, theme } = editorState;
 
   const { data: existingForm, isLoading: isFetching } = trpc.form.getFormEditor.useQuery(
     { formId: formIdParam },
@@ -102,6 +105,7 @@ export default function FormEditorPage() {
         expiresAt: data.form.expiresAt,
         maxResponses: data.form.maxResponses,
         category: data.form.category,
+        theme: data.form.theme,
         fields: data.fields,
       }));
 
@@ -130,6 +134,7 @@ export default function FormEditorPage() {
         status: existingForm.form.status,
         expiresAt: existingForm.form.expiresAt,
         category: existingForm.form.category,
+        theme: existingForm.form.theme,
         maxResponses: existingForm.form.maxResponses,
         fields: existingForm.fields,
       }));
@@ -216,6 +221,8 @@ export default function FormEditorPage() {
       maxResponses: editorState.maxResponses ? parseInt(editorState.maxResponses, 10) : null,
       password: password || undefined,
       category: category || undefined,
+      theme: theme || 'light', // 🚀 Ensure theme is included payload
+      isTemplate: !!category,  // 🚀 Automatically mark as a template if a category is selected
       fields: cleanFields,
     });
   };
@@ -232,7 +239,6 @@ export default function FormEditorPage() {
   return (
     <div className="-m-0 min-h-[calc(100vh-4rem)] bg-[radial-gradient(circle_at_top_left,#dff7ef,transparent_32%),linear-gradient(135deg,#f8fafc,#eef2ff_48%,#fff7ed)] text-slate-950">
       
-
       <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-white/50 bg-white/70 px-8 shadow-sm backdrop-blur-xl">
         <div className="flex min-w-0 flex-1 items-center gap-4">
           <Link
@@ -272,7 +278,6 @@ export default function FormEditorPage() {
           </Button>
         </div>
       </header>
-      {/* 🚀 END FIXED HEADER */}
 
       <div className="grid gap-8 p-6 lg:grid-cols-[260px_minmax(0,1fr)_320px]">
         <aside className="h-fit rounded-2xl border border-white/70 bg-white/65 p-4 shadow-xl shadow-slate-200/60 backdrop-blur-xl">
@@ -311,13 +316,13 @@ export default function FormEditorPage() {
                 />
               </label>
               <label className="space-y-2">
-                <span className="text-xs font-semibold uppercase text-slate-500">Category</span>
+                <span className="text-xs font-semibold uppercase text-slate-500">Category (Template)</span>
                 <select
                   value={category || ''}
                   onChange={(event) => dispatch(updateMetadata({ category: event.target.value }))}
                   className="h-11 w-full rounded-lg border border-white/80 bg-white/80 px-3 text-sm font-medium outline-none transition focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
                 >
-                  <option value="">No Category</option>
+                  <option value="">None</option>
                   <option value="Education">Education</option>
                   <option value="Feedback">Feedback</option>
                   <option value="HR & Recruiting">HR & Recruiting</option>
@@ -337,6 +342,7 @@ export default function FormEditorPage() {
                 </select>
               </label>
             </div>
+            
             <label className="mt-4 block space-y-2">
               <span className="text-xs font-semibold uppercase text-slate-500">Description</span>
               <textarea
@@ -347,7 +353,23 @@ export default function FormEditorPage() {
               />
             </label>
             
-            <div className="mt-4 grid gap-4 border-t border-slate-200/60 pt-4 md:grid-cols-3">
+            <div className="mt-4 grid gap-4 border-t border-slate-200/60 pt-4 md:grid-cols-4">
+              {/* 🚀 Added Theme Selector to the grid */}
+              <label className="space-y-2 flex flex-col">
+                <span className="text-xs font-semibold uppercase text-slate-500 flex items-center gap-1">
+                  <Palette className="size-3" /> Theme
+                </span>
+                <select
+                  value={theme || 'light'}
+                  onChange={(event) => dispatch(updateMetadata({ theme: event.target.value }))}
+                  className="h-11 w-full rounded-lg border border-white/80 bg-white/80 px-3 text-sm font-medium outline-none transition focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+                >
+                  <option value="light">Light Mode</option>
+                  <option value="dark">Dark Mode</option>
+                  <option value="neon">Neon Cyberpunk</option>
+                </select>
+              </label>
+
               <div className="space-y-2 flex flex-col">
                 <span className="text-xs font-semibold uppercase text-slate-500">Expire form on date</span>
                 <Popover>
@@ -385,6 +407,7 @@ export default function FormEditorPage() {
                   </PopoverContent>
                 </Popover>
               </div>
+
               <label className="space-y-2 flex flex-col">
                 <span className="text-xs font-semibold uppercase text-slate-500">Max responses</span>
                 <Input
@@ -396,6 +419,7 @@ export default function FormEditorPage() {
                   placeholder="Unlimited"
                 />
               </label>
+
               <label className="space-y-2 flex flex-col">
                 <span className="text-xs font-semibold uppercase text-slate-500">Password</span>
                 <div className="relative w-full">
