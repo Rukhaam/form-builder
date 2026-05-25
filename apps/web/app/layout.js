@@ -1,18 +1,27 @@
-import { TrpcProvider } from '../components/TrpcProvider.js';
-import { ReduxProvider } from '../components/ReduxProvider.jsx';
-import { Toaster } from 'react-hot-toast'; // <-- 1. Import
-import './globals.css';
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { TrpcProvider } from "@/components/TrpcProvider";
+import { ReduxProvider } from "@/components/ReduxProvider";
+import { Toaster } from "react-hot-toast";
+import { ChatWidget } from "@/components/ui/ChatWidget"; 
+
+
+export const metadata = {
+  title: "FormBuilder",
+  description: "Create and share forms easily",
+};
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>
-        <TrpcProvider>
-          <ReduxProvider>
+      <body >
+        <ReduxProvider>
+          <TrpcProvider>
             {children}
-            <Toaster position="bottom-right" /> 
-          </ReduxProvider>
-        </TrpcProvider>
+            <ChatWidget /> {/* 🚀 Mount here */}
+          </TrpcProvider>
+        </ReduxProvider>
+        <Toaster position="bottom-right" />
       </body>
     </html>
   );

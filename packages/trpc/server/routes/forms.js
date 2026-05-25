@@ -557,7 +557,13 @@ export const formRouter = router({
       const [form] = await db
         .select()
         .from(forms)
-        .where(and(eq(forms.slug, input.slug), eq(forms.visibility, "PUBLIC"), eq(forms.status, "PUBLISHED")))
+     .where(
+          and(
+            eq(forms.slug, input.slug),
+            inArray(forms.visibility, ["PUBLIC", "UNLISTED"]),
+            eq(forms.status, "PUBLISHED")
+          )
+        )
         .limit(1);
 
       if (!form)
@@ -680,7 +686,7 @@ export const formRouter = router({
           message: "This is a read-only template. Clone it to your workspace to accept responses." 
         });
       }
-      if (form.visibility !== "PUBLIC" || form.status !== "PUBLISHED") {
+       if (!["PUBLIC", "UNLISTED"].includes(form.visibility) || form.status !== "PUBLISHED") {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "This form is not accepting public responses",
