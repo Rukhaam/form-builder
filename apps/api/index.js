@@ -9,8 +9,9 @@ import { eq } from 'drizzle-orm';
 
 import { appRouter, startCronJobs } from '@repo/trpc/server/index.js'; 
 import { createContext } from '@repo/trpc/server/context.js';
+import { getPlanByRazorpayPlanId } from '@repo/trpc/server/utils/plans.js';
 import { oauthRouter } from './oauth.js'; 
-
+import razorpayWebhookRouter from './webhooks/razorpay.js';
 
 const app = express();
 app.use(helmet());
@@ -22,45 +23,8 @@ app.use(cors({
   credentials: true,
 }));
 
-app.post('/api/billing/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-  const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
-  const signature = req.headers['x-razorpay-signature'];
 
-  if (!webhookSecret || !signature) {
-    return res.status(400).json({ ok: false, error: 'Missing webhook secret/signature' });
-  }
-
-  try {
-    const expectedSignature = crypto
-      .createHmac('sha256', webhookSecret)
-      .update(req.body)
-      .digest('hex');
-
-    if (expectedSignature !== signature) {
-      return res.status(401).json({ ok: false, error: 'Invalid signature' });
-    }
-
-    const payload = JSON.parse(req.body.toString('utf8'));
-    const event = payload?.event;
-    const subscriptionEntity = payload?.payload?.subscription?.entity;
-    const subscriptionId = subscriptionEntity?.id;
-    const status = subscriptionEntity?.status;
-
-    if (subscriptionId && ['subscription.activated', 'subscription.charged', 'subscription.completed', 'subscription.cancelled', 'subscription.halted'].includes(event)) {
-      const mappedStatus = (status === 'active' || status === 'authenticated') ? 'active' : status === 'cancelled' ? 'canceled' : 'past_due';
-      await db
-        .update(subscriptions)
-        .set({ status: mappedStatus, updatedAt: new Date() })
-        .where(eq(subscriptions.razorpaySubscriptionId, subscriptionId));
-    }
-
-    return res.status(200).json({ ok: true });
-  } catch (error) {
-    console.error('Razorpay webhook processing failed', error);
-    return res.status(500).json({ ok: false, error: 'Webhook processing failed' });
-  }
-});
-
+app.use('/api/billing/webhook', razorpayWebhookRouter);
 app.use(express.json());
 app.use('/api/auth', oauthRouter);
 

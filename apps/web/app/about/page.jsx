@@ -22,29 +22,25 @@ const pillars = [
     icon: Users,
     title: 'Community first',
     description: 'Shaped with feedback from teams that need forms to feel simple and reliable.',
-    cardClass: 'border-cyan-200/80 bg-cyan-50/70 shadow-cyan-200/30',
-    iconClass: 'border-cyan-200 bg-cyan-100 text-cyan-700',
+    tone: 'text-blue-700 bg-blue-100 border-blue-200',
   },
   {
     icon: Zap,
     title: 'Fast workflows',
     description: 'Designed to keep creation, sharing, and analysis moving without friction.',
-    cardClass: 'border-amber-200/80 bg-amber-50/70 shadow-amber-200/30',
-    iconClass: 'border-amber-200 bg-amber-100 text-amber-700',
+    tone: 'text-amber-700 bg-amber-100 border-amber-200',
   },
   {
     icon: Code,
     title: 'No-code power',
     description: 'Built for advanced logic and flexible layouts without the complexity.',
-    cardClass: 'border-violet-200/80 bg-violet-50/70 shadow-violet-200/30',
-    iconClass: 'border-violet-200 bg-violet-100 text-violet-700',
+    tone: 'text-violet-700 bg-violet-100 border-violet-200',
   },
   {
     icon: Globe,
     title: 'Ready everywhere',
     description: 'A polished experience that feels consistent across devices and teams.',
-    cardClass: 'border-emerald-200/80 bg-emerald-50/70 shadow-emerald-200/30',
-    iconClass: 'border-emerald-200 bg-emerald-100 text-emerald-700',
+    tone: 'text-emerald-700 bg-emerald-100 border-emerald-200',
   },
 ];
 
@@ -52,39 +48,37 @@ export default function AboutPage() {
   return (
     <>
       <Navbar />
-      <main className="relative min-h-screen overflow-hidden bg-[#f4f7fb] pt-32 pb-20 selection:bg-cyan-200 selection:text-cyan-950">
-        <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_32%),radial-gradient(circle_at_top_right,rgba(129,140,248,0.16),transparent_28%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.12),transparent_34%)]"></div>
-        <div className="absolute -left-32 -top-32 -z-10 h-80 w-80 rounded-full bg-cyan-400/20 blur-3xl"></div>
-        <div className="absolute -right-24 top-28 -z-10 h-72 w-72 rounded-full bg-violet-400/20 blur-3xl"></div>
-        <div className="absolute -bottom-40 left-1/2 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-sky-400/10 blur-3xl"></div>
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(255,255,255,0.35)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.35)_1px,transparent_1px)] bg-size-[72px_72px] opacity-20"></div>
-
+      <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,#dff7ef,transparent_34%),linear-gradient(135deg,#f8fafc,#eef2ff_48%,#fff7ed)] pt-32 pb-20 text-slate-950">
+        
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto flex max-w-5xl flex-col items-center text-center animate-rise-in">
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200/80 bg-white/70 px-5 py-2 text-sm font-semibold text-cyan-800 shadow-lg shadow-cyan-200/30 backdrop-blur-2xl">
-              <Sparkles className="size-4 text-cyan-500" />
+          
+          {/* HERO SECTION */}
+          <div className="mx-auto flex max-w-4xl flex-col items-center text-center animate-rise-in">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-violet-200 bg-white/60 px-4 py-1.5 text-sm font-bold text-violet-700 shadow-sm backdrop-blur-xl">
+              <Sparkles className="size-4" />
               <span>Our Story</span>
             </div>
 
-            <h1 className="mt-8 text-5xl font-black leading-[0.92] tracking-tight text-slate-950 sm:text-6xl lg:text-7xl xl:text-8xl">
+            <h1 className="text-5xl font-black leading-[1.1] tracking-tight text-slate-950 sm:text-6xl lg:text-7xl">
               Beautiful forms
-              <span className="block bg-linear-to-r from-cyan-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
+              <span className="block text-black">
                 for modern teams.
               </span>
             </h1>
 
-            <p className="mx-auto mt-7 max-w-3xl text-base leading-8 text-slate-600 sm:text-lg md:text-xl">
+            <p className="mx-auto mt-6 max-w-2xl text-base font-medium leading-8 text-slate-500 sm:text-lg">
               FormBuilder turns collecting responses into a cleaner workflow, with design-led forms, faster publishing, and analytics that are easy to trust.
             </p>
 
+            {/* STATS */}
             <div className="mt-12 grid w-full gap-4 sm:grid-cols-3">
               {stats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="rounded-3xl border border-white/80 bg-white/70 px-6 py-6 text-center shadow-[0_18px_60px_rgba(15,23,42,0.08)] backdrop-blur-2xl"
+                  className="rounded-[2rem] border border-white/70 bg-white/65 p-8 text-center shadow-xl shadow-slate-200/60 backdrop-blur-xl transition hover:-translate-y-1"
                 >
-                  <div className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{stat.value}</div>
-                  <div className="mt-2 text-sm font-semibold uppercase tracking-[0.28em] text-slate-500">
+                  <div className="text-4xl font-black tracking-tight text-slate-950">{stat.value}</div>
+                  <div className="mt-2 text-xs font-bold uppercase tracking-wider text-slate-500">
                     {stat.label}
                   </div>
                 </div>
@@ -94,15 +88,16 @@ export default function AboutPage() {
 
           <div className="mt-24">
             <div className="mb-8 flex items-center gap-4">
-              <span className="text-xs font-bold uppercase tracking-[0.35em] text-slate-500">Why teams choose FormBuilder</span>
-              <div className="h-px flex-1 bg-linear-to-r from-cyan-300/70 via-slate-200 to-transparent"></div>
+              <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Why teams choose FormBuilder</span>
+              <div className="h-px flex-1 bg-slate-200/60"></div>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-12 lg:items-stretch animate-rise-in" style={{ animationDelay: '100ms' }}>
-              <div className="relative overflow-hidden rounded-[2.25rem] border border-white/80 bg-white/70 p-8 shadow-[0_24px_90px_rgba(15,23,42,0.10)] backdrop-blur-3xl lg:col-span-7 md:p-10">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.14),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(129,140,248,0.12),transparent_36%)]"></div>
+              
+              {/* MAIN MISSION CARD */}
+              <div className="relative overflow-hidden rounded-[2.5rem] border border-white/70 bg-white/65 p-8 shadow-xl shadow-slate-200/60 backdrop-blur-xl lg:col-span-7 md:p-10">
                 <div className="relative z-10">
-                  <div className="inline-flex size-14 items-center justify-center rounded-2xl border border-cyan-200 bg-cyan-50 text-cyan-700 shadow-lg shadow-cyan-200/30">
+                  <div className="inline-flex size-14 items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm">
                     <Target className="size-6" />
                   </div>
 
@@ -110,20 +105,20 @@ export default function AboutPage() {
                     Our mission is to make form building feel effortless.
                   </h2>
 
-                  <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-                    We believe gathering information should feel seamless for the creator and clear for the respondent. FormBuilder brings enterprise-grade capability into a clean, approachable experience.
+                  <p className="mt-5 max-w-2xl text-base font-medium leading-8 text-slate-600">
+                    We believe gathering information should feel seamless for the creator and clear for the respondent. FormBuilder brings enterprise-grade capability into a clean, approachable experience without the clutter.
                   </p>
 
-                  <div className="mt-8 inline-flex items-center gap-3 rounded-full border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-xl">
-                    <Rocket className="size-4 text-cyan-600" />
-                    Designed to help teams launch faster without losing polish.
+                  <div className="mt-8 inline-flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm">
+                    <Rocket className="size-4 text-emerald-600" />
+                    Designed to help teams launch faster.
                   </div>
 
                   <div className="mt-8 grid gap-3 sm:grid-cols-3">
                     {['Design first', 'Fast setup', 'Reliable data'].map((item) => (
                       <div
                         key={item}
-                        className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3 text-sm font-semibold text-slate-700 shadow-[0_12px_40px_rgba(15,23,42,0.06)] backdrop-blur-2xl"
+                        className="rounded-xl border border-white/80 bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm"
                       >
                         {item}
                       </div>
@@ -132,33 +127,27 @@ export default function AboutPage() {
                 </div>
               </div>
 
+              {/* PILLARS GRID */}
               <div className="grid gap-4 sm:grid-cols-2 lg:col-span-5">
                 {pillars.map((pillar, index) => {
                   const Icon = pillar.icon;
-
                   return (
                     <div
                       key={pillar.title}
-                      className={cn(
-                        'group relative overflow-hidden rounded-[2rem] border p-6 shadow-[0_18px_70px_rgba(15,23,42,0.08)] backdrop-blur-3xl transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_28px_90px_rgba(15,23,42,0.14)]',
-                        pillar.cardClass
-                      )}
+                      className="group flex flex-col rounded-[2rem] border border-white/70 bg-white/65 p-6 shadow-lg shadow-slate-200/50 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-slate-300"
                       style={{ animationDelay: `${140 + index * 70}ms` }}
                     >
-                      <div className="absolute inset-0 bg-linear-to-br from-white/55 via-transparent to-transparent opacity-90"></div>
-                      <div className="relative z-10">
-                        <div
-                          className={cn(
-                            'mb-5 inline-flex size-12 items-center justify-center rounded-2xl border shadow-lg shadow-white/20 transition-transform duration-500 group-hover:scale-110',
-                            pillar.iconClass
-                          )}
-                        >
-                          <Icon className="size-6" />
-                        </div>
-
-                        <h3 className="text-lg font-black tracking-tight text-slate-950">{pillar.title}</h3>
-                        <p className="mt-3 text-sm leading-6 text-slate-600">{pillar.description}</p>
+                      <div
+                        className={cn(
+                          'mb-5 flex size-12 items-center justify-center rounded-xl border shadow-sm transition-transform duration-500 group-hover:scale-105',
+                          pillar.tone
+                        )}
+                      >
+                        <Icon className="size-6" />
                       </div>
+
+                      <h3 className="text-lg font-black tracking-tight text-slate-950">{pillar.title}</h3>
+                      <p className="mt-2 text-sm font-medium leading-6 text-slate-500">{pillar.description}</p>
                     </div>
                   );
                 })}
@@ -166,18 +155,20 @@ export default function AboutPage() {
             </div>
           </div>
 
+          {/* CTA SECTION */}
           <div className="mt-24 animate-rise-in" style={{ animationDelay: '220ms' }}>
-            <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[2.5rem] border border-slate-200/80 bg-linear-to-br from-slate-950 via-slate-900 to-slate-800 px-8 py-16 text-center shadow-[0_30px_120px_rgba(15,23,42,0.28)] sm:px-12 lg:px-16">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(129,140,248,0.18),transparent_30%)]"></div>
-              <div className="absolute -top-24 -right-24 size-64 rounded-full bg-cyan-400/20 blur-3xl"></div>
-              <div className="absolute -bottom-24 -left-24 size-64 rounded-full bg-violet-400/20 blur-3xl"></div>
+            <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[2.5rem] bg-slate-950 px-8 py-16 text-center shadow-2xl sm:px-12 lg:px-16">
+              
+              {/* Subtle background glow for the dark card */}
+              <div className="absolute -top-24 -right-24 size-64 rounded-full bg-violet-500/10 blur-3xl"></div>
+              <div className="absolute -bottom-24 -left-24 size-64 rounded-full bg-emerald-500/10 blur-3xl"></div>
 
               <div className="relative z-10">
-                <Heart className="mx-auto mb-5 size-10 text-cyan-300" />
+                <Heart className="mx-auto mb-5 size-10 text-emerald-400" />
                 <h2 className="mx-auto max-w-3xl text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl">
                   Ready to build something clearer?
                 </h2>
-                <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-300">
+                <p className="mx-auto mt-5 max-w-2xl text-lg font-medium leading-8 text-slate-400">
                   Join creators who use FormBuilder to collect feedback, run campaigns, and ship forms that feel polished from the first click.
                 </p>
 
@@ -186,10 +177,9 @@ export default function AboutPage() {
                     href="/register"
                     className={cn(
                       buttonVariants({ size: 'lg' }),
-                      'rounded-2xl border border-cyan-200/30 bg-linear-to-r from-cyan-400 to-indigo-400 px-8 text-slate-950 shadow-lg shadow-cyan-500/20 transition-all duration-300 hover:scale-105 hover:shadow-cyan-500/40'
+                      'h-12 rounded-xl bg-white px-8 font-bold text-slate-950 hover:bg-slate-100'
                     )}
                   >
-                    <Sparkles className="mr-2 size-5" />
                     Get Started Free
                     <ArrowRight className="ml-2 size-5" />
                   </Link>
@@ -198,7 +188,7 @@ export default function AboutPage() {
                     href="/pricing"
                     className={cn(
                       buttonVariants({ size: 'lg', variant: 'outline' }),
-                      'rounded-2xl border-white/15 bg-white/5 px-8 text-white backdrop-blur-xl transition-all duration-300 hover:border-white/30 hover:bg-white/10 hover:text-white'
+                      'h-12 rounded-xl border-slate-700 bg-transparent px-8 font-bold text-white hover:bg-slate-800 hover:text-white'
                     )}
                   >
                     View Pricing
