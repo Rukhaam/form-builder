@@ -11,7 +11,9 @@ import {
   formFields,
   formSubmissions,
   fieldResponses,
-  formReviews
+  formReviews,
+  subscriptions,
+  usageCounters,
 } from "@repo/database";
 import { eq, and, inArray, desc, count, sql } from "drizzle-orm"; // <-- Added 'sql' for subqueries
 import { TRPCError } from "@trpc/server";
@@ -19,10 +21,44 @@ import { z } from "zod";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from 'dotenv';
+import { DEFAULT_PLAN_ID, getPlan, hasUnlimited } from "../utils/plans.js";
 
 dotenv.config();
 
 const FORM_UNLOCK_TOKEN_TTL_SECONDS = 10 * 60;
+async function enforceFormCreationLimit(userId) {
+  const [sub] = await db.select().from(subscriptions).where(eq(subscriptions.userId, userId)).limit(1);
+  const plan = getPlan(sub?.planId ?? DEFAULT_PLAN_ID);
+  if (hasUnlimited(plan.maxForms)) return;
+
+  const [formsAggregate] = await db
+    .select({ totalForms: count(forms.id) })
+    .from(forms)
+    .where(eq(forms.userId, userId));
+
+  const formsCount = Number(formsAggregate?.totalForms ?? 0);
+  if (formsCount >= plan.maxForms) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: `Form limit reached for ${plan.name}. Upgrade to create more forms.`,
+    });
+  }
+}
+
+async function incrementFormsUsage(userId) {
+  await db
+    .insert(usageCounters)
+    .values({
+      userId,
+      metric: "forms_created",
+      periodKey: "LIFETIME",
+      usedCount: 1,
+    })
+    .onConflictDoUpdate({
+      target: [usageCounters.userId, usageCounters.metric, usageCounters.periodKey],
+      set: { usedCount: sql`${usageCounters.usedCount} + 1`, updatedAt: new Date() },
+    });
+}
 
 function slugifyTitle(title) {
   const slug = title
@@ -60,6 +96,7 @@ export const formRouter = router({
     .input(z.object({ templateId: z.string().uuid() }))
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id;
+      await enforceFormCreationLimit(userId);
 
       const [templateForm] = await db
         .select()
@@ -107,6 +144,7 @@ export const formRouter = router({
           await tx.insert(formFields).values(fieldsToInsert);
         }
       });
+      await incrementFormsUsage(userId);
 
       return { message: "Template cloned successfully", formId: newFormId };
     }),
@@ -115,6 +153,7 @@ export const formRouter = router({
     .input(createFormSchema)
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id;
+      await enforceFormCreationLimit(userId);
 
       const [newForm] = await db
         .insert(forms)
@@ -128,6 +167,7 @@ export const formRouter = router({
           expiresAt: input.expiresAt,
         })
         .returning();
+      await incrementFormsUsage(userId);
 
       return { message: "Form created successfully", form: newForm };
     }),
@@ -223,6 +263,7 @@ getAnalyticsOverview: protectedProcedure.query(async ({ ctx }) => {
           .where(and(eq(forms.id, input.formId), eq(forms.userId, userId)))
           .returning();
       } else {
+        await enforceFormCreationLimit(userId);
         const slug = await createUniqueSlug(input.title);
 
         [targetForm] = await db
@@ -233,6 +274,7 @@ getAnalyticsOverview: protectedProcedure.query(async ({ ctx }) => {
             ...formPayload, 
           })
           .returning();
+        await incrementFormsUsage(userId);
       }
 
       const existingFields = await db
