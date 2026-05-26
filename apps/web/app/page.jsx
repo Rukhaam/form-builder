@@ -131,9 +131,11 @@ export default function Home() {
                 <h3 className="text-3xl font-black tracking-tight text-slate-950 md:text-4xl lg:text-5xl">
                   {feature.title}
                 </h3>
-                <p className="mt-6 text-lg font-medium leading-relaxed text-slate-600">
+          <div className='flex items-center justify-center'>
+                            <p className="mt-6 text-lg font-medium leading-relaxed text-slate-600">
                   {feature.description}
                 </p>
+          </div>
                 
                 <ul className="mt-8 space-y-4">
                   {feature.checklist.map((item) => (

@@ -7,7 +7,7 @@ import helmet from 'helmet';
 import { appRouter, startCronJobs } from '@repo/trpc/server/index.js'; 
 import { createContext } from '@repo/trpc/server/context.js';
 import { oauthRouter } from './oauth.js'; 
-import razorpayWebhookRouter from './webhooks/razorpay.js';
+
 
 const app = express();
 app.use(helmet());
@@ -19,7 +19,7 @@ app.use(cors({
   credentials: true,
 }));
 
-app.use('/api/webhooks/razorpay', razorpayWebhookRouter);
+
 app.use(express.json());
 app.use('/api/auth', oauthRouter);
 

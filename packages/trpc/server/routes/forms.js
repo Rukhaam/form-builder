@@ -147,12 +147,15 @@ export const formRouter = router({
     const rows = await db
       .select({
         form: forms,
-        submissionCount: sql`(SELECT COUNT(*)::int FROM ${formSubmissions} WHERE ${formSubmissions.formId} = ${forms.id})`.mapWith(Number),
-        fieldCount: sql`(SELECT COUNT(*)::int FROM ${formFields} WHERE ${formFields.formId} = ${forms.id})`.mapWith(Number),
-        latestSubmittedAt: sql`(SELECT MAX(${formSubmissions.submittedAt}) FROM ${formSubmissions} WHERE ${formSubmissions.formId} = ${forms.id})`,
+        submissionCount: sql`COUNT(DISTINCT ${formSubmissions.id})`.mapWith(Number),
+        fieldCount: sql`COUNT(DISTINCT ${formFields.id})`.mapWith(Number),
+        latestSubmittedAt: sql`MAX(${formSubmissions.submittedAt})`,
       })
       .from(forms)
+      .leftJoin(formSubmissions, eq(formSubmissions.formId, forms.id))
+      .leftJoin(formFields, eq(formFields.formId, forms.id))
       .where(eq(forms.userId, userId))
+      .groupBy(forms.id)
       .orderBy(desc(forms.createdAt));
 
     return rows.map((row) => ({
@@ -387,30 +390,30 @@ export const formRouter = router({
 
       const offset = (page - 1) * limit;
 
-      const submissions = await db
+      const allSubmissionsRaw = await db
         .select()
         .from(formSubmissions)
         .where(eq(formSubmissions.formId, formId))
-        .orderBy(desc(formSubmissions.submittedAt))
-        .limit(limit)
-        .offset(offset);
+        .orderBy(desc(formSubmissions.submittedAt));
 
-      if (submissions.length === 0) {
+      if (allSubmissionsRaw.length === 0) {
         return {
           form,
           fields,
           submissions: [],
+          allSubmissions: [],
           pagination: { total: 0, page, limit, totalPages: 0 },
         };
       }
-      const submissionIds = submissions.map((sub) => sub.id);
-      const responses = await db
+      
+      const allSubmissionIds = allSubmissionsRaw.map((sub) => sub.id);
+      const allResponses = await db
         .select()
         .from(fieldResponses)
-        .where(inArray(fieldResponses.submissionId, submissionIds));
+        .where(inArray(fieldResponses.submissionId, allSubmissionIds));
 
-      const formattedSubmissions = submissions.map((sub) => {
-        const answersForThisSub = responses.filter(
+      const allFormattedSubmissions = allSubmissionsRaw.map((sub) => {
+        const answersForThisSub = allResponses.filter(
           (r) => r.submissionId === sub.id,
         );
 
@@ -437,10 +440,13 @@ export const formRouter = router({
         };
       });
 
+      const formattedSubmissions = allFormattedSubmissions.slice(offset, offset + limit);
+
       return {
         form,
         fields,
         submissions: formattedSubmissions,
+        allSubmissions: allFormattedSubmissions,
         pagination: {
           total: totalSubmissions,
           page,

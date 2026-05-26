@@ -7,23 +7,35 @@ import { z } from "zod";
 
 
 export const reviewsRouter = router({
+    getFormReviews: publicProcedure
+    .input(z.object({ formId: z.string().uuid() }))
+    .query(async ({ input }) => {
+      const reviews = await db
+        .select()
+        .from(formReviews)
+        .where(eq(formReviews.formId, input.formId));
+
+      return reviews;
+    }),
+
     submit:protectedProcedure
     .input(submitReviewSchema)
     .mutation(async({input,ctx})=>{
           const userId = ctx.user.id;
 
+          // Allowing multiple reviews for testing average score calculation
+          /*
          const [existingReview] = await db
         .select()
         .from(formReviews)
         .where(and(eq(formReviews.formId, input.formId), eq(formReviews.userId, userId)))
         .limit(1);
-        
-        
 
         if(existingReview){
             await db.update(formReviews).set({rating:input.rating, createdAt: new Date()}).where(eq(formReviews.id, existingReview.id));
             return {success:true , message: "Review updated successfully" };
         }
+        */
 
             await db.insert(formReviews).values({
                 formId:input.formId,

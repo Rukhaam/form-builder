@@ -21,7 +21,7 @@ import {
   Trash2,
   Lock,
   Palette,
-} from "lucide-react";
+} from "lucide-react"; 
 import Link from "next/link";
 import { format } from "date-fns";
 
@@ -110,6 +110,7 @@ export default function FormEditorPage() {
     theme,
   } = editorState;
   const [copiedShareLink, setCopiedShareLink] = useState(false);
+  
   const { data: existingForm, isLoading: isFetching } =
     trpc.form.getFormEditor.useQuery(
       { formId: formIdParam },
@@ -142,11 +143,31 @@ export default function FormEditorPage() {
       }
     },
     onError: (error) => {
-      toast.error(error.message || "Could not save this form");
+      // 🚀 BILLING GUARD: Intercept the payment required error to show an Upgrade CTA
+      if (error.data?.code === 'PAYMENT_REQUIRED') {
+        toast.error(
+          (t) => (
+            <div className="flex flex-col gap-3">
+              <span className="text-sm font-semibold text-slate-900">{error.message}</span>
+              <button
+                onClick={() => {
+                  toast.dismiss(t.id);
+                  router.push('/pricing'); // Redirects to the pricing page
+                }}
+                className="w-fit rounded-lg bg-violet-600 px-4 py-2 text-xs font-bold text-white shadow-md transition hover:bg-violet-700"
+              >
+                Upgrade to Pro
+              </button>
+            </div>
+          ),
+          { duration: 8000, style: { background: '#fff', border: '1px solid #e2e8f0' } }
+        );
+      } else {
+        toast.error(error.message || "Could not save this form");
+      }
     },
   });
 
-  // 🚀 Derived state to handle both tRPC v4 and v5 syntax safely
   const isSaving = saveMutation.isLoading || saveMutation.isPending;
 
   useEffect(() => {
@@ -274,6 +295,7 @@ export default function FormEditorPage() {
       fields: cleanFields,
     });
   };
+  
   const shareLink = useMemo(() => {
     if (isNew) return "";
     const formSlug = existingForm?.form?.slug;

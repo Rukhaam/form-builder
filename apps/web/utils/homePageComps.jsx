@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CheckCircle2, Globe, Loader2, Sparkles } from 'lucide-react';
+import { CheckCircle2, Globe, Loader2, Sparkles, BarChart3, LayoutTemplate, Link as LinkIcon  } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // --- AUTONOMOUS ANIMATED HERO MOCKUP ---
@@ -158,29 +158,53 @@ export function GridMeteors() {
     </div>
   );
 }
+
+
 export function FeatureMockup({ index }) {
   if (index === 0) {
-    // BUILDER MOCKUP
+    // 🛠️ BUILDER MOCKUP
     return (
-      <div className="relative w-full max-w-md mx-auto aspect-square rounded-[2.5rem] border border-white/60 bg-white/40 p-8 shadow-2xl shadow-violet-200/50 backdrop-blur-xl animate-float-slow transform-gpu rotate-y-[-5deg] rotate-x-[5deg] perspective-[1000px]">
-        <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-tr from-white/80 to-white/20"></div>
-        <div className="relative z-10 h-full w-full rounded-2xl border border-slate-200/60 bg-white/90 shadow-sm overflow-hidden flex flex-col">
-          <div className="h-10 border-b border-slate-100 flex items-center px-4 gap-2 bg-slate-50/50">
-             <div className="size-2.5 rounded-full bg-slate-300"></div>
-             <div className="size-2.5 rounded-full bg-slate-300"></div>
-             <div className="size-2.5 rounded-full bg-slate-300"></div>
+      <div className="relative mx-auto w-full max-w-[280px] sm:max-w-sm md:max-w-md aspect-[4/5] sm:aspect-square rounded-[2rem] sm:rounded-[2.5rem] border border-white/60 bg-white/40 p-4 sm:p-6 md:p-8 shadow-2xl shadow-violet-200/50 backdrop-blur-xl animate-float-slow transform-gpu sm:rotate-y-[-5deg] sm:rotate-x-[5deg] perspective-[1000px] transition-all">
+        <div className="absolute inset-0 rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-tr from-white/80 to-white/20"></div>
+        <div className="relative z-10 flex h-full w-full flex-col overflow-hidden rounded-xl sm:rounded-2xl border border-slate-200/60 bg-white/90 shadow-sm">
+          
+          {/* Mock Browser/App Header */}
+          <div className="flex h-8 sm:h-10 items-center gap-1.5 sm:gap-2 border-b border-slate-100 bg-slate-50/80 px-3 sm:px-4">
+            <div className="size-2 sm:size-2.5 rounded-full bg-slate-300"></div>
+            <div className="size-2 sm:size-2.5 rounded-full bg-slate-300"></div>
+            <div className="size-2 sm:size-2.5 rounded-full bg-slate-300"></div>
+            <div className="ml-auto flex items-center gap-2 rounded-md bg-white px-2 py-1 shadow-sm border border-slate-100">
+               <LayoutTemplate className="size-3 text-violet-400" />
+               <div className="h-1.5 w-12 rounded-full bg-slate-200"></div>
+            </div>
           </div>
-          <div className="p-5 space-y-4">
-             <div className="h-8 w-2/3 rounded-lg bg-slate-100 mb-6"></div>
-             <div className="h-12 w-full rounded-xl border border-violet-200 bg-violet-50/50 flex items-center px-4 shadow-sm ring-1 ring-violet-500/10">
-               <div className="h-4 w-1/3 rounded bg-violet-200"></div>
-             </div>
-             <div className="h-12 w-full rounded-xl border border-slate-100 bg-white flex items-center px-4">
-               <div className="h-4 w-1/2 rounded bg-slate-100"></div>
-             </div>
-             <div className="h-12 w-full rounded-xl border border-slate-100 bg-white flex items-center px-4">
-               <div className="h-4 w-2/5 rounded bg-slate-100"></div>
-             </div>
+
+          {/* Mock Builder Area */}
+          <div className="flex flex-1 p-3 sm:p-5 gap-3 sm:gap-4">
+            {/* Sidebar Skeleton */}
+            <div className="hidden w-1/4 flex-col gap-2 border-r border-slate-100 pr-3 sm:flex">
+              <div className="h-4 w-full rounded bg-slate-100"></div>
+              <div className="h-4 w-5/6 rounded bg-slate-100"></div>
+              <div className="h-4 w-full rounded bg-slate-100"></div>
+            </div>
+            
+            {/* Main Canvas Skeleton */}
+            <div className="flex w-full sm:w-3/4 flex-col space-y-3 sm:space-y-4">
+              <div className="mb-2 sm:mb-4 h-6 sm:h-8 w-2/3 rounded-lg bg-slate-100"></div>
+              
+              {/* Active Field */}
+              <div className="flex min-h-[2.5rem] sm:min-h-[3rem] w-full items-center rounded-lg sm:rounded-xl border border-violet-200 bg-violet-50/50 px-3 sm:px-4 shadow-sm ring-1 ring-violet-500/10">
+                <div className="h-3 sm:h-4 w-1/3 rounded bg-violet-200"></div>
+              </div>
+              
+              {/* Inactive Fields */}
+              <div className="flex min-h-[2.5rem] sm:min-h-[3rem] w-full items-center rounded-lg sm:rounded-xl border border-slate-100 bg-white px-3 sm:px-4">
+                <div className="h-3 sm:h-4 w-1/2 rounded bg-slate-100"></div>
+              </div>
+              <div className="flex min-h-[2.5rem] sm:min-h-[3rem] w-full items-center rounded-lg sm:rounded-xl border border-slate-100 bg-white px-3 sm:px-4">
+                <div className="h-3 sm:h-4 w-2/5 rounded bg-slate-100"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -188,18 +212,50 @@ export function FeatureMockup({ index }) {
   }
   
   if (index === 1) {
-    // ANALYTICS MOCKUP
+    // 📊 ANALYTICS MOCKUP
     return (
-      <div className="relative w-full max-w-md mx-auto aspect-square rounded-[2.5rem] border border-white/60 bg-white/40 p-8 shadow-2xl shadow-emerald-200/50 backdrop-blur-xl animate-float-slow transform-gpu rotate-y-[5deg] rotate-x-[5deg] perspective-[1000px]" style={{ animationDelay: '1s' }}>
-        <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-tr from-white/80 to-white/20"></div>
-        <div className="relative z-10 h-full w-full rounded-2xl border border-slate-200/60 bg-white/90 shadow-sm overflow-hidden flex flex-col p-6">
-           <div className="flex justify-between items-center mb-8">
-              <div className="h-6 w-32 rounded-md bg-slate-100"></div>
-              <div className="h-8 w-20 rounded-full bg-emerald-100"></div>
+      <div 
+        className="relative mx-auto w-full max-w-[280px] sm:max-w-sm md:max-w-md aspect-[4/5] sm:aspect-square rounded-[2rem] sm:rounded-[2.5rem] border border-white/60 bg-white/40 p-4 sm:p-6 md:p-8 shadow-2xl shadow-emerald-200/50 backdrop-blur-xl animate-float-slow transform-gpu sm:rotate-y-[5deg] sm:rotate-x-[5deg] perspective-[1000px] transition-all" 
+        style={{ animationDelay: '1s' }}
+      >
+        <div className="absolute inset-0 rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-tr from-white/80 to-white/20"></div>
+        <div className="relative z-10 flex h-full w-full flex-col overflow-hidden rounded-xl sm:rounded-2xl border border-slate-200/60 bg-white/90 p-4 sm:p-6 shadow-sm">
+           
+           {/* Header Stats */}
+           <div className="mb-6 sm:mb-8 flex items-start justify-between">
+              <div className="space-y-2">
+                <div className="h-4 sm:h-6 w-24 sm:w-32 rounded-md bg-slate-100"></div>
+                <div className="h-3 w-16 rounded-md bg-slate-50"></div>
+              </div>
+              <div className="flex h-6 sm:h-8 items-center gap-1.5 rounded-full bg-emerald-50 px-2 sm:px-3 border border-emerald-100">
+                 <BarChart3 className="size-3 sm:size-4 text-emerald-500" />
+                 <div className="h-2 w-8 sm:w-10 rounded-full bg-emerald-200"></div>
+              </div>
            </div>
-           <div className="flex-1 flex items-end gap-3 px-2">
+
+           {/* Chart Area */}
+           <div className="relative flex flex-1 items-end gap-1.5 sm:gap-3 px-1 sm:px-2">
+              {/* Subtle background grid lines */}
+              <div className="absolute inset-0 flex flex-col justify-between py-2 opacity-20">
+                 <div className="w-full border-t-2 border-dashed border-slate-300"></div>
+                 <div className="w-full border-t-2 border-dashed border-slate-300"></div>
+                 <div className="w-full border-t-2 border-dashed border-slate-300"></div>
+              </div>
+
+              {/* Bars */}
               {[40, 70, 45, 90, 60, 100, 85].map((h, i) => (
-                 <div key={i} className="w-full rounded-t-lg bg-gradient-to-t from-emerald-500 to-teal-400" style={{ height: `${h}%` }}></div>
+                 <div 
+                   key={i} 
+                   className="group relative z-10 w-full rounded-t-md sm:rounded-t-lg bg-gradient-to-t from-emerald-500 to-teal-400 transition-all hover:opacity-80" 
+                   style={{ height: `${h}%` }}
+                 >
+                    {/* Hover Tooltip Mock */}
+                    {i === 5 && (
+                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 rounded bg-slate-900 px-2 py-1 shadow-lg">
+                        <div className="h-1.5 w-6 rounded-full bg-white/80"></div>
+                      </div>
+                    )}
+                 </div>
               ))}
            </div>
         </div>
@@ -207,19 +263,38 @@ export function FeatureMockup({ index }) {
     );
   }
 
-  // PUBLISH MOCKUP
+  // 🚀 PUBLISH MOCKUP
   return (
-    <div className="relative w-full max-w-md mx-auto aspect-square rounded-[2.5rem] border border-white/60 bg-white/40 p-8 shadow-2xl shadow-amber-200/50 backdrop-blur-xl animate-float-slow transform-gpu rotate-y-[-5deg] rotate-x-[5deg] perspective-[1000px]" style={{ animationDelay: '2s' }}>
-      <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-tr from-white/80 to-white/20"></div>
-      <div className="relative z-10 h-full w-full rounded-2xl border border-slate-200/60 bg-white/90 shadow-sm overflow-hidden flex flex-col items-center justify-center p-8 text-center">
-         <div className="size-20 rounded-full bg-amber-100 flex items-center justify-center mb-6 shadow-inner">
-            <CheckCircle2 className="size-10 text-amber-500" />
+    <div 
+      className="relative mx-auto w-full max-w-[280px] sm:max-w-sm md:max-w-md aspect-[4/5] sm:aspect-square rounded-[2rem] sm:rounded-[2.5rem] border border-white/60 bg-white/40 p-4 sm:p-6 md:p-8 shadow-2xl shadow-amber-200/50 backdrop-blur-xl animate-float-slow transform-gpu sm:rotate-y-[-5deg] sm:rotate-x-[5deg] perspective-[1000px] transition-all" 
+      style={{ animationDelay: '2s' }}
+    >
+      <div className="absolute inset-0 rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-tr from-white/80 to-white/20"></div>
+      <div className="relative z-10 flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-xl sm:rounded-2xl border border-slate-200/60 bg-white/90 p-6 sm:p-8 text-center shadow-sm">
+         
+         {/* Success Icon */}
+         <div className="mb-4 sm:mb-6 flex size-16 sm:size-20 items-center justify-center rounded-full bg-gradient-to-br from-amber-100 to-orange-50 shadow-inner ring-1 ring-amber-200/50">
+            <CheckCircle2 className="size-8 sm:size-10 text-amber-500" />
          </div>
-         <div className="h-6 w-3/4 rounded-md bg-slate-100 mb-3"></div>
-         <div className="h-4 w-1/2 rounded-md bg-slate-50 mb-8"></div>
-         <div className="w-full h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between px-3">
-            <div className="h-4 w-1/2 rounded bg-slate-200"></div>
-            <div className="h-8 w-16 rounded-lg bg-white border border-slate-200 shadow-sm"></div>
+         
+         {/* Text Skeletons */}
+         <div className="mb-2 sm:mb-3 h-5 sm:h-6 w-3/4 rounded-md bg-slate-100"></div>
+         <div className="mb-6 sm:mb-8 h-3 sm:h-4 w-1/2 rounded-md bg-slate-50"></div>
+         
+         {/* Link Copy UI */}
+         <div className="flex h-10 sm:h-12 w-full items-center justify-between rounded-lg sm:rounded-xl border border-slate-200 bg-slate-50/50 px-2 sm:px-3">
+            <div className="flex items-center gap-2 w-2/3">
+              <LinkIcon className="size-3 sm:size-4 text-slate-400" />
+              <div className="h-3 sm:h-4 w-full rounded bg-slate-200"></div>
+            </div>
+            <div className="h-6 sm:h-8 w-12 sm:w-16 rounded-md sm:rounded-lg border border-slate-200 bg-white shadow-sm"></div>
+         </div>
+
+         {/* Share Bubbles */}
+         <div className="mt-4 flex gap-2">
+            <div className="size-6 sm:size-8 rounded-full bg-slate-100 border border-slate-200"></div>
+            <div className="size-6 sm:size-8 rounded-full bg-slate-100 border border-slate-200"></div>
+            <div className="size-6 sm:size-8 rounded-full bg-slate-100 border border-slate-200"></div>
          </div>
       </div>
     </div>
