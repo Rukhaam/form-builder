@@ -11,6 +11,7 @@ import {
   formFields,
   formSubmissions,
   fieldResponses,
+  formReviews
 } from "@repo/database";
 import { eq, and, inArray, desc, count, sql } from "drizzle-orm"; // <-- Added 'sql' for subqueries
 import { TRPCError } from "@trpc/server";
@@ -140,22 +141,20 @@ export const formRouter = router({
     return myForms;
   }),
 
-  // 🚀 FIX: Solved N+1 query problem using subqueries in a single call
-  getAnalyticsOverview: protectedProcedure.query(async ({ ctx }) => {
+getAnalyticsOverview: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.user.id;
     
     const rows = await db
       .select({
         form: forms,
-        submissionCount: sql`COUNT(DISTINCT ${formSubmissions.id})`.mapWith(Number),
-        fieldCount: sql`COUNT(DISTINCT ${formFields.id})`.mapWith(Number),
-        latestSubmittedAt: sql`MAX(${formSubmissions.submittedAt})`,
+        submissionCount: sql`(SELECT COUNT(*)::int FROM ${formSubmissions} WHERE ${formSubmissions.formId} = ${forms.id})`.mapWith(Number),
+        fieldCount: sql`(SELECT COUNT(*)::int FROM ${formFields} WHERE ${formFields.formId} = ${forms.id})`.mapWith(Number),
+        latestSubmittedAt: sql`(SELECT MAX(${formSubmissions.submittedAt}) FROM ${formSubmissions} WHERE ${formSubmissions.formId} = ${forms.id})`.mapWith(String),
+        totalReviews: sql`(SELECT COUNT(*)::int FROM ${formReviews} WHERE ${formReviews.formId} = ${forms.id})`.mapWith(Number),
+        averageRating: sql`(SELECT COALESCE(AVG(${formReviews.rating}), 0)::numeric(10,1) FROM ${formReviews} WHERE ${formReviews.formId} = ${forms.id})`.mapWith(Number),
       })
       .from(forms)
-      .leftJoin(formSubmissions, eq(formSubmissions.formId, forms.id))
-      .leftJoin(formFields, eq(formFields.formId, forms.id))
       .where(eq(forms.userId, userId))
-      .groupBy(forms.id)
       .orderBy(desc(forms.createdAt));
 
     return rows.map((row) => ({
@@ -163,6 +162,8 @@ export const formRouter = router({
       submissionCount: row.submissionCount ?? 0,
       fieldCount: row.fieldCount ?? 0,
       latestSubmittedAt: row.latestSubmittedAt ?? null,
+      totalReviews: row.totalReviews ?? 0,
+      averageRating: row.averageRating ?? 0,
     }));
   }),
 

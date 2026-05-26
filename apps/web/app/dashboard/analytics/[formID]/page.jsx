@@ -32,6 +32,7 @@ export default function FormAnalyticsPage() {
     },
     { enabled: !!formId }
   );
+  console.log(data)
 
   // 2. Fetch Form Review Stats
   const { data: reviewStatsData } = trpc.review.getStats.useQuery(
@@ -46,6 +47,8 @@ export default function FormAnalyticsPage() {
       total: reviewStatsData.totalReviews || 0
     };
   }, [reviewStatsData]);
+
+
 
   // 4. Data Transformation: Submissions over time
   const timeSeriesData = useMemo(() => {
@@ -167,12 +170,18 @@ export default function FormAnalyticsPage() {
 
         <Card className="border border-slate-200/60 shadow-lg shadow-slate-200/40 rounded-[1.5rem]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider">Status</CardTitle>
+            <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider">Latest Entry</CardTitle>
             <div className="p-2 bg-violet-50 rounded-xl"><Clock className="h-4 w-4 text-violet-600" /></div>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-black text-slate-900">
-              {form.isExpired ? 'Closed' : 'Active'}
+            <div className="text-xl md:text-2xl font-black text-slate-900 mt-2">
+              {data.allSubmissions && data.allSubmissions.length > 0 
+                ? new Date(data.allSubmissions[0].submittedAt).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                  })
+                : 'No responses'}
             </div>
           </CardContent>
         </Card>
