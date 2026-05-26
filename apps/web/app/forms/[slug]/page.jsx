@@ -147,6 +147,7 @@ export default function PublicFormResponsePage() {
   // 🚀 Rating & Auth State
   const [user, setUser] = useState(null);
   const [rating, setRating] = useState(0);
+  const [hasRated, setHasRated] = useState(false);
   const [unlockToken, setUnlockToken] = useState(null);
 
   useEffect(() => {

@@ -10,6 +10,7 @@ const initialState = {
   expiresAt: null,
   maxResponses: null,
   category: '',
+  theme: 'light',
   fields: [],
   activeFieldId: null, 
   isSaving: false,
@@ -21,7 +22,7 @@ export const formEditorSlice = createSlice({
   reducers: {
     // 1. Load an existing form from the database into Redux
     loadForm: (state, action) => {
-      const { id, title, description, visibility, status, expiresAt, maxResponses, password, category, fields } = action.payload;
+      const { id, title, description, visibility, status, expiresAt, maxResponses, password, category, theme, fields } = action.payload;
       state.formId = id;
       state.title = title;
       state.description = description || '';
@@ -31,6 +32,7 @@ export const formEditorSlice = createSlice({
       state.expiresAt = expiresAt || null;
       state.maxResponses = maxResponses || null;
       state.category = category || '';
+      state.theme = theme || 'light';
       state.fields = fields || [];
       state.activeFieldId = null;
     },
@@ -39,7 +41,7 @@ export const formEditorSlice = createSlice({
     
     // 3. Update the main form details
     updateMetadata: (state, action) => {
-      const { title, description, visibility, status, expiresAt, maxResponses, password, category } = action.payload;
+      const { title, description, visibility, status, expiresAt, maxResponses, password, category, theme } = action.payload;
       if (title !== undefined) state.title = title;
       if (description !== undefined) state.description = description;
       if (visibility !== undefined) state.visibility = visibility;
@@ -48,6 +50,7 @@ export const formEditorSlice = createSlice({
       if (maxResponses !== undefined) state.maxResponses = maxResponses;
       if (password !== undefined) state.password = password;
       if (category !== undefined) state.category = category;
+      if (theme !== undefined) state.theme = theme;
     },
 
     // 4. Add a new field to the bottom of the canvas

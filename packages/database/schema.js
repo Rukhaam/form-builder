@@ -7,6 +7,7 @@ import {
   jsonb,
   integer,
   pgEnum,
+  uniqueIndex
 } from "drizzle-orm/pg-core";
 
 export const visibilityEnum = pgEnum("visibility", ["PUBLIC", "UNLISTED"]);
@@ -86,3 +87,36 @@ export const formReviews = pgTable('form_reviews',{
   rating: integer('rating').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
+export const subscriptions = pgTable('subscriptions', {
+  id: uuid('id').defaultRandom().primaryKey().notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull().unique(),
+  planId: text('plan_id').default('FREE').notNull(), 
+  status: text('status').default('active').notNull(), 
+  
+  // Razorpay Specifics
+  razorpayCustomerId: text('razorpay_customer_id'),
+  razorpaySubscriptionId: text('razorpay_subscription_id').unique(),
+  
+  // Billing Cycle
+  currentPeriodStart: timestamp('current_period_start'),
+  currentPeriodEnd: timestamp('current_period_end'),
+  cancelAtPeriodEnd: boolean('cancel_at_period_end').default(false),
+  
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+
+export const usageCounters = pgTable('usage_counters', {
+  id: uuid('id').defaultRandom().primaryKey().notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  metric: text('metric').notNull(), // e.g., 'forms_created', 'responses_collected'
+  periodKey: text('period_key').notNull(), // e.g., 'LIFETIME' or '2026-05'
+  usedCount: integer('used_count').default(0).notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => {
+  return {
+   
+    userMetricPeriodUnique: uniqueIndex('user_metric_period_unique').on(table.userId, table.metric, table.periodKey),
+  };
+});
