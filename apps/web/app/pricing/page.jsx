@@ -1,10 +1,15 @@
+'use client';
+
 import Link from 'next/link';
+import Script from 'next/script';
 import { ArrowRight, BarChart3, CheckCircle2, FileText, ShieldCheck, Sparkles, Users } from 'lucide-react';
+import { useState } from 'react';
 
 import { Footer } from '@/components/site/Footer';
 import { Navbar } from '@/components/site/Navbar';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { trpc } from '@/utils/trpc';
 
 const plans = [
   {
@@ -85,8 +90,67 @@ const faqs = [
 ];
 
 export default function PricingPage() {
+  const utils = trpc.useUtils();
+  const [isPaying, setIsPaying] = useState('');
+  const createOrder = trpc.billing.createCheckoutOrder.useMutation();
+  const confirmPayment = trpc.billing.confirmPaymentAndActivatePlan.useMutation({
+    onSuccess: async () => {
+      await utils.billing.getSubscription.invalidate();
+      await utils.billing.getUsage.invalidate();
+      setIsPaying('');
+      window.alert('Plan upgraded successfully.');
+    },
+    onError: (error) => {
+      setIsPaying('');
+      window.alert(error.message);
+    },
+  });
+
+  const [paymentEnabled, setPaymentEnabled] = useState(false);
+
+  const handlePlanAction = async (planName) => {
+    if (planName === 'Starter') {
+      window.location.href = '/register';
+      return;
+    }
+
+    const planId = planName === 'Pro' ? 'PRO' : 'STUDIO';
+    setIsPaying(planId);
+    try {
+      const order = await createOrder.mutateAsync({ planId });
+      if (!window.Razorpay) {
+        throw new Error('Razorpay SDK is not loaded.');
+      }
+
+      const razorpay = new window.Razorpay({
+        key: order.keyId,
+        amount: order.amount,
+        currency: order.currency,
+        name: 'Form Builder',
+        description: `${planName} monthly plan`,
+        order_id: order.orderId,
+        handler: async (response) => {
+          await confirmPayment.mutateAsync({
+            razorpayOrderId: response.razorpay_order_id,
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpaySignature: response.razorpay_signature,
+            planId,
+          });
+        },
+        prefill: {},
+        theme: { color: '#0f172a' },
+      });
+      razorpay.on('payment.failed', () => setIsPaying(''));
+      razorpay.open();
+    } catch (error) {
+      setIsPaying('');
+      window.alert(error.message || 'Unable to start checkout');
+    }
+  };
+
   return (
     <main className="min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,#dff7ef,transparent_34%),linear-gradient(135deg,#f8fafc,#eef2ff_48%,#fff7ed)] text-slate-950">
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" onLoad={() => setPaymentEnabled(true)} />
       <Navbar />
 
       <section className="mx-auto max-w-6xl px-4 pb-12 pt-32">
@@ -171,17 +235,19 @@ export default function PricingPage() {
                 </span>
               </div>
 
-              <Link
-                href={plan.href}
+              <button
+                type="button"
+                onClick={() => handlePlanAction(plan.name)}
+                disabled={(plan.name !== 'Starter' && (!paymentEnabled || isPaying.length > 0))}
                 className={cn(
                   buttonVariants({ size: 'lg' }),
-                  'mt-6 h-12 w-full',
+                  'mt-6 h-12 w-full disabled:cursor-not-allowed disabled:opacity-60',
                   plan.featured ? 'bg-white text-slate-950 hover:bg-slate-100' : 'bg-slate-950 text-white hover:bg-slate-800',
                 )}
               >
-                {plan.cta}
+                {isPaying === (plan.name === 'Pro' ? 'PRO' : plan.name === 'Studio' ? 'STUDIO' : '') ? 'Processing...' : plan.cta}
                 <ArrowRight className="ml-2 size-4" />
-              </Link>
+              </button>
 
               <div className="mt-6 space-y-3">
                 {plan.features.map((feature) => (
