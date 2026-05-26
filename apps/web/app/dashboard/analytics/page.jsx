@@ -39,19 +39,8 @@ function FormRating({ formId }) {
 
 export default function AnalyticsOverviewPage() {
   const { data: forms = [], isLoading } = trpc.form.getAnalyticsOverview.useQuery();
-  
 
 
-
-
-  // console.log(forms);
-//  console.log('Raw review stats for first form:', forms);
-
-  // Aggregate totals across all forms
-
-  forms.forEach((f)=>{
-    console.log(`Form: ${f.title} | Submissions: ${f.submissionCount} | Fields: ${f.fieldCount} | Avg Rating: ${f.averageRating} (${f.totalReviews} reviews)`);
-  })
   const totals = useMemo(() => {
     return forms.reduce(
       (acc, form) => {

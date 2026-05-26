@@ -13,7 +13,7 @@ import {
   fieldResponses,
   formReviews
 } from "@repo/database";
-import { eq, and, inArray, desc, count, sql } from "drizzle-orm"; // <-- Added 'sql' for subqueries
+import { eq, and, inArray, desc, count, sql } from "drizzle-orm"; 
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import bcrypt from "bcrypt";
@@ -141,30 +141,68 @@ export const formRouter = router({
     return myForms;
   }),
 
-getAnalyticsOverview: protectedProcedure.query(async ({ ctx }) => {
+
+  getAnalyticsOverview: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.user.id;
     
-    const rows = await db
-      .select({
-        form: forms,
-        submissionCount: sql`(SELECT COUNT(*)::int FROM ${formSubmissions} WHERE ${formSubmissions.formId} = ${forms.id})`.mapWith(Number),
-        fieldCount: sql`(SELECT COUNT(*)::int FROM ${formFields} WHERE ${formFields.formId} = ${forms.id})`.mapWith(Number),
-        latestSubmittedAt: sql`(SELECT MAX(${formSubmissions.submittedAt}) FROM ${formSubmissions} WHERE ${formSubmissions.formId} = ${forms.id})`.mapWith(String),
-        totalReviews: sql`(SELECT COUNT(*)::int FROM ${formReviews} WHERE ${formReviews.formId} = ${forms.id})`.mapWith(Number),
-        averageRating: sql`(SELECT COALESCE(AVG(${formReviews.rating}), 0)::numeric(10,1) FROM ${formReviews} WHERE ${formReviews.formId} = ${forms.id})`.mapWith(Number),
-      })
+    // 1. Fetch the user's forms
+    const userForms = await db
+      .select()
       .from(forms)
       .where(eq(forms.userId, userId))
       .orderBy(desc(forms.createdAt));
 
-    return rows.map((row) => ({
-      ...row.form,
-      submissionCount: row.submissionCount ?? 0,
-      fieldCount: row.fieldCount ?? 0,
-      latestSubmittedAt: row.latestSubmittedAt ?? null,
-      totalReviews: row.totalReviews ?? 0,
-      averageRating: row.averageRating ?? 0,
-    }));
+    if (userForms.length === 0) return [];
+
+    const formIds = userForms.map(f => f.id);
+
+    // 2. Aggregate Field Counts Safely
+    const fieldStats = await db
+      .select({
+        formId: formFields.formId,
+        count: count(),
+      })
+      .from(formFields)
+      .where(inArray(formFields.formId, formIds))
+      .groupBy(formFields.formId);
+
+
+    const subStats = await db
+      .select({
+        formId: formSubmissions.formId,
+        count: count(),
+        latest: sql`MAX(${formSubmissions.submittedAt})`.mapWith(String),
+      })
+      .from(formSubmissions)
+      .where(inArray(formSubmissions.formId, formIds))
+      .groupBy(formSubmissions.formId);
+
+    // 4. Aggregate Review Stats Safely
+    const reviewStats = await db
+      .select({
+        formId: formReviews.formId,
+        count: count(),
+        avg: sql`COALESCE(AVG(${formReviews.rating}), 0)::numeric(10,1)`.mapWith(Number),
+      })
+      .from(formReviews)
+      .where(inArray(formReviews.formId, formIds))
+      .groupBy(formReviews.formId);
+
+    // 5. Merge the precise numbers together
+    return userForms.map((form) => {
+      const fields = fieldStats.find(f => f.formId === form.id);
+      const subs = subStats.find(s => s.formId === form.id);
+      const revs = reviewStats.find(r => r.formId === form.id);
+
+      return {
+        ...form,
+        fieldCount: fields ? Number(fields.count) : 0,
+        submissionCount: subs ? Number(subs.count) : 0,
+        latestSubmittedAt: subs ? subs.latest : null,
+        totalReviews: revs ? Number(revs.count) : 0,
+        averageRating: revs ? Number(revs.avg) : 0,
+      };
+    });
   }),
 
   saveEditor: protectedProcedure
@@ -498,7 +536,7 @@ getAnalyticsOverview: protectedProcedure.query(async ({ ctx }) => {
       };
     }),
 
-
+  // 🚀 FIX: Guaranteed field counts using safe native aggregation
   getPublicForms: publicProcedure
     .input(
       z.object({
@@ -525,32 +563,49 @@ getAnalyticsOverview: protectedProcedure.query(async ({ ctx }) => {
       const totalPages = Math.ceil(total / limit);
 
       const rawForms = await db
-        .select({
-          id: forms.id,
-          title: forms.title,
-          description: forms.description,
-          slug: forms.slug,
-          createdAt: forms.createdAt,
-          password: forms.password,
-          fieldCount: sql`(SELECT COUNT(*)::int FROM ${formFields} WHERE ${formFields.formId} = ${forms.id})`.mapWith(Number),
-          submissionCount: sql`(SELECT COUNT(*)::int FROM ${formSubmissions} WHERE ${formSubmissions.formId} = ${forms.id})`.mapWith(Number),
-        })
+        .select()
         .from(forms)
         .where(condition)
         .orderBy(desc(forms.createdAt))
         .limit(limit)
         .offset(offset);
 
-      const mappedForms = rawForms.map((form) => ({
-        id: form.id,
-        title: form.title,
-        description: form.description,
-        slug: form.slug,
-        createdAt: form.createdAt,
-        fieldCount: form.fieldCount ?? 0,
-        submissionCount: form.submissionCount ?? 0,
-        isProtected: !!form.password, 
-      }));
+      if (rawForms.length === 0) {
+        return {
+          forms: [],
+          pagination: { total, page, limit, totalPages }
+        };
+      }
+
+      const formIds = rawForms.map((f) => f.id);
+
+      const fieldStats = await db
+        .select({ formId: formFields.formId, count: count() })
+        .from(formFields)
+        .where(inArray(formFields.formId, formIds))
+        .groupBy(formFields.formId);
+
+      const subStats = await db
+        .select({ formId: formSubmissions.formId, count: count() })
+        .from(formSubmissions)
+        .where(inArray(formSubmissions.formId, formIds))
+        .groupBy(formSubmissions.formId);
+
+      const mappedForms = rawForms.map((form) => {
+        const fCount = fieldStats.find(f => f.formId === form.id);
+        const sCount = subStats.find(s => s.formId === form.id);
+        
+        return {
+          id: form.id,
+          title: form.title,
+          description: form.description,
+          slug: form.slug,
+          createdAt: form.createdAt,
+          isProtected: !!form.password, 
+          fieldCount: fCount ? Number(fCount.count) : 0,
+          submissionCount: sCount ? Number(sCount.count) : 0,
+        };
+      });
 
       return {
         forms: mappedForms,
@@ -720,7 +775,7 @@ getAnalyticsOverview: protectedProcedure.query(async ({ ctx }) => {
         }
       }
 
-      // 🚀 FIX: Prevent Orphaned Submissions using Transaction
+
       await db.transaction(async (tx) => {
         const [newSubmission] = await tx
           .insert(formSubmissions)
