@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 import { TRPCError } from '@trpc/server';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, count} from 'drizzle-orm';
 import { z } from 'zod';
-import { db, subscriptions, usageCounters } from '@repo/database';
+import { db, subscriptions, usageCounters,forms } from '@repo/database';
 import { protectedProcedure, publicProcedure, router } from '../trpc.js';
 import {
   DEFAULT_PLAN_ID,
@@ -129,9 +129,18 @@ async function activateSubscription({ userId, plan, subscription }) {
 export const billingRouter = router({
   getPlans: publicProcedure.query(() => Object.values(PLAN_DEFINITIONS)),
 
+  // 🚀 UPDATED: Now returns { subscription, plan, isActive } for the frontend
   getSubscription: protectedProcedure.query(async ({ ctx }) => {
     const [sub] = await db.select().from(subscriptions).where(eq(subscriptions.userId, ctx.user.id)).limit(1);
-    return sub ?? { planId: DEFAULT_PLAN_ID, status: 'active' };
+    
+    // Default to FREE plan details if no active sub exists
+    const plan = getPlan(sub?.planId ?? DEFAULT_PLAN_ID);
+    
+    return {
+      subscription: sub ?? null,
+      plan,
+      isActive: sub ? ACTIVE_RAZORPAY_STATUSES.has(sub.status) : false,
+    };
   }),
 
   createCheckoutSubscription: protectedProcedure
@@ -225,6 +234,64 @@ export const billingRouter = router({
       return { success: true, planId: plan.id };
     }),
 
+getUsageOverview: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.user.id;
+    const periodKey = currentPeriodKey();
+
+    // Get active plan limits
+    const [sub] = await db
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.userId, userId))
+      .limit(1);
+
+    const planId = sub && ['active', 'trialing'].includes(sub.status) ? sub.planId : 'FREE';
+    const plan = getPlan(planId); // Ensure you are using getPlan from your plans.js
+
+    // 🚀 FIX: Use explicit select count() with proper fallback
+    const [formCountResult] = await db
+      .select({ count: count() })
+      .from(forms)
+      .where(eq(forms.userId, userId));
+    
+    const formsUsed = formCountResult?.count || 0;
+
+    // 🚀 FIX: Safely fetch usage counters
+    const [responseCounter] = await db
+      .select({ usedCount: usageCounters.usedCount })
+      .from(usageCounters)
+      .where(
+        and(
+          eq(usageCounters.userId, userId),
+          eq(usageCounters.metric, 'responses_collected'),
+          eq(usageCounters.periodKey, periodKey)
+        )
+      )
+      .limit(1);
+
+    const responsesUsed = responseCounter?.usedCount || 0;
+
+    // Map limits based on plan definitions
+    const formLimit = plan.limits?.max_forms ?? 3;
+    const responseLimit = plan.limits?.max_responses_per_month ?? 100;
+
+    return {
+      forms: {
+        used: formsUsed,
+        limit: formLimit,
+        isUnlimited: formLimit >= 999999,
+        percentage: Math.min((formsUsed / formLimit) * 100, 100)
+      },
+      responses: {
+        used: responsesUsed,
+        limit: responseLimit,
+        isUnlimited: responseLimit >= 999999,
+        percentage: Math.min((responsesUsed / responseLimit) * 100, 100),
+        periodKey
+      }
+    };
+  }),
+
   getUsage: protectedProcedure.query(async ({ ctx }) => {
     const periodKey = currentPeriodKey();
     const [formsCount] = await db.select().from(usageCounters).where(and(
@@ -249,5 +316,32 @@ export const billingRouter = router({
         responsesCollected: responsesCount?.usedCount ?? 0,
       },
     };
+  }),
+
+  // 🚀 NEW: Securely pings Razorpay to cancel at cycle end and updates local DB
+  cancelSubscription: protectedProcedure.mutation(async ({ ctx }) => {
+    const [sub] = await db
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.userId, ctx.user.id))
+      .limit(1);
+
+    if (!sub || !sub.razorpaySubscriptionId || !ACTIVE_RAZORPAY_STATUSES.has(sub.status)) {
+      throw new TRPCError({ code: 'BAD_REQUEST', message: 'No active subscription found to cancel' });
+    }
+
+    // Ping Razorpay: cancel_at_cycle_end = 1 keeps the sub active until the prepaid period is over
+    await razorpayRequest(`/subscriptions/${sub.razorpaySubscriptionId}/cancel`, {
+      method: 'POST',
+      body: { cancel_at_cycle_end: 1 },
+    });
+
+    // Update Local DB
+    await db
+      .update(subscriptions)
+      .set({ cancelAtPeriodEnd: true })
+      .where(eq(subscriptions.id, sub.id));
+
+    return { success: true, message: 'Subscription will be canceled at the end of the billing period.' };
   }),
 });
