@@ -23,7 +23,7 @@ export function TrpcProvider({ children }) {
     trpc.createClient({
       links: [
         httpBatchLink({
-          url: 'http://localhost:4000/trpc', 
+          url: process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/api/trpc` : '/api/trpc', 
           async headers() {
             const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
             return {

@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 import { authFail, authStart, setCredentials } from '@/store/slices/authSlice';
 import { trpc } from '@/utils/trpc';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function RegisterPage() {
   const [step, setStep] = useState(1);

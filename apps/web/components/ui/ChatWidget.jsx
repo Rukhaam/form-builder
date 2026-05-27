@@ -29,7 +29,7 @@ export function ChatWidget() {
   useEffect(() => {
     if (!isOpen) return;
 
-    const chatUrl = process.env.NEXT_PUBLIC_CHAT_URL || 'http://localhost:3005';
+    const chatUrl = process.env.NEXT_PUBLIC_CHAT_URL ;
     const newSocket = io(chatUrl);
 
     newSocket.on('connect', () => {

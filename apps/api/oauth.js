@@ -7,8 +7,8 @@ export const oauthRouter = express.Router();
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:4000/api/auth/google/callback';
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI ;
+const FRONTEND_URL = process.env.FRONTEND_URL;
 
 function redirectWithOAuthError(res, error) {
   res.redirect(`${FRONTEND_URL}/login?error=${encodeURIComponent(error)}`);
