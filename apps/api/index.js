@@ -15,10 +15,9 @@ import razorpayWebhookRouter from './webhooks/razorpay.js';
 
 const app = express();
 
-// 🚀 FIX 1: Tell Helmet to allow your Vercel frontend to read the API responses
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
-  crossOriginOpenerPolicy: { policy: "unsafe-none" } // Helps with OAuth popups/redirects
+  crossOriginOpenerPolicy: { policy: "unsafe-none" } 
 }));
 
 const DEFAULT_ALLOWED_ORIGINS = [
@@ -46,12 +45,9 @@ const allowedOrigins = new Set(configuredOrigins.filter((origin) => origin !== '
 
 const corsOptions = {
   origin(origin, callback) {
-    // 🚀 FIX 2: Added a debug log so Render tells you exactly what Vercel is sending
     console.log(`[CORS Check] Incoming Origin: ${origin}`);
     
     const normalizedOrigin = normalizeOrigin(origin);
-
-    // Allow requests with no origin (like Postman or server-to-server webhook calls)
     if (!origin || allowAllOrigins || allowedOrigins.has(normalizedOrigin)) {
       callback(null, true);
       return;
@@ -69,7 +65,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
-// 🚀 FIX 3: Ensure express.json() doesn't block the Razorpay webhook which needs raw body parsing
+
 app.use('/api/billing/webhook', razorpayWebhookRouter);
 app.use(express.json());
 app.use('/api/auth', oauthRouter);
@@ -79,7 +75,6 @@ const trpcMiddleware = trpcExpress.createExpressMiddleware({
   createContext,
 });
 
-// Brilliant defensive routing here!
 app.use('/trpc', trpcMiddleware);
 app.use('/api/trpc', trpcMiddleware);
 
