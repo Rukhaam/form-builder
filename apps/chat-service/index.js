@@ -8,6 +8,7 @@ import { generateChatStream } from './services/gemini.js';
 dotenv.config();
 
 const PORT = process.env.RPORT || 3005;
+if(!PORT) console.log('⚠️ RPORT environment variable not set, defaulting to 3005');
 const DEFAULT_ALLOWED_ORIGINS = [
   'http://localhost:3000',
   'https://form-builder-by-rukhaam.vercel.app',

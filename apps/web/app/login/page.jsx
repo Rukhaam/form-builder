@@ -18,7 +18,7 @@ import { getSessionUser } from '@/lib/auth';
 import { cn } from '@/lib/utils';
 import { authFail, authStart, setCredentials } from '@/store/slices/authSlice';
 import { trpc } from '@/utils/trpc';
-const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, '');
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://form-builder-7vyq.onrender.com').replace(/\/+$/, '');
 
 const OAUTH_ERROR_MESSAGES = {
   manual_account_exists: 'This email already uses password sign-in. Sign in with your password instead.',

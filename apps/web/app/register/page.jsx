@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 import { authFail, authStart, setCredentials } from '@/store/slices/authSlice';
 import { trpc } from '@/utils/trpc';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, '');
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://form-builder-7vyq.onrender.com').replace(/\/+$/, '');
 
 export default function RegisterPage() {
   const [step, setStep] = useState(1);
