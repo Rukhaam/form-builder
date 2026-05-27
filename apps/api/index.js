@@ -17,7 +17,7 @@ const app = express();
 app.use(helmet());
 
 app.use(cors({
-  origin: 'http://localhost:3000', 
+  origin: process.env.FRONTEND_URL||'http://localhost:3000', 
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-razorpay-signature'], 
   credentials: true,
