@@ -38,7 +38,61 @@ This project is structured as a **Turborepo** (Monorepo) to efficiently share pa
 * PostgreSQL (Running locally or via Docker)
 
 ### 1. Clone & Install
-```bash
+
 git clone [https://github.com/yourusername/form-builder.git](https://github.com/yourusername/form-builder.git)
 cd form-builder
 pnpm install
+
+2. Environment Variables
+You will need .env files in your respective app directories.
+
+apps/api/.env
+
+Code snippet
+PORT=4000
+FRONTEND_URL=http://localhost:3000
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_REDIRECT_URI=http://localhost:4000/api/auth/google/callback
+DATABASE_URL=postgresql://user:password@localhost:5432/formbuilder
+JWT_SECRET=your_super_secret_key
+apps/chat-service/.env
+
+Code snippet
+PORT=3005
+FRONTEND_URL=http://localhost:3000
+GEMINI_API_KEY=your_google_gemini_key
+apps/web/.env.local
+
+Code snippet
+NEXT_PUBLIC_API_URL=http://localhost:4000
+NEXT_PUBLIC_CHAT_URL=http://localhost:3005
+3. Database Setup
+Push your Drizzle schemas to the local PostgreSQL database:
+
+Bash
+cd packages/database
+pnpm run db:push
+4. Run the Monorepo
+Start the frontend, the main API, and the chat microservice concurrently:
+
+Bash
+pnpm run dev
+Frontend runs on http://localhost:3000
+
+API runs on http://localhost:4000
+
+Chat Service runs on http://localhost:3005
+
+API Docs available at http://localhost:4000/docs
+
+☁️ Deployment
+FormBuilder is designed for a distributed deployment environment:
+
+Frontend (apps/web): Deployed on Vercel for optimal edge-rendering and caching.
+
+Main API (apps/api): Deployed as a Web Service on Render.
+
+Chat Microservice (apps/chat-service): Deployed as a separate, isolated Web Service on Render to allow dedicated port-binding for WebSockets.
+
+Make sure to update your production environment variables (e.g., FRONTEND_URL, NEXT_PUBLIC_CHAT_URL, and OAuth Redirect URIs) to match your live domains.
