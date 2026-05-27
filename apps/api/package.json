@@ -11,6 +11,7 @@
     "@repo/database": "workspace:*",
     "@repo/schemas": "workspace:*",
     "@repo/trpc": "workspace:*",
+    "@scalar/express-api-reference": "^0.9.19",
     "@trpc/server": "^10.45.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
