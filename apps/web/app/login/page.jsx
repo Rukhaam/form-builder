@@ -152,7 +152,17 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              {/* 🚀 ADDED: Flex container to align label and Forgot Password link */}
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <Link 
+                  href="/forgot-password" 
+                  className="text-xs font-bold text-emerald-700 transition hover:text-emerald-800 hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+              
               <div className="relative">
                 <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                 <Input

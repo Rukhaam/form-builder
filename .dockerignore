@@ -1,0 +1,10 @@
+node_modules
+.turbo
+.git
+.next
+dist
+build
+coverage
+*.log
+.env
+Dockerfile.txtdocker images

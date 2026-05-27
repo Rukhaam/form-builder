@@ -38,7 +38,7 @@ export default function BillingPage() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || !subData || !usageData) {
     return (
       <div className="-m-8 min-h-[calc(100vh-4rem)] bg-[radial-gradient(circle_at_top_right,#ede9fe,transparent_30%),linear-gradient(135deg,#f8fafc,#eef2ff_52%,#fff7ed)] p-8">
         <div className="mx-auto max-w-4xl space-y-6">

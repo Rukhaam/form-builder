@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",
-    "pg": "^8.11.5"
+    "pg": "^8.11.5",
+    "railway": "^2.0.17"
   },
   "devDependencies": {
     "drizzle-kit": "^0.31.10"
