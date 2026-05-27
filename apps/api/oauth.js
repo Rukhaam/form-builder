@@ -7,8 +7,8 @@ export const oauthRouter = express.Router();
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI ;
-const FRONTEND_URL = process.env.FRONTEND_URL;
+const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
+const FRONTEND_URL = (process.env.FRONTEND_URL || 'https://form-builder-by-rukhaam.vercel.app').replace(/\/+$/, '');
 
 function redirectWithOAuthError(res, error) {
   res.redirect(`${FRONTEND_URL}/login?error=${encodeURIComponent(error)}`);
