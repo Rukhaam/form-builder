@@ -90,11 +90,11 @@ export default function RegisterPage() {
       <section className="mx-auto grid min-h-screen max-w-6xl items-center gap-8 px-4 pb-16 pt-32 lg:grid-cols-[1.05fr_0.95fr]">
         <section className="animate-rise-in rounded-[2rem] border border-white/70 bg-white/72 p-5 shadow-2xl shadow-slate-200/70 backdrop-blur-xl md:p-8">
           <div className="mb-7">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1.5 text-sm font-bold text-emerald-700">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1.5 text-sm font-medium text-emerald-700">
               <Sparkles className="size-4" />
               {step === 1 ? 'Create account' : 'Verify email'}
             </div>
-            <h1 className="text-4xl font-black text-slate-950">
+            <h1 className="text-4xl font-medium text-slate-950">
               {step === 1 ? 'Start building forms' : 'Enter your OTP'}
             </h1>
             <p className="mt-2 text-sm text-slate-600">
@@ -108,13 +108,13 @@ export default function RegisterPage() {
             <>
               <a
                 href={googleHref}
-                className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'h-12 w-full border-white/80 bg-white/80 text-slate-900 shadow-sm hover:bg-white')}
+                className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'h-12 w-full border-white/80 bg-white/80 text-slate-900 shadow-sm active:bg-white')}
               >
-                <span className="mr-3 flex size-6 items-center justify-center rounded-full bg-white text-sm font-black shadow-sm">G</span>
+                <span className="mr-3 flex size-6 items-center justify-center rounded-full bg-white text-sm font-medium shadow-sm">G</span>
                 Sign up with Google
               </a>
 
-              <div className="my-6 flex items-center gap-3 text-xs font-bold uppercase text-slate-400">
+              <div className="my-6 flex items-center gap-3 text-xs font-medium uppercase text-slate-400">
                 <span className="h-px flex-1 bg-slate-200" />
                 or
                 <span className="h-px flex-1 bg-slate-200" />
@@ -153,7 +153,7 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                <Button type="submit" className="h-12 w-full bg-slate-950 text-white hover:bg-slate-800" disabled={registerLoading}>
+                <Button type="submit" className="h-12 w-full bg-slate-950 text-white active:bg-slate-800" disabled={registerLoading}>
                   {registerLoading ? 'Sending code...' : 'Continue'}
                   {!registerLoading && <ArrowRight className="ml-2 size-4" />}
                 </Button>
@@ -161,14 +161,14 @@ export default function RegisterPage() {
 
               <p className="mt-6 text-center text-sm text-slate-600">
                 Already have an account?{' '}
-                <Link href="/login" className="font-bold text-slate-950 hover:underline">
+                <Link href="/login" className="font-medium text-slate-950 active:underline">
                   Sign in
                 </Link>
               </p>
             </>
           ) : (
             <form onSubmit={handleVerifySubmit} className="space-y-4">
-              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-800">
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-800">
                 <CheckCircle2 className="mr-2 inline size-4" />
                 Registration started. Verify your email to unlock the dashboard.
               </div>
@@ -188,7 +188,7 @@ export default function RegisterPage() {
                 />
               </div>
 
-              <Button type="submit" className="h-12 w-full bg-slate-950 text-white hover:bg-slate-800" disabled={verifyLoading}>
+              <Button type="submit" className="h-12 w-full bg-slate-950 text-white active:bg-slate-800" disabled={verifyLoading}>
                 {verifyLoading ? 'Verifying...' : 'Complete registration'}
               </Button>
               <Button type="button" variant="ghost" className="h-11 w-full" onClick={() => setStep(1)}>
@@ -201,11 +201,11 @@ export default function RegisterPage() {
 
         <div className="animate-rise-in hidden lg:block">
           <div className="rounded-[2rem] border border-white/70 bg-slate-950 p-8 text-white shadow-2xl shadow-slate-300/70">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-sm font-bold text-emerald-300">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-sm font-medium text-emerald-300">
               <ShieldCheck className="size-4" />
               Account rules
             </div>
-            <h2 className="text-5xl font-black leading-tight">One email, one sign-in method.</h2>
+            <h2 className="text-5xl font-medium leading-tight">One email, one sign-in method.</h2>
             <p className="mt-5 text-sm leading-6 text-slate-300">
               If you created a password account first, Google OAuth will not take over that same email. Your account stays predictable and protected.
             </p>
@@ -213,7 +213,7 @@ export default function RegisterPage() {
               {['Password accounts stay password accounts', 'Google accounts sign in instantly', 'Tokens are stored after successful OAuth'].map((item) => (
                 <div key={item} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-xl">
                   <CheckCircle2 className="size-5 text-emerald-300" />
-                  <span className="text-sm font-semibold">{item}</span>
+                  <span className="text-sm font-medium">{item}</span>
                 </div>
               ))}
             </div>

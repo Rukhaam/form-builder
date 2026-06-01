@@ -86,11 +86,11 @@ export default function LoginPage() {
       <section className="mx-auto grid min-h-screen max-w-6xl items-center gap-8 px-4 pb-16 pt-32 lg:grid-cols-[0.92fr_1.08fr]">
         <div className="animate-rise-in hidden lg:block">
           <div className="rounded-[2rem] border border-white/70 bg-slate-950 p-8 text-white shadow-2xl shadow-slate-300/70">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-sm font-bold text-emerald-300">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-sm font-medium text-emerald-300">
               <ShieldCheck className="size-4" />
               Secure workspace
             </div>
-            <h1 className="text-5xl font-black leading-tight">Welcome back to your form command center.</h1>
+            <h1 className="text-5xl font-medium leading-tight">Welcome back to your form command center.</h1>
             <p className="mt-5 text-sm leading-6 text-slate-300">
               Continue building, publishing, and reading responses from one polished dashboard.
             </p>
@@ -98,7 +98,7 @@ export default function LoginPage() {
               {['OAuth and password sign-in', 'Draft and publish workflow', 'Response analytics ready'].map((item) => (
                 <div key={item} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-xl">
                   <Sparkles className="size-5 text-emerald-300" />
-                  <span className="text-sm font-semibold">{item}</span>
+                  <span className="text-sm font-medium">{item}</span>
                 </div>
               ))}
             </div>
@@ -107,29 +107,29 @@ export default function LoginPage() {
 
         <section className="animate-rise-in rounded-[2rem] border border-white/70 bg-white/72 p-5 shadow-2xl shadow-slate-200/70 backdrop-blur-xl md:p-8">
           <div className="mb-7">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1.5 text-sm font-bold text-emerald-700">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1.5 text-sm font-medium text-emerald-700">
               <LockKeyhole className="size-4" />
               Sign in
             </div>
-            <h2 className="text-4xl font-black text-slate-950">Access your dashboard</h2>
+            <h2 className="text-4xl font-medium text-slate-950">Access your dashboard</h2>
             <p className="mt-2 text-sm text-slate-600">Use your password account or continue with Google.</p>
           </div>
 
           {oauthError && (
-            <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+            <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
               {oauthError}
             </div>
           )}
 
           <a
             href={googleHref}
-            className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'h-12 w-full border-white/80 bg-white/80 text-slate-900 shadow-sm hover:bg-white')}
+            className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'h-12 w-full border-white/80 bg-white/80 text-slate-900 shadow-sm active:bg-white')}
           >
-            <span className="mr-3 flex size-6 items-center justify-center rounded-full bg-white text-sm font-black shadow-sm">G</span>
+            <span className="mr-3 flex size-6 items-center justify-center rounded-full bg-white text-sm font-medium shadow-sm">G</span>
             Continue with Google
           </a>
 
-          <div className="my-6 flex items-center gap-3 text-xs font-bold uppercase text-slate-400">
+          <div className="my-6 flex items-center gap-3 text-xs font-medium uppercase text-slate-400">
             <span className="h-px flex-1 bg-slate-200" />
             or
             <span className="h-px flex-1 bg-slate-200" />
@@ -158,7 +158,7 @@ export default function LoginPage() {
                 <Label htmlFor="password">Password</Label>
                 <Link 
                   href="/forgot-password" 
-                  className="text-xs font-bold text-emerald-700 transition hover:text-emerald-800 hover:underline"
+                  className="text-xs font-medium text-emerald-700 transition active:text-emerald-800 active:underline"
                 >
                   Forgot password?
                 </Link>
@@ -178,7 +178,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button type="submit" className="h-12 w-full bg-slate-950 text-white hover:bg-slate-800" disabled={loading}>
+            <Button type="submit" className="h-12 w-full bg-slate-950 text-white active:bg-slate-800" disabled={loading}>
               {loading ? 'Signing in...' : 'Sign in'}
               {!loading && <ArrowRight className="ml-2 size-4" />}
             </Button>
@@ -186,7 +186,7 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-slate-600">
             Don't have an account?{' '}
-            <Link href="/register" className="font-bold text-slate-950 hover:underline">
+            <Link href="/register" className="font-medium text-slate-950 active:underline">
               Create one
             </Link>
           </p>

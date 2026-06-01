@@ -84,7 +84,7 @@ export default function ForgotPasswordPage() {
                 <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 shadow-inner">
                   <ShieldAlert className="size-7" />
                 </div>
-                <h2 className="text-3xl font-black text-slate-950">Forgot Password</h2>
+                <h2 className="text-3xl font-medium text-slate-950">Forgot Password</h2>
                 <p className="mt-2 text-sm text-slate-600">
                   Enter the email associated with your account and we will send you a reset code.
                 </p>
@@ -110,7 +110,7 @@ export default function ForgotPasswordPage() {
 
                 <Button 
                   type="submit" 
-                  className="h-12 w-full bg-slate-950 text-white hover:bg-slate-800" 
+                  className="h-12 w-full bg-slate-950 text-white active:bg-slate-800" 
                   disabled={isSending}
                 >
                   {isSending ? 'Sending Code...' : 'Send Reset Code'}
@@ -125,9 +125,9 @@ export default function ForgotPasswordPage() {
                 <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 shadow-inner">
                   <KeyRound className="size-7" />
                 </div>
-                <h2 className="text-3xl font-black text-slate-950">Set New Password</h2>
+                <h2 className="text-3xl font-medium text-slate-950">Set New Password</h2>
                 <p className="mt-2 text-sm text-slate-600">
-                  We sent a code to <span className="font-bold text-slate-900">{email}</span>
+                  We sent a code to <span className="font-medium text-slate-900">{email}</span>
                 </p>
               </div>
 
@@ -140,7 +140,7 @@ export default function ForgotPasswordPage() {
                     placeholder="Enter the 6-digit code"
                     value={otp}
                     onChange={(event) => setOtp(event.target.value)}
-                    className="h-12 border-white/80 bg-white/80 text-center text-lg font-bold tracking-widest shadow-sm"
+                    className="h-12 border-white/80 bg-white/80 text-center text-lg font-medium tracking-widest shadow-sm"
                     maxLength={6}
                     required
                     autoFocus
@@ -165,7 +165,7 @@ export default function ForgotPasswordPage() {
 
                 <Button 
                   type="submit" 
-                  className="h-12 w-full bg-emerald-600 text-white hover:bg-emerald-700" 
+                  className="h-12 w-full bg-emerald-600 text-white active:bg-emerald-700" 
                   disabled={isResetting}
                 >
                   {isResetting ? 'Updating...' : 'Update Password'}
@@ -178,7 +178,7 @@ export default function ForgotPasswordPage() {
           <div className="mt-8 text-center">
             <Link 
               href="/login" 
-              className="inline-flex items-center text-sm font-bold text-slate-500 transition-colors hover:text-slate-900"
+              className="inline-flex items-center text-sm font-medium text-slate-500 transition-colors active:text-slate-900"
             >
               <ArrowLeft className="mr-2 size-4" />
               Back to login

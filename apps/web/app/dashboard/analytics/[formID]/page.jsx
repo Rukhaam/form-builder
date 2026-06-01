@@ -126,10 +126,10 @@ export default function FormAnalyticsPage() {
       
       {/* HEADER */}
       <div>
-        <Link href="/dashboard" className="text-sm font-semibold text-slate-500 hover:text-violet-600 flex items-center mb-4 transition-colors w-fit">
+        <Link href="/dashboard" className="text-sm font-medium text-slate-500 hover:text-violet-600 flex items-center mb-4 transition-colors w-fit">
           <ArrowLeft className="w-4 h-4 mr-1" /> Back to dashboard
         </Link>
-        <h2 className="text-3xl font-black tracking-tight text-slate-950">{form.title}</h2>
+        <h2 className="text-3xl font-medium tracking-tight text-slate-950">{form.title}</h2>
         <p className="text-slate-500 mt-1 font-medium">Real-time analytics and response data</p>
       </div>
 
@@ -137,22 +137,22 @@ export default function FormAnalyticsPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="border border-slate-200/60 shadow-lg shadow-slate-200/40 rounded-[1.5rem]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider">Total Responses</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-500 uppercase tracking-wider">Total Responses</CardTitle>
             <div className="p-2 bg-blue-50 rounded-xl"><Users className="h-4 w-4 text-blue-600" /></div>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-black text-slate-900">{pagination.total}</div>
+            <div className="text-4xl font-medium text-slate-900">{pagination.total}</div>
           </CardContent>
         </Card>
 
         <Card className="border border-slate-200/60 shadow-lg shadow-slate-200/40 rounded-[1.5rem]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider">Avg Rating</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-500 uppercase tracking-wider">Avg Rating</CardTitle>
             <div className="p-2 bg-amber-50 rounded-xl"><Star className="h-4 w-4 text-amber-500" /></div>
           </CardHeader>
           <CardContent>
             <div className="flex items-baseline gap-2">
-              <div className="text-4xl font-black text-slate-900">{reviewStats.average}</div>
+              <div className="text-4xl font-medium text-slate-900">{reviewStats.average}</div>
               <div className="text-sm font-medium text-slate-500">({reviewStats.total} reviews)</div>
             </div>
           </CardContent>
@@ -160,21 +160,21 @@ export default function FormAnalyticsPage() {
 
         <Card className="border border-slate-200/60 shadow-lg shadow-slate-200/40 rounded-[1.5rem]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider">Fields Tracked</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-500 uppercase tracking-wider">Fields Tracked</CardTitle>
             <div className="p-2 bg-emerald-50 rounded-xl"><Activity className="h-4 w-4 text-emerald-600" /></div>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-black text-slate-900">{fields.length}</div>
+            <div className="text-4xl font-medium text-slate-900">{fields.length}</div>
           </CardContent>
         </Card>
 
         <Card className="border border-slate-200/60 shadow-lg shadow-slate-200/40 rounded-[1.5rem]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider">Latest Entry</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-500 uppercase tracking-wider">Latest Entry</CardTitle>
             <div className="p-2 bg-violet-50 rounded-xl"><Clock className="h-4 w-4 text-violet-600" /></div>
           </CardHeader>
           <CardContent>
-            <div className="text-xl md:text-2xl font-black text-slate-900 mt-2">
+            <div className="text-xl md:text-2xl font-medium text-slate-900 mt-2">
               {data.allSubmissions && data.allSubmissions.length > 0 
                 ? new Date(data.allSubmissions[0].submittedAt).toLocaleDateString('en-US', {
                     month: 'short',
@@ -190,7 +190,7 @@ export default function FormAnalyticsPage() {
       {/* MAIN TIME SERIES GRAPH */}
       <Card className="border border-slate-200/60 shadow-xl shadow-slate-200/40 rounded-[2rem] pt-6 overflow-hidden">
         <CardHeader>
-          <CardTitle className="text-xl font-bold">Response Volume</CardTitle>
+          <CardTitle className="text-xl font-medium">Response Volume</CardTitle>
           <CardDescription className="font-medium text-slate-500">Daily submission counts across the form's lifespan.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -228,13 +228,13 @@ export default function FormAnalyticsPage() {
         <div className="space-y-4 pt-4">
           <div className="flex items-center gap-2 px-2">
             <BarChart3 className="size-5 text-slate-700" />
-            <h3 className="text-xl font-bold text-slate-900">Answer Breakdown</h3>
+            <h3 className="text-xl font-medium text-slate-900">Answer Breakdown</h3>
           </div>
           <div className="grid gap-6 md:grid-cols-2">
             {fieldDistributionData.map((fieldData, index) => (
               <Card key={fieldData.id} className="border border-slate-200/60 shadow-lg shadow-slate-200/40 rounded-[1.5rem] pt-6">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-bold line-clamp-1" title={fieldData.label}>
+                  <CardTitle className="text-base font-medium line-clamp-1" title={fieldData.label}>
                     {fieldData.label}
                   </CardTitle>
                 </CardHeader>
@@ -267,16 +267,16 @@ export default function FormAnalyticsPage() {
       {/* RAW DATA TABLE */}
       <Card className="border border-slate-200/60 shadow-xl shadow-slate-200/40 rounded-[2rem] overflow-hidden mt-8">
         <CardHeader className="bg-slate-50/50 border-b border-slate-100">
-          <CardTitle className="text-xl font-bold">Individual Responses</CardTitle>
+          <CardTitle className="text-xl font-medium">Individual Responses</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader className="bg-slate-50">
                 <TableRow>
-                  <TableHead className="w-[180px] font-bold text-slate-700 whitespace-nowrap">Date Submitted</TableHead>
+                  <TableHead className="w-[180px] font-medium text-slate-700 whitespace-nowrap">Date Submitted</TableHead>
                   {fields.map(field => (
-                    <TableHead key={field.id} className="font-bold text-slate-700 whitespace-nowrap min-w-[150px]">
+                    <TableHead key={field.id} className="font-medium text-slate-700 whitespace-nowrap min-w-[150px]">
                       {field.label}
                     </TableHead>
                   ))}
@@ -292,7 +292,7 @@ export default function FormAnalyticsPage() {
                 ) : (
                   submissions.map((sub) => (
                     <TableRow key={sub.id} className="hover:bg-slate-50/50 transition-colors">
-                      <TableCell className="font-semibold text-slate-600 whitespace-nowrap">
+                      <TableCell className="font-medium text-slate-600 whitespace-nowrap">
                         {new Date(sub.submittedAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}
                       </TableCell>
                       {fields.map(field => {
@@ -316,7 +316,7 @@ export default function FormAnalyticsPage() {
       {/* PAGINATION CONTROLS */}
       {pagination.totalPages > 1 && (
         <div className="flex items-center justify-between bg-white px-6 py-4 rounded-[1.5rem] border border-slate-200/60 shadow-sm">
-          <p className="text-sm font-semibold text-slate-500">
+          <p className="text-sm font-medium text-slate-500">
             Showing page <span className="text-slate-900">{pagination.page}</span> of <span className="text-slate-900">{pagination.totalPages}</span>
           </p>
           <div className="flex space-x-2">

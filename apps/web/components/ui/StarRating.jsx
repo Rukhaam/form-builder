@@ -21,7 +21,7 @@ export function StarRating({ rating, setRating, readOnly = false, size = "size-6
             onMouseEnter={() => !readOnly && setHoverValue(star)}
             className={cn(
               "transition-all duration-200",
-              readOnly ? "cursor-default" : "cursor-pointer hover:scale-110",
+              readOnly ? "cursor-default" : "cursor-pointer active:scale-110",
               isFilled ? "text-amber-400" : "text-slate-300"
             )}
           >

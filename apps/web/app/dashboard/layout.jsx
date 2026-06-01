@@ -86,7 +86,7 @@ export default function DashboardLayout({ children }) {
   return (
     <div className="flex min-h-screen bg-[radial-gradient(circle_at_top_left,#e0f2fe,transparent_32%),linear-gradient(135deg,#f8fafc,#eef2ff_48%,#fff7ed)] text-slate-950">
       
-      {/* SIDEBAR */}
+      {/* SIDEBR */}
       <aside 
         className={cn(
           "flex flex-col border-white/60 bg-white/65 shadow-xl shadow-slate-200/60 backdrop-blur-xl transition-all duration-300 ease-in-out",
@@ -97,18 +97,18 @@ export default function DashboardLayout({ children }) {
         <div className="flex w-64 flex-1 flex-col">
           <div className="flex h-16 items-center justify-between border-b border-white/70 px-6">
             <div className="flex items-center">
-              <div className="flex size-9 items-center justify-center rounded-xl bg-slate-950 text-sm font-bold text-white">
+              <div className="flex size-9 items-center justify-center rounded-xl bg-slate-950 text-sm font-medium text-white">
                 FB
               </div>
               <Link href={'/'}>
-                <span className="ml-3 text-lg font-bold text-slate-950">FormBuilder</span>
+                <span className="ml-3 text-lg font-medium text-slate-950">FormBuilder</span>
               </Link>
             </div>
             
             {/* Close Sidebar Button */}
             <button 
               onClick={() => setIsSidebarOpen(false)} 
-              className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/70 hover:text-slate-900"
+              className="rounded-lg p-1.5 text-slate-400 transition active:bg-white/70 active:text-slate-900"
               aria-label="Close sidebar"
             >
               <X className="size-5" />
@@ -123,10 +123,10 @@ export default function DashboardLayout({ children }) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition',
+                    'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition',
                     item.active
                       ? 'bg-slate-950 text-white shadow-lg shadow-slate-300/70'
-                      : 'text-slate-600 hover:bg-white/70 hover:text-slate-950',
+                      : 'text-slate-600 active:bg-white/70 active:text-slate-950',
                   )}
                 >
                   <Icon className="size-4" />
@@ -139,14 +139,14 @@ export default function DashboardLayout({ children }) {
           {/* User Profile & Logout at bottom */}
           <div className="border-t border-white/70 p-4">
             <div className="mb-3 rounded-2xl border border-white/70 bg-white/65 p-3 shadow-sm">
-              <div className="text-xs font-semibold uppercase text-slate-400">Signed in</div>
-              <div className="mt-1 truncate text-sm font-semibold text-slate-950">
+              <div className="text-xs font-medium uppercase text-slate-400">Signed in</div>
+              <div className="mt-1 truncate text-sm font-medium text-slate-950">
                 {user?.email || sessionUser?.email || 'Loading...'}
               </div>
             </div>
             <button 
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 rounded-xl bg-red-50 px-4 py-3 text-left text-sm font-semibold text-red-600 transition hover:bg-red-100"
+              className="flex w-full items-center gap-3 rounded-xl bg-red-50 px-4 py-3 text-left text-sm font-medium text-red-600 transition active:bg-red-100"
             >
               <LogOut className="size-4" />
               Log out
@@ -162,14 +162,14 @@ export default function DashboardLayout({ children }) {
           {!isSidebarOpen && (
             <button 
               onClick={() => setIsSidebarOpen(true)}
-              className="rounded-lg p-2 -ml-2 text-slate-600 transition hover:bg-white/70 hover:text-slate-950"
+              className="rounded-lg p-2 -ml-2 text-slate-600 transition active:bg-white/70 active:text-slate-950"
               aria-label="Open sidebar"
             >
               <Menu className="size-5" />
             </button>
           )}
           
-          <h1 className="text-xl font-semibold text-slate-950">
+          <h1 className="text-xl font-medium text-slate-950">
             {pathname.startsWith('/dashboard/analytics') ? 'Analytics' : 'Dashboard'}
           </h1>
         </header>

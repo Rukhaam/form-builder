@@ -261,7 +261,7 @@ export default function PublicFormResponsePage() {
           </div>
         ) : isError || !data?.form ? (
           <div className={cn("rounded-[2rem] border p-10 text-center", styles.card)}>
-            <h1 className={cn("text-2xl font-black", styles.text)}>Form unavailable</h1>
+            <h1 className={cn("text-2xl font-medium", styles.text)}>Form unavailable</h1>
             <p className={cn("mt-2 text-sm", styles.muted)}>This form may be private, expired, or unpublished.</p>
           </div>
         ) : data.isProtected && !unlockedFields ? (
@@ -269,7 +269,7 @@ export default function PublicFormResponsePage() {
             <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-slate-500/20 text-slate-400">
               <Lock className="size-8" />
             </div>
-            <h1 className={cn("text-2xl font-black", styles.text)}>{data.form.title}</h1>
+            <h1 className={cn("text-2xl font-medium", styles.text)}>{data.form.title}</h1>
             <p className={cn("mt-2 mb-6 text-sm", styles.muted)}>This form is password protected. Enter the password to access.</p>
             
             <form onSubmit={handleUnlock} className="space-y-4 max-w-xs mx-auto">
@@ -296,13 +296,13 @@ export default function PublicFormResponsePage() {
             <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-500">
               <CheckCircle2 className="size-8" />
             </div>
-            <h1 className={cn("text-3xl font-black", styles.text)}>Thanks for responding</h1>
+            <h1 className={cn("text-3xl font-medium", styles.text)}>Thanks for responding</h1>
             <p className={cn("mt-3 text-sm leading-6", styles.muted)}>Your answer has been saved.</p>
             
             {/* 🚀 CONDITIONAL RATING UI */}
             {user ? (
               <div className="mt-8 pt-8 border-t border-current/10">
-                <p className={cn("text-sm font-semibold mb-3", styles.text)}>
+                <p className={cn("text-sm font-medium mb-3", styles.text)}>
                   {hasRated ? "Thank you for your feedback!" : "How was your experience using this form?"}
                 </p>
                 <div className="flex justify-center">
@@ -334,10 +334,10 @@ export default function PublicFormResponsePage() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <section className={cn("rounded-[2rem] border p-6", styles.card)}>
-              <div className={cn("mb-3 inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase", styles.badge)}>
+              <div className={cn("mb-3 inline-flex rounded-full px-3 py-1 text-xs font-medium uppercase", styles.badge)}>
                 Public form
               </div>
-              <h1 className={cn("text-4xl font-black", styles.text)}>{data.form.title}</h1>
+              <h1 className={cn("text-4xl font-medium", styles.text)}>{data.form.title}</h1>
               {data.form.description && (
                 <p className={cn("mt-3 text-base leading-7", styles.muted)}>{data.form.description}</p>
               )}
@@ -347,7 +347,7 @@ export default function PublicFormResponsePage() {
               const normalizedType = field.type?.toUpperCase() || '';
               return (
                 <section key={field.id} className={cn("animate-rise-in rounded-2xl border p-5", styles.card)}>
-                  <label className={cn("mb-3 block text-sm font-bold", styles.text)}>
+                  <label className={cn("mb-3 block text-sm font-medium", styles.text)}>
                     {index + 1}. {field.label}
                     {field.required && <span className="ml-1 text-red-500">*</span>}
                   </label>

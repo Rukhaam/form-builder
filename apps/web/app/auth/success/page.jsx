@@ -38,7 +38,7 @@ export default function OAuthSuccessPage() {
         <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
           <CheckCircle2 className="size-7" />
         </div>
-        <h1 className="text-2xl font-black">Finishing sign in</h1>
+        <h1 className="text-2xl font-medium">Finishing sign in</h1>
         <p className="mt-2 text-sm text-slate-600">Taking you to your dashboard.</p>
       </section>
     </main>

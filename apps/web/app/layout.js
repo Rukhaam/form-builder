@@ -1,5 +1,10 @@
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+
+const plusJakartaSans = Plus_Jakarta_Sans({ 
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
 import { TrpcProvider } from "@/components/TrpcProvider";
 import { ReduxProvider } from "@/components/ReduxProvider";
 import { Toaster } from "react-hot-toast";
@@ -13,8 +18,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body >
+    <html lang="en" className={plusJakartaSans.variable}>
+      <body className="font-sans antialiased">
         <ReduxProvider>
           <TrpcProvider>
             {children}

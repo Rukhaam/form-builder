@@ -45,15 +45,15 @@ export function Navbar() {
   }, [pathname]);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 md:px-6">
-      <nav className="mx-auto flex w-full max-w-6xl items-center justify-between rounded-full border border-white/40 bg-white/70 px-4 py-3 shadow-lg shadow-slate-200/20 backdrop-blur-xl">
+    <header className="sticky-header sticky top-0 inset-x-0 z-50 px-4 pt-4 md:px-6">
+      <nav className="nav-bar mx-auto flex w-full max-w-6xl items-center justify-between rounded-full border border-white/40 bg-white/70 px-4 py-3 shadow-lg shadow-slate-200/20 backdrop-blur-xl transition-all duration-300">
         
         {/* LOGO */}
         <Link href="/" className="flex items-center gap-3">
-          <span className="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-slate-900 to-slate-800 text-sm font-black text-white shadow-md transition-transform hover:scale-105">
+          <span className="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-slate-900 to-slate-800 text-sm font-medium text-white shadow-md transition-transform active:scale-105">
             FB
           </span>
-          <span className="text-lg font-bold tracking-tight text-slate-950">FormBuilder</span>
+          <span className="text-lg font-medium tracking-tight text-slate-950">FormBuilder</span>
         </Link>
 
         {/* DESKTOP LINKS */}
@@ -63,7 +63,7 @@ export function Navbar() {
               <Link
                 key={link.label}
                 href={link.href}
-                className="text-sm font-semibold text-slate-600 transition-colors hover:text-violet-600"
+                className="text-sm font-medium text-slate-600 transition-colors active:text-violet-600"
               >
                 {link.label}
               </Link>
@@ -75,21 +75,21 @@ export function Navbar() {
         <div className="hidden items-center gap-3 md:flex">
           {user ? (
             <>
-              <span className="max-w-[160px] truncate px-2 text-sm font-semibold text-slate-500">
+              <span className="max-w-[160px] truncate px-2 text-sm font-medium text-slate-500">
                 {user.email}
               </span>
-              <Link href="/dashboard" className={cn(buttonVariants({ size: 'sm' }), 'rounded-full bg-slate-950 px-5 text-white shadow-md transition-transform hover:scale-105 hover:bg-slate-800')}>
+              <Link href="/dashboard" className={cn(buttonVariants({ size: 'sm' }), 'rounded-full bg-slate-950 px-5 text-white shadow-md transition-transform active:scale-105 active:bg-slate-800')}>
                 <LayoutDashboard className="mr-2 size-4" />
                 Dashboard
               </Link>
             </>
           ) : (
             <>
-              <Link href="/login" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'rounded-full font-semibold text-slate-600 hover:text-slate-950')}>
+              <Link href="/login" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'rounded-full font-medium text-slate-600 active:text-slate-950')}>
                 <LogIn className="mr-2 size-4" />
                 Sign in
               </Link>
-              <Link href="/register" className={cn(buttonVariants({ size: 'sm' }), 'rounded-full bg-slate-950 px-5 text-white shadow-md transition-transform hover:scale-105 hover:bg-slate-800')}>
+              <Link href="/register" className={cn(buttonVariants({ size: 'sm' }), 'rounded-full bg-slate-950 px-5 text-white shadow-md transition-transform active:scale-105 active:bg-slate-800')}>
                 <Sparkles className="mr-2 size-4 text-violet-300" />
                 Get Started
               </Link>
@@ -99,7 +99,7 @@ export function Navbar() {
 
         {/* MOBILE MENU TOGGLE */}
         <button
-          className="flex size-10 items-center justify-center rounded-full bg-white/50 text-slate-900 ring-1 ring-black/5 backdrop-blur-md transition-colors hover:bg-white md:hidden"
+          className="flex size-10 items-center justify-center rounded-full bg-white/50 text-slate-900 ring-1 ring-black/5 backdrop-blur-md transition-colors active:bg-white md:hidden"
           onClick={() => setIsMobileMenuOpen(true)}
           aria-label="Open menu"
         >
@@ -130,14 +130,14 @@ export function Navbar() {
             >
               <div className="flex items-center justify-between pb-6">
                 <Link href="/" className="flex items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>
-                  <span className="flex size-9 items-center justify-center rounded-full bg-slate-950 text-xs font-black text-white shadow-md">
+                  <span className="flex size-9 items-center justify-center rounded-full bg-slate-950 text-xs font-medium text-white shadow-md">
                     FB
                   </span>
-                  <span className="text-lg font-bold text-slate-950">FormBuilder</span>
+                  <span className="text-lg font-medium text-slate-950">FormBuilder</span>
                 </Link>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex size-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900"
+                  className="flex size-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors active:bg-slate-200 active:text-slate-900"
                 >
                   <X className="size-5" />
                 </button>
@@ -149,7 +149,7 @@ export function Navbar() {
                   <Link
                     key={link.label}
                     href={link.href}
-                    className="rounded-xl px-4 py-3 text-lg font-semibold text-slate-700 transition-colors hover:bg-slate-100 hover:text-violet-600"
+                    className="rounded-xl px-4 py-3 text-lg font-medium text-slate-700 transition-colors active:bg-slate-100 active:text-violet-600"
                   >
                     {link.label}
                   </Link>
@@ -160,7 +160,7 @@ export function Navbar() {
               <div className="mt-auto flex flex-col gap-3 pt-6 border-t border-slate-200/50">
                 {user ? (
                   <>
-                    <div className="px-2 pb-2 text-sm font-semibold text-slate-500 truncate">
+                    <div className="px-2 pb-2 text-sm font-medium text-slate-500 truncate">
                       Signed in as <br/>
                       <span className="text-slate-900">{user.email}</span>
                     </div>

@@ -46,7 +46,7 @@ export function ChatWidget() {
             { ...lastMsg, text: lastMsg.text + data.chunk }
           ];
         } else {
-          // Otherwise, start a new streaming message
+
           return [
             ...prev,
             { id: Date.now(), role: 'assistant', text: data.chunk, isStreaming: true }
@@ -98,7 +98,7 @@ export function ChatWidget() {
       <button
         onClick={() => setIsOpen(true)}
         className={cn(
-          "fixed bottom-6 right-6 z-50 flex size-14 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg shadow-violet-600/30 transition-transform hover:scale-105 hover:bg-violet-700",
+          "fixed bottom-6 right-6 z-50 flex size-14 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg shadow-violet-600/30 transition-transform active:scale-105 active:bg-violet-700",
           isOpen ? "hidden" : "flex"
         )}
       >
@@ -128,7 +128,7 @@ export function ChatWidget() {
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="flex size-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-900"
+                className="flex size-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors active:bg-slate-200 active:text-slate-900"
               >
                 <X className="size-4" />
               </button>
@@ -174,12 +174,12 @@ export function ChatWidget() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder="Ask anything..."
-                  className="h-12 w-full rounded-xl border border-white/80 bg-white/80 pl-4 pr-12 text-sm font-medium text-slate-900 outline-none transition focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
+                  className="h-12 w-full rounded-xl border border-white/80 bg-white/80 pl-4 pr-12 text-sm font-medium text-slate-900 outline-none transition focus:ring-2 focus:ring-violet-300 focus:ring-2 focus:ring-transparent focus:border-transparent cursor-pointer border-transparent focus:ring-4 focus:ring-violet-100"
                 />
                 <button
                   type="submit"
                   disabled={!inputValue.trim() || isTyping}
-                  className="absolute right-2 flex size-8 items-center justify-center rounded-lg bg-violet-600 text-white transition-colors hover:bg-violet-700 disabled:opacity-50"
+                  className="absolute right-2 flex size-8 items-center justify-center rounded-lg bg-violet-600 text-white transition-colors active:bg-violet-700 disabled:opacity-50"
                 >
                   <Send className="size-4" />
                 </button>

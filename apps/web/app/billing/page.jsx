@@ -69,17 +69,17 @@ export default function BillingPage() {
         <section className="rounded-[2rem] border border-white/70 bg-white/65 p-6 shadow-xl shadow-slate-200/60 backdrop-blur-xl md:p-8">
           <div className="flex flex-wrap items-center justify-between gap-5">
             <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-violet-100 px-3 py-1.5 text-sm font-bold text-violet-700">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-violet-100 px-3 py-1.5 text-sm font-medium text-violet-700">
                 <CreditCard className="size-4" />
                 Billing & Limits
               </div>
-              <h1 className="text-3xl font-black text-slate-950 md:text-4xl">Plan Management</h1>
+              <h1 className="text-3xl font-medium text-slate-950 md:text-4xl">Plan Management</h1>
               <p className="mt-2 text-sm font-medium text-slate-500">
                 Manage your subscription, view your current usage, and adjust your limits.
               </p>
             </div>
             {isFree && (
-              <Link href="/pricing" className={cn(buttonVariants({ size: 'lg' }), 'bg-violet-600 text-white hover:bg-violet-700 shadow-md rounded-xl')}>
+              <Link href="/pricing" className={cn(buttonVariants({ size: 'lg' }), 'bg-violet-600 text-white active:bg-violet-700 shadow-md rounded-xl')}>
                 Upgrade to Pro
                 <Zap className="ml-2 size-4" />
               </Link>
@@ -91,18 +91,18 @@ export default function BillingPage() {
           
           {/* CURRENT PLAN CARD */}
           <section className="rounded-[2rem] border border-white/70 bg-white/70 p-6 shadow-lg shadow-slate-200/60 backdrop-blur-xl md:p-8">
-            <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+            <h2 className="text-xl font-medium text-slate-900 mb-6 flex items-center gap-2">
               <Sparkles className="size-5 text-amber-500" /> Current Plan
             </h2>
             
             <div className="flex items-end justify-between border-b border-slate-200 pb-6 mb-6">
               <div>
-                <div className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-1">Your Tier</div>
-                <div className="text-4xl font-black text-slate-950">{plan.name}</div>
+                <div className="text-sm font-medium uppercase tracking-wider text-slate-500 mb-1">Your Tier</div>
+                <div className="text-4xl font-medium text-slate-950">{plan.name}</div>
               </div>
               <div className="text-right">
                 <span className={cn(
-                  "inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider",
+                  "inline-block rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wider",
                   isFree ? "bg-slate-200 text-slate-700" : isCancelingAtEnd ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"
                 )}>
                   {isFree ? 'Free Forever' : isCancelingAtEnd ? 'Cancels Soon' : 'Active'}
@@ -114,12 +114,12 @@ export default function BillingPage() {
               {!isFree && formattedEndDate && (
                 <div className="flex justify-between text-sm font-medium">
                   <span className="text-slate-500">{isCancelingAtEnd ? 'Access ends on' : 'Next billing date'}</span>
-                  <span className="text-slate-900 font-bold">{formattedEndDate}</span>
+                  <span className="text-slate-900 font-medium">{formattedEndDate}</span>
                 </div>
               )}
               <div className="flex justify-between text-sm font-medium">
                 <span className="text-slate-500">Plan price</span>
-                <span className="text-slate-900 font-bold">₹{plan.priceMonthly} / mo</span>
+                <span className="text-slate-900 font-medium">₹{plan.priceMonthly} / mo</span>
               </div>
             </div>
 
@@ -129,7 +129,7 @@ export default function BillingPage() {
                 You are currently on the free plan. Upgrade to unlock unlimited potential.
               </div>
             ) : isCancelingAtEnd ? (
-              <div className="rounded-xl bg-amber-50 p-4 border border-amber-200 text-sm font-semibold text-amber-800 flex items-start gap-3">
+              <div className="rounded-xl bg-amber-50 p-4 border border-amber-200 text-sm font-medium text-amber-800 flex items-start gap-3">
                 <AlertTriangle className="size-5 shrink-0" />
                 <p>Your subscription will automatically cancel at the end of the current billing cycle. You will keep access to Pro features until then.</p>
               </div>
@@ -137,7 +137,7 @@ export default function BillingPage() {
               <button
                 onClick={handleCancel}
                 disabled={isCanceling}
-                className="w-full h-11 flex items-center justify-center rounded-xl border border-red-200 bg-red-50 text-sm font-bold text-red-600 transition hover:bg-red-100 disabled:opacity-50"
+                className="w-full h-11 flex items-center justify-center rounded-xl border border-red-200 bg-red-50 text-sm font-medium text-red-600 transition active:bg-red-100 disabled:opacity-50"
               >
                 {isCanceling ? <Loader2 className="size-4 animate-spin mr-2" /> : <ShieldAlert className="size-4 mr-2" />}
                 Cancel Subscription
@@ -147,14 +147,14 @@ export default function BillingPage() {
 
           {/* USAGE LIMITS CARD */}
           <section className="rounded-[2rem] border border-white/70 bg-white/70 p-6 shadow-lg shadow-slate-200/60 backdrop-blur-xl md:p-8">
-            <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+            <h2 className="text-xl font-medium text-slate-900 mb-6 flex items-center gap-2">
               <BarChart3 className="size-5 text-blue-500" /> Usage & Limits
             </h2>
 
             <div className="space-y-8">
               {/* Forms Limit */}
               <div>
-                <div className="flex justify-between text-sm font-bold mb-2">
+                <div className="flex justify-between text-sm font-medium mb-2">
                   <span className="text-slate-700">Forms Created</span>
                   <span className={usageData.forms.percentage >= 100 ? "text-red-600" : "text-slate-500"}>
                     {usageData.forms.used} / {usageData.forms.isUnlimited ? '∞' : usageData.forms.limit}
@@ -173,7 +173,7 @@ export default function BillingPage() {
 
               {/* Responses Limit */}
               <div>
-                <div className="flex justify-between text-sm font-bold mb-2">
+                <div className="flex justify-between text-sm font-medium mb-2">
                   <span className="text-slate-700">Responses Collected</span>
                   <span className={usageData.responses.percentage >= 100 ? "text-red-600" : "text-slate-500"}>
                     {usageData.responses.used} / {usageData.responses.isUnlimited ? '∞' : usageData.responses.limit}
@@ -193,12 +193,12 @@ export default function BillingPage() {
 
             {isFree && (
               <div className="mt-8 border-t border-slate-200 pt-6">
-                <Link href="/pricing" className="group flex items-center justify-between rounded-xl bg-slate-950 p-4 text-white hover:bg-slate-800 transition">
+                <Link href="/pricing" className="group flex items-center justify-between rounded-xl bg-slate-950 p-4 text-white active:bg-slate-800 transition">
                   <div>
-                    <div className="text-sm font-bold">Hit a limit?</div>
+                    <div className="text-sm font-medium">Hit a limit?</div>
                     <div className="text-xs text-slate-400 mt-0.5">Upgrade to unlock unlimited forms.</div>
                   </div>
-                  <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="size-5 transition-transform group-active:translate-x-1" />
                 </Link>
               </div>
             )}

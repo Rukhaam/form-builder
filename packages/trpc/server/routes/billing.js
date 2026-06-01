@@ -129,11 +129,11 @@ async function activateSubscription({ userId, plan, subscription }) {
 export const billingRouter = router({
   getPlans: publicProcedure.query(() => Object.values(PLAN_DEFINITIONS)),
 
-  // 🚀 UPDATED: Now returns { subscription, plan, isActive } for the frontend
+
   getSubscription: protectedProcedure.query(async ({ ctx }) => {
     const [sub] = await db.select().from(subscriptions).where(eq(subscriptions.userId, ctx.user.id)).limit(1);
     
-    // Default to FREE plan details if no active sub exists
+
     const plan = getPlan(sub?.planId ?? DEFAULT_PLAN_ID);
     
     return {
@@ -238,7 +238,7 @@ getUsageOverview: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.user.id;
     const periodKey = currentPeriodKey();
 
-    // Get active plan limits
+
     const [sub] = await db
       .select()
       .from(subscriptions)
@@ -248,7 +248,6 @@ getUsageOverview: protectedProcedure.query(async ({ ctx }) => {
     const planId = sub && ['active', 'trialing'].includes(sub.status) ? sub.planId : 'FREE';
     const plan = getPlan(planId); // Ensure you are using getPlan from your plans.js
 
-    // 🚀 FIX: Use explicit select count() with proper fallback
     const [formCountResult] = await db
       .select({ count: count() })
       .from(forms)
@@ -256,7 +255,7 @@ getUsageOverview: protectedProcedure.query(async ({ ctx }) => {
     
     const formsUsed = formCountResult?.count || 0;
 
-    // 🚀 FIX: Safely fetch usage counters
+
     const [responseCounter] = await db
       .select({ usedCount: usageCounters.usedCount })
       .from(usageCounters)
@@ -318,7 +317,6 @@ getUsageOverview: protectedProcedure.query(async ({ ctx }) => {
     };
   }),
 
-  // 🚀 NEW: Securely pings Razorpay to cancel at cycle end and updates local DB
   cancelSubscription: protectedProcedure.mutation(async ({ ctx }) => {
     const [sub] = await db
       .select()
