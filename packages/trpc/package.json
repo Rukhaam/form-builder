@@ -11,6 +11,7 @@
     "./client/index.js": "./client/index.js"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@repo/database": "workspace:*",
     "@repo/schemas": "workspace:*",
     "@trpc/client": "^10.0.0",

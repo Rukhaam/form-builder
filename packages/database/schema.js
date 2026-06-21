@@ -120,3 +120,27 @@ export const usageCounters = pgTable('usage_counters', {
     userMetricPeriodUnique: uniqueIndex('user_metric_period_unique').on(table.userId, table.metric, table.periodKey),
   };
 });
+
+export const aiSummaries = pgTable('ai_summaries', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  formId: uuid('form_id').references(() => forms.id, { onDelete: 'cascade' }).notNull().unique(),
+  summary: text('summary').notNull(),
+  themes: jsonb('themes').notNull(),
+  sentiment: jsonb('sentiment').notNull(),
+  responsesHash: text('responses_hash').notNull(),
+  submissionCount: integer('submission_count').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const webhooks = pgTable('webhooks', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  formId: uuid('form_id').references(() => forms.id, { onDelete: 'cascade' }).notNull().unique(),
+  url: text('url').notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  secret: text('secret'),
+  lastTriggeredAt: timestamp('last_triggered_at'),
+  lastStatus: integer('last_status'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+

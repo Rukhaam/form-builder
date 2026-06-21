@@ -195,6 +195,9 @@ importers:
 
   packages/trpc:
     dependencies:
+      '@google/generative-ai':
+        specifier: ^0.24.1
+        version: 0.24.1
       '@repo/database':
         specifier: workspace:*
         version: link:../database

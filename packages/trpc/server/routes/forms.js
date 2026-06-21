@@ -915,6 +915,30 @@ export const formRouter = router({
         await incrementResponsesUsage(form.userId, tx);
       });
 
+      // Fire the webhook asynchronously (fire-and-forget)
+      const { dispatchWebhook } = await import('../utils/webhookDispatcher.js');
+      
+      // Build a friendly payload mapped by field label instead of UUID
+      const payloadData = {};
+      for (const field of formFieldsData) {
+        if (input.answers[field.id] !== undefined) {
+          payloadData[field.label] = input.answers[field.id];
+        }
+      }
+
+      const webhookPayload = {
+        event: 'form.submission',
+        formId: form.id,
+        formTitle: form.title,
+        submittedAt: new Date().toISOString(),
+        data: payloadData,
+      };
+
+      dispatchWebhook(form.id, webhookPayload).catch((err) => {
+        console.error('Failed to trigger webhook dispatch', err);
+      });
+
       return { message: "Response submitted successfully!" };
     }),
 });
+

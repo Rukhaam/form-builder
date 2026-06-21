@@ -147,4 +147,24 @@ export const submitFormSchema = z.object({
 export const submitReviewSchema = z.object({
   formId: z.string().uuid("Invalid Form ID"),
   rating: z.number().min(1, "Rating must be at least 1").max(5, "Rating cannot be more than 5").int(),
-})
+});
+
+// --- Webhooks Schemas ---
+
+export const upsertWebhookSchema = z.object({
+  formId: z.string().uuid("Invalid Form ID"),
+  url: z.string().url("Must be a valid URL").refine(
+    (url) => url.startsWith('https://'),
+    { message: 'Webhook URL must use HTTPS' }
+  ),
+  secret: z.string().max(128, "Secret cannot exceed 128 characters").optional().nullable(),
+  isActive: z.boolean().default(true),
+});
+
+export const deleteWebhookSchema = z.object({
+  formId: z.string().uuid("Invalid Form ID"),
+});
+
+export const testWebhookSchema = z.object({
+  formId: z.string().uuid("Invalid Form ID"),
+});

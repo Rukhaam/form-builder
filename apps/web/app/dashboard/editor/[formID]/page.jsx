@@ -25,8 +25,8 @@ import {
   Brush,
   Eye,
   Type,
-  Pencil
-} from "lucide-react"; 
+  Pencil,
+} from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 
@@ -75,7 +75,7 @@ const THEME_COLOR_PRESETS = [
     swatch: "bg-[#f7f5ef]",
     page: "bg-[#f7f5ef]",
     panel: "bg-white",
-    canvas: "bg-[#fbfaf7]",
+    canvas: "bg-white",
     field: "bg-white",
     soft: "bg-[#f1eee6]",
     border: "border-stone-200",
@@ -243,35 +243,35 @@ function PreviewFieldControl({ field, design }) {
   if (OPTION_FIELD_TYPES.has(field.type)) {
     return (
       <div className="grid gap-2">
-        {(field.options || ["Option 1", "Option 2"]).slice(0, 3).map((option) => (
-          <div
-            key={option}
-            className={cn(
-              "flex items-center gap-3 rounded-lg border px-3 py-2 text-sm font-medium",
-              design.color.choice,
-              design.color.muted,
-            )}
-          >
-            <span
+        {(field.options || ["Option 1", "Option 2"])
+          .slice(0, 3)
+          .map((option) => (
+            <div
+              key={option}
               className={cn(
-                "size-3.5 shrink-0 border",
-                field.type === "checkbox" || field.type === "multi_select"
-                  ? "rounded"
-                  : "rounded-full",
-                design.color.border,
+                "flex items-center gap-3 rounded-lg border px-3 py-2 text-sm font-medium",
+                design.color.choice,
+                design.color.muted,
               )}
-            />
-            <span className="truncate">{option}</span>
-          </div>
-        ))}
+            >
+              <span
+                className={cn(
+                  "size-3.5 shrink-0 border",
+                  field.type === "checkbox" || field.type === "multi_select"
+                    ? "rounded"
+                    : "rounded-full",
+                  design.color.border,
+                )}
+              />
+              <span className="truncate">{option}</span>
+            </div>
+          ))}
       </div>
     );
   }
 
   if (field.type === "long_text") {
-    return (
-      <div className={cn("h-20 rounded-lg border", design.color.input)} />
-    );
+    return <div className={cn("h-20 rounded-lg border", design.color.input)} />;
   }
 
   return <div className={cn("h-11 rounded-lg border", design.color.input)} />;
@@ -303,7 +303,12 @@ function LiveFormPreview({ title, description, fields, design }) {
         >
           Public form
         </div>
-        <h3 className={cn("text-2xl font-semibold leading-tight", design.color.text)}>
+        <h3
+          className={cn(
+            "text-2xl font-semibold leading-tight",
+            design.color.text,
+          )}
+        >
           {title || "Untitled Form"}
         </h3>
         {description ? (
@@ -315,7 +320,9 @@ function LiveFormPreview({ title, description, fields, design }) {
         <div className="mt-7 space-y-5">
           {fields.slice(0, 5).map((field, index) => (
             <div key={field.id} className="space-y-2">
-              <label className={cn("block text-sm font-medium", design.color.text)}>
+              <label
+                className={cn("block text-sm font-medium", design.color.text)}
+              >
                 {index + 1}. {field.label || "New Question"}
                 {field.required && <span className="ml-1 opacity-50">*</span>}
               </label>
@@ -373,10 +380,10 @@ export default function FormEditorPage() {
     category,
     theme,
   } = editorState;
-  
+
   const [copiedShareLink, setCopiedShareLink] = useState(false);
   const [showMobilePreview, setShowMobilePreview] = useState(false);
-  
+
   const { data: existingForm, isLoading: isFetching } =
     trpc.form.getFormEditor.useQuery(
       { formId: formIdParam },
@@ -385,8 +392,6 @@ export default function FormEditorPage() {
 
   // 🚀 FETCH CURRENT USAGE & LIMITS
   const { data: usageData } = trpc.billing.getUsageOverview.useQuery();
-  console.log(usageData);
-  
 
   const saveMutation = trpc.form.saveEditor.useMutation({
     onSuccess: async (data) => {
@@ -414,15 +419,17 @@ export default function FormEditorPage() {
       }
     },
     onError: (error) => {
-      if (error.data?.code === 'PAYMENT_REQUIRED') {
+      if (error.data?.code === "PAYMENT_REQUIRED") {
         toast.error(
           (t) => (
             <div className="flex flex-col gap-3">
-              <span className="text-sm font-medium text-slate-900">{error.message}</span>
+              <span className="text-sm font-medium text-slate-900">
+                {error.message}
+              </span>
               <button
                 onClick={() => {
                   toast.dismiss(t.id);
-                  router.push('/pricing');
+                  router.push("/pricing");
                 }}
                 className="w-fit rounded-lg bg-slate-950 px-4 py-2 text-xs font-medium text-white shadow-md transition hover:bg-slate-800"
               >
@@ -430,7 +437,10 @@ export default function FormEditorPage() {
               </button>
             </div>
           ),
-          { duration: 8000, style: { background: '#fff', border: '1px solid #e2e8f0' } }
+          {
+            duration: 8000,
+            style: { background: "#fff", border: "1px solid #e2e8f0" },
+          },
         );
       } else {
         toast.error(error.message || "Could not save this form");
@@ -494,10 +504,10 @@ export default function FormEditorPage() {
     const id = uuidv4();
     dispatch(addField({ id, type }));
     dispatch(setActiveField(id));
-    
+
     setShowMobilePreview(false);
     setTimeout(() => {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
     }, 100);
   };
 
@@ -591,7 +601,7 @@ export default function FormEditorPage() {
       fields: cleanFields,
     });
   };
-  
+
   const shareLink = useMemo(() => {
     if (isNew) return "";
     const formSlug = existingForm?.form?.slug;
@@ -627,10 +637,9 @@ export default function FormEditorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f6f5f1] pb-24 text-slate-950 md:pb-0">
-      
+    <div className="-m-8 min-h-screen bg-white pb-24 text-black md:pb-0">
       {/* HEADER (Desktop & Mobile Top) */}
-      <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-black/5 bg-[#fbfaf7]/90 px-4 backdrop-blur-xl md:px-8">
+      <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-r-4 border-black/10 bg-white px-4 md:px-8 mb-10 ">
         <div className="flex min-w-0 flex-1 items-center gap-4">
           <Link
             href="/dashboard"
@@ -655,17 +664,45 @@ export default function FormEditorPage() {
         {/* DESKTOP ACTIONS (Hidden on mobile) */}
         <div className="hidden md:flex shrink-0 items-center gap-3 pl-4">
           {!isNew && (
-            <Link
-              href={`/dashboard/analytics/${formIdParam}`}
-              className={cn(
-                buttonVariants({ variant: "outline", size: "sm" }),
-                "border-black/10 bg-white hover:bg-[#f6f5f1] hover:text-slate-900",
-                isSaving && "pointer-events-none opacity-50",
-              )}
-            >
-              <BarChart3 className="mr-2 size-4" />
-              Analytics
-            </Link>
+            <>
+              <Link
+                href={`/dashboard/analytics/${formIdParam}`}
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "border-black/10 bg-white hover:bg-[#f6f5f1] hover:text-slate-900",
+                  isSaving && "pointer-events-none opacity-50",
+                )}
+              >
+                <BarChart3 className="mr-2 size-4" />
+                Analytics
+              </Link>
+              <Link
+                href={`/dashboard/webhooks/${formIdParam}`}
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "border-black/10 bg-white hover:bg-[#f6f5f1] hover:text-slate-900",
+                  isSaving && "pointer-events-none opacity-50",
+                )}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="mr-2 size-4"
+                >
+                  <path d="m18 16 4-4-4-4" />
+                  <path d="m6 8-4 4 4 4" />
+                  <path d="m14.5 4-5 16" />
+                </svg>
+                Webhooks
+              </Link>
+            </>
           )}
           <Button
             variant="outline"
@@ -691,16 +728,17 @@ export default function FormEditorPage() {
 
       <div
         className={cn(
-          "mx-auto grid max-w-[1720px] gap-4 p-4 transition-opacity duration-300 md:p-6 lg:grid-cols-[220px_minmax(0,1fr)_360px]",
+          "mx-auto grid max-w-[1720px] gap-4 p-4 transition-opacity duration-300 md:p-12 lg:grid-cols-[220px_minmax(0,1fr)_360px]",
           isSaving && "pointer-events-none opacity-60",
         )}
       >
-        
         {/* LEFT TOOLBOX (Hidden on mobile if Preview is toggled) */}
-        <aside className={cn(
-          "order-2 h-fit rounded-lg border border-black/5 bg-white/80 p-3 lg:order-1 lg:sticky lg:top-24 lg:block",
-          showMobilePreview ? "hidden" : "block"
-        )}>
+        <aside
+          className={cn(
+            "order-2 h-fit rounded-lg border border-black/5 bg-slate-50 p-3 lg:order-1 lg:sticky lg:top-24 lg:block",
+            showMobilePreview ? "hidden" : "block",
+          )}
+        >
           <div className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
             <Sparkles className="size-4" />
             Field toolbox
@@ -714,7 +752,7 @@ export default function FormEditorPage() {
                   type="button"
                   disabled={isSaving}
                   onClick={() => handleAddField(fieldType.value)}
-                  className="flex h-11 items-center gap-3 rounded-lg border border-black/5 bg-[#f8f7f3] px-3 text-left text-sm font-medium text-slate-700 transition hover:border-black/10 hover:bg-white disabled:opacity-50"
+                  className="flex h-11 items-center gap-3 rounded-lg border border-black/5 bg-white px-3 text-left text-sm font-medium text-slate-700 transition hover:border-black/10 hover:bg-white disabled:opacity-50"
                 >
                   <Icon className="size-4 text-slate-400" />
                   {fieldType.label}
@@ -725,30 +763,39 @@ export default function FormEditorPage() {
         </aside>
 
         {/* MAIN EDITOR AREA (Hidden on mobile if Preview is toggled) */}
-        <main className={cn(
-          "order-1 space-y-4 lg:order-2 lg:block",
-          showMobilePreview ? "hidden" : "block"
-        )}>
-          
-          <section className="rounded-lg border border-black/5 bg-white/85 p-5 md:p-6">
+        <main
+          className={cn(
+            "order-1 space-y-4 lg:order-2 lg:block",
+            showMobilePreview ? "hidden" : "block",
+          )}
+        >
+          <section className="rounded-lg border border-black/5 bg-slate-50 p-5 md:p-6">
             <div className="grid gap-4 md:grid-cols-[1fr_180px_180px]">
               <label className="space-y-2">
-                <span className="text-xs font-semibold uppercase text-slate-500">Title</span>
+                <span className="text-xs font-semibold uppercase text-slate-500">
+                  Title
+                </span>
                 <Input
                   disabled={isSaving}
                   value={title}
-                  onChange={(event) => dispatch(updateMetadata({ title: event.target.value }))}
-                  className="h-11 border-black/5 bg-[#f8f7f3] text-lg font-medium focus:bg-white"
+                  onChange={(event) =>
+                    dispatch(updateMetadata({ title: event.target.value }))
+                  }
+                  className="h-11 border-black/5 bg-white text-lg font-medium focus:bg-white"
                   placeholder="Form title"
                 />
               </label>
               <label className="space-y-2">
-                <span className="text-xs font-semibold uppercase text-slate-500">Category</span>
+                <span className="text-xs font-semibold uppercase text-slate-500">
+                  Category
+                </span>
                 <select
                   disabled={isSaving}
                   value={category || ""}
-                  onChange={(event) => dispatch(updateMetadata({ category: event.target.value }))}
-                  className="h-11 w-full rounded-lg border border-black/5 bg-[#f8f7f3] px-3 text-sm font-medium outline-none transition focus:border-black/20 focus:bg-white disabled:opacity-50"
+                  onChange={(event) =>
+                    dispatch(updateMetadata({ category: event.target.value }))
+                  }
+                  className="h-11 w-full rounded-lg border border-black/5 bg-white px-3 text-sm font-medium outline-none transition focus:border-black/20 focus:bg-white disabled:opacity-50"
                 >
                   <option value="">None</option>
                   <option value="Education">Education</option>
@@ -759,12 +806,16 @@ export default function FormEditorPage() {
                 </select>
               </label>
               <label className="space-y-2">
-                <span className="text-xs font-semibold uppercase text-slate-500">Visibility</span>
+                <span className="text-xs font-semibold uppercase text-slate-500">
+                  Visibility
+                </span>
                 <select
                   disabled={isSaving}
                   value={visibility}
-                  onChange={(event) => dispatch(updateMetadata({ visibility: event.target.value }))}
-                  className="h-11 w-full rounded-lg border border-black/5 bg-[#f8f7f3] px-3 text-sm font-medium outline-none transition focus:border-black/20 focus:bg-white disabled:opacity-50"
+                  onChange={(event) =>
+                    dispatch(updateMetadata({ visibility: event.target.value }))
+                  }
+                  className="h-11 w-full rounded-lg border border-black/5 bg-white px-3 text-sm font-medium outline-none transition focus:border-black/20 focus:bg-white disabled:opacity-50"
                 >
                   <option value="PUBLIC">Public</option>
                   <option value="UNLISTED">Unlisted</option>
@@ -773,38 +824,56 @@ export default function FormEditorPage() {
             </div>
 
             <label className="mt-6 block space-y-2">
-              <span className="text-xs font-semibold uppercase text-slate-500">Description</span>
+              <span className="text-xs font-semibold uppercase text-slate-500">
+                Description
+              </span>
               <textarea
                 disabled={isSaving}
                 value={description}
-                onChange={(event) => dispatch(updateMetadata({ description: event.target.value }))}
-                className="min-h-20 w-full resize-none rounded-lg border border-black/5 bg-[#f8f7f3] px-4 py-3 text-sm font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-black/20 focus:bg-white disabled:opacity-50"
+                onChange={(event) =>
+                  dispatch(updateMetadata({ description: event.target.value }))
+                }
+                className="min-h-20 w-full resize-none rounded-lg border border-black/5 bg-white px-4 py-3 text-sm font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-black/20 focus:bg-white disabled:opacity-50"
                 placeholder="A short note for people filling out this form"
               />
             </label>
 
             <div className="mt-6 grid gap-4 border-t border-black/5 pt-6 md:grid-cols-3">
               <div className="space-y-2 flex flex-col">
-                <span className="text-xs font-semibold uppercase text-slate-500">Expire form</span>
+                <span className="text-xs font-semibold uppercase text-slate-500">
+                  Expire form
+                </span>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       disabled={isSaving}
                       variant="outline"
                       className={cn(
-                        "h-11 w-full justify-start border-black/5 bg-[#f8f7f3] text-left font-medium hover:bg-white",
+                        "h-11 w-full justify-start border-black/5 bg-white text-left font-medium hover:bg-white",
                         !editorState.expiresAt && "text-slate-500",
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4 text-slate-400" />
-                      {editorState.expiresAt ? format(new Date(editorState.expiresAt), "PPP") : "No expiration"}
+                      {editorState.expiresAt
+                        ? format(new Date(editorState.expiresAt), "PPP")
+                        : "No expiration"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
-                      selected={editorState.expiresAt ? new Date(editorState.expiresAt) : undefined}
-                      onSelect={(date) => dispatch(updateMetadata({ expiresAt: date ? date.toISOString() : null }))}
+                      selected={
+                        editorState.expiresAt
+                          ? new Date(editorState.expiresAt)
+                          : undefined
+                      }
+                      onSelect={(date) =>
+                        dispatch(
+                          updateMetadata({
+                            expiresAt: date ? date.toISOString() : null,
+                          }),
+                        )
+                      }
                       initialFocus
                     />
                     {editorState.expiresAt && (
@@ -813,7 +882,9 @@ export default function FormEditorPage() {
                           variant="ghost"
                           size="sm"
                           className="w-full text-slate-500 hover:text-slate-900"
-                          onClick={() => dispatch(updateMetadata({ expiresAt: null }))}
+                          onClick={() =>
+                            dispatch(updateMetadata({ expiresAt: null }))
+                          }
                         >
                           Clear expiration
                         </Button>
@@ -825,7 +896,9 @@ export default function FormEditorPage() {
 
               {/* 🚀 UPDATED MAX RESPONSES INPUT */}
               <label className="space-y-2 flex flex-col">
-                <span className="text-xs font-semibold uppercase text-slate-500">Max responses</span>
+                <span className="text-xs font-semibold uppercase text-slate-500">
+                  Max responses
+                </span>
                 <Input
                   disabled={isSaving}
                   type="number"
@@ -839,18 +912,26 @@ export default function FormEditorPage() {
                     }
 
                     const requestedMax = parseInt(event.target.value, 10);
-                    
+
                     // 2. Safely grab their limit from the backend (Fallback to 100 for Starter)
                     const planLimit = usageData?.responses?.limit ?? 100;
-                    const isUnlimited = usageData?.responses?.isUnlimited ?? false;
+                    const isUnlimited =
+                      usageData?.responses?.isUnlimited ?? false;
 
                     // 3. The Front-End Guard
                     if (!isUnlimited && requestedMax > planLimit) {
-                      toast.error(`Your current plan limits you to ${planLimit} responses. Upgrade to increase this!`, {
-                        icon: '🛑',
-                        style: { background: '#fff', color: '#0f172a', border: '1px solid #e2e8f0' }
-                      });
-                      
+                      toast.error(
+                        `Your current plan limits you to ${planLimit} responses. Upgrade to increase this!`,
+                        {
+                          icon: "🛑",
+                          style: {
+                            background: "#fff",
+                            color: "#0f172a",
+                            border: "1px solid #e2e8f0",
+                          },
+                        },
+                      );
+
                       // Auto-cap it to their max allowed limit
                       dispatch(updateMetadata({ maxResponses: planLimit }));
                     } else {
@@ -858,25 +939,29 @@ export default function FormEditorPage() {
                       dispatch(updateMetadata({ maxResponses: requestedMax }));
                     }
                   }}
-                  className="h-11 w-full border-black/5 bg-[#f8f7f3] focus:bg-white"
+                  className="h-11 w-full border-black/5 bg-white focus:bg-white"
                   placeholder={
-                    usageData?.responses?.isUnlimited 
-                      ? "Unlimited" 
+                    usageData?.responses?.isUnlimited
+                      ? "Unlimited"
                       : `Unlimited (up to ${usageData?.responses?.limit ?? 100})`
                   }
                 />
               </label>
 
               <label className="space-y-2 flex flex-col">
-                <span className="text-xs font-semibold uppercase text-slate-500">Password</span>
+                <span className="text-xs font-semibold uppercase text-slate-500">
+                  Password
+                </span>
                 <div className="relative w-full">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
                   <Input
                     disabled={isSaving}
                     type="password"
                     value={password || ""}
-                    onChange={(event) => dispatch(updateMetadata({ password: event.target.value }))}
-                    className="h-11 w-full border-black/5 bg-[#f8f7f3] pl-9 focus:bg-white"
+                    onChange={(event) =>
+                      dispatch(updateMetadata({ password: event.target.value }))
+                    }
+                    className="h-11 w-full border-black/5 bg-white pl-9 focus:bg-white"
                     placeholder="None"
                   />
                 </div>
@@ -885,19 +970,34 @@ export default function FormEditorPage() {
           </section>
 
           {!isNew && (
-            <section className="rounded-lg border border-black/5 bg-white/85 p-5">
-              <div className="mb-2 text-sm font-semibold uppercase text-slate-900">Share form</div>
+            <section className="rounded-lg border border-black/5 bg-slate-50 p-5">
+              <div className="mb-2 text-sm font-semibold uppercase text-slate-900">
+                Share form
+              </div>
               <p className="mb-4 text-sm font-medium text-slate-500">
-                {visibility === "UNLISTED" ? "Unlisted forms are accessible only through this link." : "Public forms appear in discovery."}
+                {visibility === "UNLISTED"
+                  ? "Unlisted forms are accessible only through this link."
+                  : "Public forms appear in discovery."}
               </p>
               <div className="flex gap-2">
-                <Input value={shareLink} readOnly className="h-11 border-black/5 bg-[#f8f7f3] font-medium text-slate-600" />
-                <Button type="button" variant="outline" className="h-11 border-black/10 bg-white" onClick={handleCopyShareLink}>
+                <Input
+                  value={shareLink}
+                  readOnly
+                  className="h-11 border-black/5 bg-white font-medium text-slate-600"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-11 border-black/10 bg-white"
+                  onClick={handleCopyShareLink}
+                >
                   {copiedShareLink ? "Copied" : "Copy"}
                 </Button>
               </div>
               {status !== "PUBLISHED" && (
-                <p className="mt-3 text-xs font-medium text-amber-600">Publish the form to activate this link.</p>
+                <p className="mt-3 text-xs font-medium text-amber-600">
+                  Publish the form to activate this link.
+                </p>
               )}
             </section>
           )}
@@ -908,14 +1008,14 @@ export default function FormEditorPage() {
                 key={field.id}
                 onClick={() => dispatch(setActiveField(field.id))}
                 className={cn(
-                  "group rounded-lg border bg-white/85 p-5 transition-all duration-300",
+                  "group rounded-lg border bg-slate-50 p-5 transition-all duration-300",
                   activeField?.id === field.id
                     ? "border-slate-950 bg-white"
                     : "border-black/5 hover:border-black/15",
                 )}
               >
                 <div className="flex flex-col md:flex-row items-start gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-black/5 bg-[#f8f7f3] text-sm font-semibold text-slate-950">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-black/5 bg-white text-sm font-semibold text-slate-950">
                     {index + 1}
                   </div>
                   <div className="min-w-0 flex-1 space-y-4 w-full">
@@ -923,30 +1023,50 @@ export default function FormEditorPage() {
                       <Input
                         disabled={isSaving}
                         value={field.label}
-                        onChange={(event) => dispatch(updateField({ id: field.id, updates: { label: event.target.value } }))}
-                        className="h-11 border-black/5 bg-[#f8f7f3] font-medium focus:bg-white"
+                        onChange={(event) =>
+                          dispatch(
+                            updateField({
+                              id: field.id,
+                              updates: { label: event.target.value },
+                            }),
+                          )
+                        }
+                        className="h-11 border-black/5 bg-white font-medium focus:bg-white"
                         placeholder="Question label"
                       />
                       <select
                         disabled={isSaving}
                         value={field.type}
-                        onChange={(event) => handleFieldTypeChange(field, event.target.value)}
-                        className="h-11 rounded-lg border border-black/5 bg-[#f8f7f3] px-3 text-sm font-medium outline-none transition focus:border-black/20 focus:bg-white disabled:opacity-50"
+                        onChange={(event) =>
+                          handleFieldTypeChange(field, event.target.value)
+                        }
+                        className="h-11 rounded-lg border border-black/5 bg-white px-3 text-sm font-medium outline-none transition focus:border-black/20 focus:bg-white disabled:opacity-50"
                       >
                         {FIELD_TYPES.map((fieldType) => (
-                          <option key={fieldType.value} value={fieldType.value}>{fieldType.label}</option>
+                          <option key={fieldType.value} value={fieldType.value}>
+                            {fieldType.label}
+                          </option>
                         ))}
                       </select>
                     </div>
 
                     {OPTION_FIELD_TYPES.has(field.type) && (
-                      <div className="space-y-3 rounded-lg border border-black/5 bg-[#f8f7f3] p-4">
+                      <div className="space-y-3 rounded-lg border border-black/5 bg-white p-4">
                         {(field.options || []).map((option, optionIndex) => (
-                          <div key={`${field.id}-${optionIndex}`} className="flex items-center gap-2">
+                          <div
+                            key={`${field.id}-${optionIndex}`}
+                            className="flex items-center gap-2"
+                          >
                             <Input
                               disabled={isSaving}
                               value={option}
-                              onChange={(event) => handleOptionChange(field, optionIndex, event.target.value)}
+                              onChange={(event) =>
+                                handleOptionChange(
+                                  field,
+                                  optionIndex,
+                                  event.target.value,
+                                )
+                              }
                               className="h-10 border-black/5 bg-white"
                               placeholder={`Option ${optionIndex + 1}`}
                             />
@@ -954,7 +1074,9 @@ export default function FormEditorPage() {
                               disabled={isSaving}
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleRemoveOption(field, optionIndex)}
+                              onClick={() =>
+                                handleRemoveOption(field, optionIndex)
+                              }
                             >
                               <Trash2 className="size-4 text-slate-400 hover:text-red-500 transition-colors" />
                             </Button>
@@ -975,13 +1097,28 @@ export default function FormEditorPage() {
                   </div>
 
                   <div className="flex items-center gap-1 w-full md:w-auto justify-end border-t border-slate-100 md:border-t-0 pt-4 md:pt-0">
-                    <Button disabled={isSaving || index === 0} variant="ghost" size="icon" onClick={() => moveField(index, -1)}>
+                    <Button
+                      disabled={isSaving || index === 0}
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => moveField(index, -1)}
+                    >
                       <ChevronUp className="size-5 text-slate-400" />
                     </Button>
-                    <Button disabled={isSaving || index === fields.length - 1} variant="ghost" size="icon" onClick={() => moveField(index, 1)}>
+                    <Button
+                      disabled={isSaving || index === fields.length - 1}
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => moveField(index, 1)}
+                    >
                       <ChevronDown className="size-5 text-slate-400" />
                     </Button>
-                    <Button disabled={isSaving} variant="ghost" size="icon" onClick={() => dispatch(removeField(field.id))}>
+                    <Button
+                      disabled={isSaving}
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => dispatch(removeField(field.id))}
+                    >
                       <Trash2 className="size-4 text-slate-400 hover:text-red-500" />
                     </Button>
                   </div>
@@ -992,12 +1129,26 @@ export default function FormEditorPage() {
                     <GripVertical className="size-4" />
                     {fieldTypeLabel(field.type)}
                   </div>
-                  <label className={cn("flex items-center gap-2 text-sm font-medium text-slate-700", isSaving ? "cursor-not-allowed opacity-50" : "cursor-pointer")}>
+                  <label
+                    className={cn(
+                      "flex items-center gap-2 text-sm font-medium text-slate-700",
+                      isSaving
+                        ? "cursor-not-allowed opacity-50"
+                        : "cursor-pointer",
+                    )}
+                  >
                     <input
                       disabled={isSaving}
                       type="checkbox"
                       checked={field.required}
-                      onChange={(event) => dispatch(updateField({ id: field.id, updates: { required: event.target.checked } }))}
+                      onChange={(event) =>
+                        dispatch(
+                          updateField({
+                            id: field.id,
+                            updates: { required: event.target.checked },
+                          }),
+                        )
+                      }
                       className="size-4 rounded border-slate-300 accent-slate-950"
                     />
                     Required
@@ -1007,138 +1158,183 @@ export default function FormEditorPage() {
             ))}
 
             {fields.length === 0 && (
-              <div className="rounded-lg border border-dashed border-black/10 bg-white/85 p-12 text-center">
-                <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-lg border border-black/5 bg-[#f8f7f3] text-slate-950">
+              <div className="rounded-lg border border-dashed border-black/10 bg-slate-50 p-12 text-center">
+                <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-lg border border-black/5 bg-white text-slate-950">
                   <Plus className="size-6" />
                 </div>
-                <h2 className="text-lg font-medium text-slate-950">Start with a field</h2>
-                <p className="mt-2 text-sm font-medium text-slate-500">Choose a field type from the toolbox to build the form.</p>
+                <h2 className="text-lg font-medium text-slate-950">
+                  Start with a field
+                </h2>
+                <p className="mt-2 text-sm font-medium text-slate-500">
+                  Choose a field type from the toolbox to build the form.
+                </p>
               </div>
             )}
           </section>
         </main>
 
         {/* RIGHT PREVIEW SIDEBAR (Takes over the screen on mobile if toggled) */}
-        <aside className={cn(
-          "order-3 h-fit space-y-4 lg:order-3 lg:sticky lg:top-24 lg:block",
-          showMobilePreview ? "block" : "hidden"
-        )}>
-          <section className="rounded-lg border border-black/5 bg-white/85 p-4">
-          <div className="mb-5 flex items-center justify-between">
-            <div>
-              <h2 className="text-sm font-semibold uppercase text-slate-950">Design</h2>
-              <p className="mt-1 text-xs font-medium text-slate-500">
-                {themeDesign.color.label} / {themeDesign.font.label}
-              </p>
-            </div>
-            <div className={cn("flex size-9 items-center justify-center rounded-lg", themeDesign.color.soft, themeDesign.color.text)}>
-              <Brush className="size-4" />
-            </div>
-          </div>
-
-          <div className="space-y-5">
-            <div>
-              <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
-                <Palette className="size-3.5" />
-                Colors
+        <aside
+          className={cn(
+            "order-3 h-fit space-y-4 lg:order-3 lg:sticky lg:top-24 lg:block",
+            showMobilePreview ? "block" : "hidden",
+          )}
+        >
+          <section className="rounded-lg border border-black/5 bg-slate-50 p-4">
+            <div className="mb-5 flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-semibold uppercase text-slate-950">
+                  Design
+                </h2>
+                <p className="mt-1 text-xs font-medium text-slate-500">
+                  {themeDesign.color.label} / {themeDesign.font.label}
+                </p>
               </div>
-              <div className="grid grid-cols-5 gap-2">
-                {THEME_COLOR_PRESETS.map((preset) => {
-                  const isActive = themeDesign.selection.colorId === preset.id;
+              <div
+                className={cn(
+                  "flex size-9 items-center justify-center rounded-lg",
+                  themeDesign.color.soft,
+                  themeDesign.color.text,
+                )}
+              >
+                <Brush className="size-4" />
+              </div>
+            </div>
 
-                  return (
-                    <button
-                      key={preset.id}
-                      type="button"
-                      onClick={() => handleThemeColorChange(preset.id)}
+            <div className="space-y-5">
+              <div>
+                <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
+                  <Palette className="size-3.5" />
+                  Colors
+                </div>
+                <div className="grid grid-cols-5 gap-2">
+                  {THEME_COLOR_PRESETS.map((preset) => {
+                    const isActive =
+                      themeDesign.selection.colorId === preset.id;
+
+                    return (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => handleThemeColorChange(preset.id)}
+                        className={cn(
+                          "flex h-12 flex-col items-center justify-center rounded-lg border bg-white text-[10px] font-medium text-slate-600 transition",
+                          isActive
+                            ? "border-slate-950"
+                            : "border-black/5 hover:border-black/20",
+                        )}
+                        aria-label={`Use ${preset.label} colors`}
+                      >
+                        <span
+                          className={cn(
+                            "mb-1 size-4 rounded-full border border-black/10",
+                            preset.swatch,
+                          )}
+                        />
+                        {preset.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
+                  <Type className="size-3.5" />
+                  Typeface
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {THEME_FONT_PRESETS.map((fontPreset) => {
+                    const isActive =
+                      themeDesign.selection.fontId === fontPreset.id;
+
+                    return (
+                      <button
+                        key={fontPreset.id}
+                        type="button"
+                        onClick={() => handleThemeFontChange(fontPreset.id)}
+                        className={cn(
+                          "h-10 rounded-lg border bg-white text-sm font-medium transition",
+                          fontPreset.className,
+                          isActive
+                            ? "border-slate-950 text-slate-950"
+                            : "border-black/5 text-slate-500 hover:border-black/20",
+                        )}
+                      >
+                        {fontPreset.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-black/5 bg-white p-3">
+                <div className="mb-3 flex items-center justify-between text-xs font-medium text-slate-500">
+                  <span>{fields.length} fields</span>
+                  <span>{status}</span>
+                </div>
+                <div className="grid grid-cols-4 gap-1">
+                  {[
+                    themeDesign.color.accent,
+                    themeDesign.color.soft,
+                    themeDesign.color.panel,
+                    themeDesign.color.canvas,
+                  ].map((colorClass, index) => (
+                    <span
+                      key={`${colorClass}-${index}`}
                       className={cn(
-                        "flex h-12 flex-col items-center justify-center rounded-lg border bg-white text-[10px] font-medium text-slate-600 transition",
-                        isActive ? "border-slate-950" : "border-black/5 hover:border-black/20",
+                        "h-6 rounded-md border border-black/5",
+                        colorClass,
                       )}
-                      aria-label={`Use ${preset.label} colors`}
-                    >
-                      <span className={cn("mb-1 size-4 rounded-full border border-black/10", preset.swatch)} />
-                      {preset.label}
-                    </button>
-                  );
-                })}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
-
-            <div>
-              <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
-                <Type className="size-3.5" />
-                Typeface
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                {THEME_FONT_PRESETS.map((fontPreset) => {
-                  const isActive = themeDesign.selection.fontId === fontPreset.id;
-
-                  return (
-                    <button
-                      key={fontPreset.id}
-                      type="button"
-                      onClick={() => handleThemeFontChange(fontPreset.id)}
-                      className={cn(
-                        "h-10 rounded-lg border bg-white text-sm font-medium transition",
-                        fontPreset.className,
-                        isActive ? "border-slate-950 text-slate-950" : "border-black/5 text-slate-500 hover:border-black/20",
-                      )}
-                    >
-                      {fontPreset.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-black/5 bg-[#f8f7f3] p-3">
-              <div className="mb-3 flex items-center justify-between text-xs font-medium text-slate-500">
-                <span>{fields.length} fields</span>
-                <span>{status}</span>
-              </div>
-              <div className="grid grid-cols-4 gap-1">
-                {[themeDesign.color.accent, themeDesign.color.soft, themeDesign.color.panel, themeDesign.color.canvas].map((colorClass, index) => (
-                  <span key={`${colorClass}-${index}`} className={cn("h-6 rounded-md border border-black/5", colorClass)} />
-                ))}
-              </div>
-            </div>
-          </div>
           </section>
 
-          <section className="rounded-lg border border-black/5 bg-white/85 p-4">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h2 className="text-sm font-semibold uppercase text-slate-950">Live preview</h2>
-              <p className="mt-1 text-xs font-medium text-slate-500">Respondent view</p>
+          <section className="rounded-lg border border-black/5 bg-slate-50 p-4">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-semibold uppercase text-slate-950">
+                  Live preview
+                </h2>
+                <p className="mt-1 text-xs font-medium text-slate-500">
+                  Respondent view
+                </p>
+              </div>
+              <Eye className="size-4 text-slate-500" />
             </div>
-            <Eye className="size-4 text-slate-500" />
-          </div>
 
-          <LiveFormPreview
-            title={title}
-            description={description}
-            fields={fields}
-            design={themeDesign}
-          />
+            <LiveFormPreview
+              title={title}
+              description={description}
+              fields={fields}
+              design={themeDesign}
+            />
           </section>
         </aside>
-
       </div>
 
       {/* MOBILE BOTTOM NAVIGATION */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-20 items-center justify-around border-t border-black/5 bg-[#fbfaf7] px-4 pb-2 pt-2 md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-20 items-center justify-around border-t border-black/5 bg-white px-4 pb-2 pt-2 md:hidden">
         <button
           onClick={() => {
             setShowMobilePreview(!showMobilePreview);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: "smooth" });
           }}
           className={cn(
             "flex flex-col items-center justify-center gap-1 px-4 py-2 transition-colors",
-            showMobilePreview ? "text-slate-950" : "text-slate-500 hover:text-slate-900"
+            showMobilePreview
+              ? "text-slate-950"
+              : "text-slate-500 hover:text-slate-900",
           )}
         >
-          {showMobilePreview ? <Pencil className="size-5" /> : <Palette className="size-5" />}
+          {showMobilePreview ? (
+            <Pencil className="size-5" />
+          ) : (
+            <Palette className="size-5" />
+          )}
           <span className="text-[10px] font-semibold uppercase">
             {showMobilePreview ? "Editor" : "Design"}
           </span>
@@ -1152,7 +1348,7 @@ export default function FormEditorPage() {
           <Save className="size-5" />
           <span className="text-[10px] font-semibold uppercase">Draft</span>
         </button>
-          
+
         <button
           onClick={() => handleSave("PUBLISHED")}
           disabled={isSaving}
@@ -1162,7 +1358,6 @@ export default function FormEditorPage() {
           <span className="text-xs font-semibold uppercase">Publish</span>
         </button>
       </nav>
-
     </div>
   );
 }
