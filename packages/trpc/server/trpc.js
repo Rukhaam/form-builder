@@ -27,12 +27,13 @@ const standardRateLimiter = t.middleware(async ({ ctx, next }) => {
       code: 'TOO_MANY_REQUESTS', 
       message: 'Rate limit exceeded. Please slow down.' 
     });
+    
   }
 
   return next({ ctx });
 });
 
-// --- 2. Strict Public Limiter (Auth, Passwords, Submitting Forms) ---
+// --- 2. Strict Public Limiter (Auth, Passwords) ---
 // Policy: 5 requests per 15 minutes
 const strictRateLimiter = t.middleware(async ({ ctx, next }) => {
   const clientIp = getClientIp(ctx.req);
@@ -49,7 +50,24 @@ const strictRateLimiter = t.middleware(async ({ ctx, next }) => {
   return next({ ctx });
 });
 
-// --- 3. Authenticated Limiter (Dashboard actions) ---
+// --- 3. Form Response Limiter ---
+// Policy: 5 response submissions per 15 minutes
+const formResponseRateLimiter = t.middleware(async ({ ctx, next }) => {
+  const clientIp = getClientIp(ctx.req);
+
+  const { allowed } = await checkRateLimit(`ip:form-response:${clientIp}`, 5, 900);
+
+  if (!allowed) {
+    throw new TRPCError({
+      code: 'TOO_MANY_REQUESTS',
+      message: 'Too many form responses submitted. Please try again in 15 minutes.',
+    });
+  }
+
+  return next({ ctx });
+});
+
+// --- 4. Authenticated Limiter (Dashboard actions) ---
 // Policy: 60 requests per 1 minute
 const isAuthed = t.middleware(async ({ ctx, next }) => {
   const authHeader = ctx.req?.headers?.authorization;
@@ -78,4 +96,5 @@ const isAuthed = t.middleware(async ({ ctx, next }) => {
 // --- EXPORT SPECIFIC PROCEDURES ---
 export const standardPublicProcedure = t.procedure.use(standardRateLimiter);
 export const strictPublicProcedure = t.procedure.use(strictRateLimiter);
+export const formResponseProcedure = t.procedure.use(formResponseRateLimiter);
 export const protectedProcedure = t.procedure.use(isAuthed);

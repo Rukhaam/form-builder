@@ -170,6 +170,9 @@ importers:
 
   packages/database:
     dependencies:
+      dotenv:
+        specifier: ^16.6.1
+        version: 16.6.1
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2(pg@8.21.0)

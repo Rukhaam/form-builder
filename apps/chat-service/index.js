@@ -1,11 +1,9 @@
+import './env.js';
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import { generateChatStream } from './services/gemini.js';
-
-dotenv.config();
 
 const PORT = process.env.PORT || 3005
 const DEFAULT_ALLOWED_ORIGINS = [

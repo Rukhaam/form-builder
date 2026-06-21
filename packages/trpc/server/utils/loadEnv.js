@@ -3,12 +3,13 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const rootDir = path.resolve(__dirname, '../..');
+const packageDir = path.resolve(__dirname, '../..');
+const rootDir = path.resolve(packageDir, '../..');
 
 const envFiles = [
-  path.resolve(__dirname, '.env.local'),
+  path.resolve(packageDir, '.env.local'),
   path.resolve(rootDir, '.env.local'),
-  path.resolve(__dirname, '.env'),
+  path.resolve(packageDir, '.env'),
   path.resolve(rootDir, '.env'),
 ];
 

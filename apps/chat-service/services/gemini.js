@@ -1,7 +1,6 @@
+import '../env.js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import dotenv from 'dotenv';
 
-dotenv.config();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const SYSTEM_INSTRUCTION = `You are a helpful, expert AI assistant embedded inside 'FormBuilder', a modern SaaS application for creating online forms and surveys. 
 Your goal is to help users design better forms, suggest optimal questions for their use case, analyze data collection strategies, and explain FormBuilder features.

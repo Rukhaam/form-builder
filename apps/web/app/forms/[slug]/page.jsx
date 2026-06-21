@@ -20,7 +20,74 @@ import { cn } from '@/lib/utils';
 const OPTION_FIELD_TYPES = new Set(['SINGLE_SELECT', 'MULTI_SELECT', 'CHECKBOX', 'MULTIPLE_CHOICE']);
 
 // 🚀 Dynamic Styling Engine based on Form Theme
+const PUBLIC_THEME_COLOR_PRESETS = {
+  paper: {
+    main: "bg-[#f7f5ef] text-stone-950",
+    card: "bg-white border-stone-200 text-stone-950",
+    input: "bg-white border-stone-200 text-stone-800 placeholder:text-stone-400 focus:border-stone-400 focus:ring-4 focus:ring-stone-100",
+    choiceLabel: "bg-white hover:bg-stone-50 border-stone-200 text-stone-700",
+    badge: "bg-[#f1eee6] text-stone-700",
+    text: "text-stone-950",
+    muted: "text-stone-500",
+    button: "bg-stone-950 text-white hover:bg-stone-800",
+  },
+  sage: {
+    main: "bg-[#f3f6f1] text-[#172014]",
+    card: "bg-white border-[#d4dfce] text-[#172014]",
+    input: "bg-white border-[#d4dfce] text-[#172014] placeholder:text-[#87917f] focus:border-[#7d9272] focus:ring-4 focus:ring-[#dfe8dc]",
+    choiceLabel: "bg-white hover:bg-[#f8faf6] border-[#d4dfce] text-[#42513d]",
+    badge: "bg-[#e7eee3] text-[#42513d]",
+    text: "text-[#172014]",
+    muted: "text-[#687462]",
+    button: "bg-[#24351e] text-white hover:bg-[#304928]",
+  },
+  blueprint: {
+    main: "bg-[#f2f6fb] text-[#101d2d]",
+    card: "bg-white border-[#d4e1ef] text-[#101d2d]",
+    input: "bg-white border-[#d4e1ef] text-[#101d2d] placeholder:text-[#8796a8] focus:border-[#647c9b] focus:ring-4 focus:ring-[#dce7f5]",
+    choiceLabel: "bg-white hover:bg-[#f8fbff] border-[#d4e1ef] text-[#40526a]",
+    badge: "bg-[#e8f0f8] text-[#40526a]",
+    text: "text-[#101d2d]",
+    muted: "text-[#607086]",
+    button: "bg-[#18314f] text-white hover:bg-[#24496f]",
+  },
+  rose: {
+    main: "bg-[#fbf3f1] text-[#2b1715]",
+    card: "bg-white border-[#ead4d0] text-[#2b1715]",
+    input: "bg-white border-[#ead4d0] text-[#2b1715] placeholder:text-[#a8918d] focus:border-[#a9766d] focus:ring-4 focus:ring-[#f2dedb]",
+    choiceLabel: "bg-white hover:bg-[#fff8f6] border-[#ead4d0] text-[#6f514c]",
+    badge: "bg-[#f5e7e4] text-[#6f514c]",
+    text: "text-[#2b1715]",
+    muted: "text-[#806964]",
+    button: "bg-[#4a231d] text-white hover:bg-[#65342c]",
+  },
+  ink: {
+    main: "bg-[#f5f5f3] text-neutral-950",
+    card: "bg-white border-neutral-200 text-neutral-950",
+    input: "bg-white border-neutral-200 text-neutral-800 placeholder:text-neutral-400 focus:border-neutral-600 focus:ring-4 focus:ring-neutral-100",
+    choiceLabel: "bg-white hover:bg-neutral-50 border-neutral-200 text-neutral-700",
+    badge: "bg-neutral-100 text-neutral-700",
+    text: "text-neutral-950",
+    muted: "text-neutral-500",
+    button: "bg-neutral-950 text-white hover:bg-neutral-800",
+  },
+};
+
+const PUBLIC_THEME_FONTS = {
+  sans: "font-sans",
+  serif: "font-serif",
+  mono: "font-mono",
+};
+
 const getThemeStyles = (theme) => {
+  const [colorId, fontId = "sans"] = String(theme || "").split(":");
+  if (PUBLIC_THEME_COLOR_PRESETS[colorId]) {
+    return {
+      ...PUBLIC_THEME_COLOR_PRESETS[colorId],
+      font: PUBLIC_THEME_FONTS[fontId] || PUBLIC_THEME_FONTS.sans,
+    };
+  }
+
   switch (theme) {
     case 'dark':
       return {
@@ -31,7 +98,8 @@ const getThemeStyles = (theme) => {
         badge: "bg-slate-800 text-slate-300 border border-slate-700",
         text: "text-slate-50",
         muted: "text-slate-400",
-        button: "bg-violet-600 text-white hover:bg-violet-500"
+        button: "bg-violet-600 text-white hover:bg-violet-500",
+        font: PUBLIC_THEME_FONTS.sans,
       };
     case 'neon':
       return {
@@ -42,7 +110,8 @@ const getThemeStyles = (theme) => {
         badge: "bg-fuchsia-900/50 text-fuchsia-200 border border-fuchsia-500/30",
         text: "text-fuchsia-50",
         muted: "text-fuchsia-200/70",
-        button: "bg-cyan-400 text-black hover:bg-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.4)]"
+        button: "bg-cyan-400 text-black hover:bg-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.4)]",
+        font: PUBLIC_THEME_FONTS.mono,
       };
     case 'light':
     default:
@@ -54,7 +123,8 @@ const getThemeStyles = (theme) => {
         badge: "bg-emerald-100 text-emerald-700",
         text: "text-slate-950",
         muted: "text-slate-500",
-        button: "bg-slate-950 text-white hover:bg-slate-800"
+        button: "bg-slate-950 text-white hover:bg-slate-800",
+        font: PUBLIC_THEME_FONTS.sans,
       };
   }
 };
@@ -244,7 +314,7 @@ export default function PublicFormResponsePage() {
   };
 
   return (
-    <main className={cn("min-h-screen transition-colors duration-500", styles.main)}>
+    <main className={cn("min-h-screen transition-colors duration-500", styles.main, styles.font)}>
       <Navbar />
 
       <section className="mx-auto max-w-3xl px-4 pb-20 pt-32">

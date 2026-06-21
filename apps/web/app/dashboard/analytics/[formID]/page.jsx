@@ -32,7 +32,7 @@ export default function FormAnalyticsPage() {
     },
     { enabled: !!formId }
   );
-  console.log(data)
+  // console.log(data)
 
   // 2. Fetch Form Review Stats
   const { data: reviewStatsData } = trpc.review.getStats.useQuery(

@@ -24,7 +24,7 @@ oauthRouter.get('/google', (req, res) => {
   res.redirect(url);
 });
 
-oauthRouter.get('/google/callback', async (req, res) => {
+async function handleGoogleCallback(req, res) {
   const { code } = req.query;
 
   try {
@@ -97,4 +97,7 @@ oauthRouter.get('/google/callback', async (req, res) => {
     console.error('OAuth Error:', error);
     redirectWithOAuthError(res, 'oauth_failed');
   }
-});
+}
+
+oauthRouter.get('/google/callback', handleGoogleCallback);
+oauthRouter.get('/callback/google', handleGoogleCallback);

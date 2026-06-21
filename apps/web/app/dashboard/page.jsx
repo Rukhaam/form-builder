@@ -15,7 +15,7 @@ export default function DashboardPage() {
     <div className="max-w-6xl mx-auto space-y-8">
       
       {/* TOP ACTION BAR */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-direction: column gap-4 md:flex-row">
         <div>
           <h2 className="text-3xl font-medium tracking-tight text-slate-900">My Forms</h2>
           <p className="text-slate-500 mt-1">Manage and view analytics for your forms.</p>

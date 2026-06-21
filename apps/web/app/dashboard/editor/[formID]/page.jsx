@@ -22,8 +22,10 @@ import {
   Lock,
   Palette,
   BarChart3,
+  Brush,
   Eye,
-  Pencil // 🚀 Added Pencil icon for toggling back to edit mode
+  Type,
+  Pencil
 } from "lucide-react"; 
 import Link from "next/link";
 import { format } from "date-fns";
@@ -66,6 +68,154 @@ const OPTION_FIELD_TYPES = new Set([
   "checkbox",
 ]);
 
+const THEME_COLOR_PRESETS = [
+  {
+    id: "paper",
+    label: "Paper",
+    swatch: "bg-[#f7f5ef]",
+    page: "bg-[#f7f5ef]",
+    panel: "bg-white",
+    canvas: "bg-[#fbfaf7]",
+    field: "bg-white",
+    soft: "bg-[#f1eee6]",
+    border: "border-stone-200",
+    softBorder: "border-stone-100",
+    text: "text-stone-950",
+    muted: "text-stone-500",
+    input: "border-stone-200 bg-white focus:border-stone-400",
+    choice: "border-stone-200 bg-white",
+    accent: "bg-stone-950",
+    accentText: "text-white",
+    accentBorder: "border-stone-950",
+    button: "bg-stone-950 text-white hover:bg-stone-800",
+  },
+  {
+    id: "sage",
+    label: "Sage",
+    swatch: "bg-[#dfe8dc]",
+    page: "bg-[#f3f6f1]",
+    panel: "bg-white",
+    canvas: "bg-[#f8faf6]",
+    field: "bg-white",
+    soft: "bg-[#e7eee3]",
+    border: "border-[#d4dfce]",
+    softBorder: "border-[#e7eee3]",
+    text: "text-[#172014]",
+    muted: "text-[#687462]",
+    input: "border-[#d4dfce] bg-white focus:border-[#7d9272]",
+    choice: "border-[#d4dfce] bg-white",
+    accent: "bg-[#24351e]",
+    accentText: "text-white",
+    accentBorder: "border-[#24351e]",
+    button: "bg-[#24351e] text-white hover:bg-[#304928]",
+  },
+  {
+    id: "blueprint",
+    label: "Blue",
+    swatch: "bg-[#dce7f5]",
+    page: "bg-[#f2f6fb]",
+    panel: "bg-white",
+    canvas: "bg-[#f8fbff]",
+    field: "bg-white",
+    soft: "bg-[#e8f0f8]",
+    border: "border-[#d4e1ef]",
+    softBorder: "border-[#e7eef6]",
+    text: "text-[#101d2d]",
+    muted: "text-[#607086]",
+    input: "border-[#d4e1ef] bg-white focus:border-[#647c9b]",
+    choice: "border-[#d4e1ef] bg-white",
+    accent: "bg-[#18314f]",
+    accentText: "text-white",
+    accentBorder: "border-[#18314f]",
+    button: "bg-[#18314f] text-white hover:bg-[#24496f]",
+  },
+  {
+    id: "rose",
+    label: "Rose",
+    swatch: "bg-[#f2dedb]",
+    page: "bg-[#fbf3f1]",
+    panel: "bg-white",
+    canvas: "bg-[#fff8f6]",
+    field: "bg-white",
+    soft: "bg-[#f5e7e4]",
+    border: "border-[#ead4d0]",
+    softBorder: "border-[#f0e0dd]",
+    text: "text-[#2b1715]",
+    muted: "text-[#806964]",
+    input: "border-[#ead4d0] bg-white focus:border-[#a9766d]",
+    choice: "border-[#ead4d0] bg-white",
+    accent: "bg-[#4a231d]",
+    accentText: "text-white",
+    accentBorder: "border-[#4a231d]",
+    button: "bg-[#4a231d] text-white hover:bg-[#65342c]",
+  },
+  {
+    id: "ink",
+    label: "Ink",
+    swatch: "bg-[#111111]",
+    page: "bg-[#f5f5f3]",
+    panel: "bg-white",
+    canvas: "bg-[#fafafa]",
+    field: "bg-white",
+    soft: "bg-neutral-100",
+    border: "border-neutral-200",
+    softBorder: "border-neutral-100",
+    text: "text-neutral-950",
+    muted: "text-neutral-500",
+    input: "border-neutral-200 bg-white focus:border-neutral-600",
+    choice: "border-neutral-200 bg-white",
+    accent: "bg-neutral-950",
+    accentText: "text-white",
+    accentBorder: "border-neutral-950",
+    button: "bg-neutral-950 text-white hover:bg-neutral-800",
+  },
+];
+
+const THEME_FONT_PRESETS = [
+  { id: "sans", label: "Sans", className: "font-sans" },
+  { id: "serif", label: "Serif", className: "font-serif" },
+  { id: "mono", label: "Mono", className: "font-mono" },
+];
+
+const LEGACY_THEME_MAP = {
+  light: { colorId: "paper", fontId: "sans" },
+  dark: { colorId: "ink", fontId: "sans" },
+  neon: { colorId: "blueprint", fontId: "mono" },
+  default: { colorId: "paper", fontId: "sans" },
+};
+
+function parseThemeValue(themeValue) {
+  if (!themeValue) return { colorId: "paper", fontId: "sans" };
+  if (LEGACY_THEME_MAP[themeValue]) return LEGACY_THEME_MAP[themeValue];
+
+  const [colorId, fontId] = String(themeValue).split(":");
+  return {
+    colorId: THEME_COLOR_PRESETS.some((preset) => preset.id === colorId)
+      ? colorId
+      : "paper",
+    fontId: THEME_FONT_PRESETS.some((preset) => preset.id === fontId)
+      ? fontId
+      : "sans",
+  };
+}
+
+function serializeThemeValue(themeSelection) {
+  return `${themeSelection.colorId}:${themeSelection.fontId}`;
+}
+
+function getThemeDesign(themeValue) {
+  const selection = parseThemeValue(themeValue);
+  return {
+    selection,
+    color:
+      THEME_COLOR_PRESETS.find((preset) => preset.id === selection.colorId) ||
+      THEME_COLOR_PRESETS[0],
+    font:
+      THEME_FONT_PRESETS.find((preset) => preset.id === selection.fontId) ||
+      THEME_FONT_PRESETS[0],
+  };
+}
+
 function fieldTypeLabel(type) {
   return (
     FIELD_TYPES.find((fieldType) => fieldType.value === type)?.label || type
@@ -87,6 +237,117 @@ function normalizeFields(fields) {
       ? (field.options || []).map((option) => option.trim()).filter(Boolean)
       : null,
   }));
+}
+
+function PreviewFieldControl({ field, design }) {
+  if (OPTION_FIELD_TYPES.has(field.type)) {
+    return (
+      <div className="grid gap-2">
+        {(field.options || ["Option 1", "Option 2"]).slice(0, 3).map((option) => (
+          <div
+            key={option}
+            className={cn(
+              "flex items-center gap-3 rounded-lg border px-3 py-2 text-sm font-medium",
+              design.color.choice,
+              design.color.muted,
+            )}
+          >
+            <span
+              className={cn(
+                "size-3.5 shrink-0 border",
+                field.type === "checkbox" || field.type === "multi_select"
+                  ? "rounded"
+                  : "rounded-full",
+                design.color.border,
+              )}
+            />
+            <span className="truncate">{option}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (field.type === "long_text") {
+    return (
+      <div className={cn("h-20 rounded-lg border", design.color.input)} />
+    );
+  }
+
+  return <div className={cn("h-11 rounded-lg border", design.color.input)} />;
+}
+
+function LiveFormPreview({ title, description, fields, design }) {
+  return (
+    <div
+      className={cn(
+        "min-h-[520px] rounded-lg border p-4 transition-colors duration-300",
+        design.color.page,
+        design.color.border,
+        design.font.className,
+      )}
+    >
+      <div
+        className={cn(
+          "mx-auto max-w-sm rounded-lg border p-5 transition-colors duration-300",
+          design.color.panel,
+          design.color.border,
+        )}
+      >
+        <div
+          className={cn(
+            "mb-4 inline-flex rounded-lg px-3 py-1 text-xs font-medium",
+            design.color.soft,
+            design.color.muted,
+          )}
+        >
+          Public form
+        </div>
+        <h3 className={cn("text-2xl font-semibold leading-tight", design.color.text)}>
+          {title || "Untitled Form"}
+        </h3>
+        {description ? (
+          <p className={cn("mt-3 text-sm leading-6", design.color.muted)}>
+            {description}
+          </p>
+        ) : null}
+
+        <div className="mt-7 space-y-5">
+          {fields.slice(0, 5).map((field, index) => (
+            <div key={field.id} className="space-y-2">
+              <label className={cn("block text-sm font-medium", design.color.text)}>
+                {index + 1}. {field.label || "New Question"}
+                {field.required && <span className="ml-1 opacity-50">*</span>}
+              </label>
+              <PreviewFieldControl field={field} design={design} />
+            </div>
+          ))}
+
+          {fields.length === 0 && (
+            <div
+              className={cn(
+                "rounded-lg border border-dashed py-10 text-center text-sm font-medium",
+                design.color.border,
+                design.color.muted,
+              )}
+            >
+              Preview appears as you add fields.
+            </div>
+          )}
+        </div>
+
+        <button
+          type="button"
+          className={cn(
+            "mt-7 inline-flex h-11 w-full items-center justify-center rounded-lg text-sm font-medium transition-colors",
+            design.color.button,
+          )}
+        >
+          Submit response
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export default function FormEditorPage() {
@@ -121,6 +382,11 @@ export default function FormEditorPage() {
       { formId: formIdParam },
       { enabled: !isNew && !!formIdParam },
     );
+
+  // 🚀 FETCH CURRENT USAGE & LIMITS
+  const { data: usageData } = trpc.billing.getUsageOverview.useQuery();
+  console.log(usageData);
+  
 
   const saveMutation = trpc.form.saveEditor.useMutation({
     onSuccess: async (data) => {
@@ -200,12 +466,35 @@ export default function FormEditorPage() {
     [activeFieldId, fields],
   );
 
+  const themeDesign = useMemo(() => getThemeDesign(theme), [theme]);
+
+  const handleThemeColorChange = (colorId) => {
+    dispatch(
+      updateMetadata({
+        theme: serializeThemeValue({
+          ...themeDesign.selection,
+          colorId,
+        }),
+      }),
+    );
+  };
+
+  const handleThemeFontChange = (fontId) => {
+    dispatch(
+      updateMetadata({
+        theme: serializeThemeValue({
+          ...themeDesign.selection,
+          fontId,
+        }),
+      }),
+    );
+  };
+
   const handleAddField = (type) => {
     const id = uuidv4();
     dispatch(addField({ id, type }));
     dispatch(setActiveField(id));
     
-    // Ensure we switch back to editor view if we add a field while previewing on mobile
     setShowMobilePreview(false);
     setTimeout(() => {
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
@@ -297,7 +586,7 @@ export default function FormEditorPage() {
         : null,
       password: password || undefined,
       category: category || undefined,
-      theme: theme || "light",
+      theme: serializeThemeValue(themeDesign.selection),
       isTemplate: !!category,
       fields: cleanFields,
     });
@@ -330,30 +619,30 @@ export default function FormEditorPage() {
 
   if (!isNew && isFetching) {
     return (
-      <div className="mx-auto max-w-6xl space-y-5 p-6">
-        <Skeleton className="h-16 w-full rounded-2xl" />
-        <Skeleton className="h-[520px] w-full rounded-2xl" />
+      <div className="mx-auto max-w-6xl space-y-4 bg-[#f7f5ef] p-6">
+        <Skeleton className="h-16 w-full rounded-lg" />
+        <Skeleton className="h-[520px] w-full rounded-lg" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-950 pb-24 md:pb-0">
+    <div className="min-h-screen bg-[#f6f5f1] pb-24 text-slate-950 md:pb-0">
       
       {/* HEADER (Desktop & Mobile Top) */}
-      <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white px-4 md:px-8 shadow-sm">
+      <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-black/5 bg-[#fbfaf7]/90 px-4 backdrop-blur-xl md:px-8">
         <div className="flex min-w-0 flex-1 items-center gap-4">
           <Link
             href="/dashboard"
-            className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-500 shadow-sm transition hover:text-slate-950 hover:bg-white"
+            className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-black/10 bg-white text-slate-500 transition hover:border-black/20 hover:text-slate-950"
           >
             <ArrowLeft className="size-4" />
           </Link>
 
           <div className="flex min-w-0 flex-col justify-center">
-            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <div className="flex items-center gap-2 text-[11px] font-medium uppercase text-slate-500">
               <span>{isNew ? "New form" : "Editing"}</span>
-              <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-slate-600">
+              <span className="rounded-lg border border-black/5 bg-white px-2 py-0.5 text-slate-600">
                 {status}
               </span>
             </div>
@@ -370,7 +659,7 @@ export default function FormEditorPage() {
               href={`/dashboard/analytics/${formIdParam}`}
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
-                "border-slate-200 bg-white shadow-sm hover:bg-slate-50 hover:text-slate-900",
+                "border-black/10 bg-white hover:bg-[#f6f5f1] hover:text-slate-900",
                 isSaving && "pointer-events-none opacity-50",
               )}
             >
@@ -381,7 +670,7 @@ export default function FormEditorPage() {
           <Button
             variant="outline"
             size="sm"
-            className="border-slate-200 bg-white shadow-sm hover:bg-slate-50 hover:text-slate-900"
+            className="border-black/10 bg-white hover:bg-[#f6f5f1] hover:text-slate-900"
             onClick={() => handleSave("DRAFT")}
             disabled={isSaving}
           >
@@ -390,7 +679,7 @@ export default function FormEditorPage() {
           </Button>
           <Button
             size="sm"
-            className="border border-slate-950 bg-slate-950 text-white shadow-sm transition-all hover:bg-white hover:text-slate-950"
+            className="border border-slate-950 bg-slate-950 text-white transition-all hover:bg-white hover:text-slate-950"
             onClick={() => handleSave("PUBLISHED")}
             disabled={isSaving}
           >
@@ -402,17 +691,17 @@ export default function FormEditorPage() {
 
       <div
         className={cn(
-          "mx-auto grid max-w-[1600px] gap-6 p-4 md:p-6 lg:grid-cols-[240px_minmax(0,1fr)_300px] transition-opacity duration-300",
+          "mx-auto grid max-w-[1720px] gap-4 p-4 transition-opacity duration-300 md:p-6 lg:grid-cols-[220px_minmax(0,1fr)_360px]",
           isSaving && "pointer-events-none opacity-60",
         )}
       >
         
-        {/* 🚀 LEFT TOOLBOX (Hidden on mobile if Preview is toggled) */}
+        {/* LEFT TOOLBOX (Hidden on mobile if Preview is toggled) */}
         <aside className={cn(
-          "h-fit rounded-2xl border border-slate-200 bg-white p-4 shadow-sm order-2 lg:order-1 lg:block",
+          "order-2 h-fit rounded-lg border border-black/5 bg-white/80 p-3 lg:order-1 lg:sticky lg:top-24 lg:block",
           showMobilePreview ? "hidden" : "block"
         )}>
-          <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500">
+          <div className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
             <Sparkles className="size-4" />
             Field toolbox
           </div>
@@ -425,7 +714,7 @@ export default function FormEditorPage() {
                   type="button"
                   disabled={isSaving}
                   onClick={() => handleAddField(fieldType.value)}
-                  className="flex h-11 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 text-left text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-white disabled:opacity-50"
+                  className="flex h-11 items-center gap-3 rounded-lg border border-black/5 bg-[#f8f7f3] px-3 text-left text-sm font-medium text-slate-700 transition hover:border-black/10 hover:bg-white disabled:opacity-50"
                 >
                   <Icon className="size-4 text-slate-400" />
                   {fieldType.label}
@@ -435,31 +724,31 @@ export default function FormEditorPage() {
           </div>
         </aside>
 
-        {/* 🚀 MAIN EDITOR AREA (Hidden on mobile if Preview is toggled) */}
+        {/* MAIN EDITOR AREA (Hidden on mobile if Preview is toggled) */}
         <main className={cn(
-          "space-y-6 order-1 lg:order-2 lg:block",
+          "order-1 space-y-4 lg:order-2 lg:block",
           showMobilePreview ? "hidden" : "block"
         )}>
           
-          <section className="rounded-[2rem] border border-slate-200 bg-white p-6 md:p-8 shadow-sm">
+          <section className="rounded-lg border border-black/5 bg-white/85 p-5 md:p-6">
             <div className="grid gap-4 md:grid-cols-[1fr_180px_180px]">
               <label className="space-y-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Title</span>
+                <span className="text-xs font-semibold uppercase text-slate-500">Title</span>
                 <Input
                   disabled={isSaving}
                   value={title}
                   onChange={(event) => dispatch(updateMetadata({ title: event.target.value }))}
-                  className="h-11 border-slate-200 bg-slate-50 text-lg font-medium focus:bg-white"
+                  className="h-11 border-black/5 bg-[#f8f7f3] text-lg font-medium focus:bg-white"
                   placeholder="Form title"
                 />
               </label>
               <label className="space-y-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Category</span>
+                <span className="text-xs font-semibold uppercase text-slate-500">Category</span>
                 <select
                   disabled={isSaving}
                   value={category || ""}
                   onChange={(event) => dispatch(updateMetadata({ category: event.target.value }))}
-                  className="h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-medium outline-none transition focus:border-slate-400 focus:bg-white disabled:opacity-50"
+                  className="h-11 w-full rounded-lg border border-black/5 bg-[#f8f7f3] px-3 text-sm font-medium outline-none transition focus:border-black/20 focus:bg-white disabled:opacity-50"
                 >
                   <option value="">None</option>
                   <option value="Education">Education</option>
@@ -470,12 +759,12 @@ export default function FormEditorPage() {
                 </select>
               </label>
               <label className="space-y-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Visibility</span>
+                <span className="text-xs font-semibold uppercase text-slate-500">Visibility</span>
                 <select
                   disabled={isSaving}
                   value={visibility}
                   onChange={(event) => dispatch(updateMetadata({ visibility: event.target.value }))}
-                  className="h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-medium outline-none transition focus:border-slate-400 focus:bg-white disabled:opacity-50"
+                  className="h-11 w-full rounded-lg border border-black/5 bg-[#f8f7f3] px-3 text-sm font-medium outline-none transition focus:border-black/20 focus:bg-white disabled:opacity-50"
                 >
                   <option value="PUBLIC">Public</option>
                   <option value="UNLISTED">Unlisted</option>
@@ -484,42 +773,26 @@ export default function FormEditorPage() {
             </div>
 
             <label className="mt-6 block space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Description</span>
+              <span className="text-xs font-semibold uppercase text-slate-500">Description</span>
               <textarea
                 disabled={isSaving}
                 value={description}
                 onChange={(event) => dispatch(updateMetadata({ description: event.target.value }))}
-                className="min-h-20 w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white disabled:opacity-50"
+                className="min-h-20 w-full resize-none rounded-lg border border-black/5 bg-[#f8f7f3] px-4 py-3 text-sm font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-black/20 focus:bg-white disabled:opacity-50"
                 placeholder="A short note for people filling out this form"
               />
             </label>
 
-            <div className="mt-6 grid gap-4 border-t border-slate-100 pt-6 md:grid-cols-4">
-              <label className="space-y-2 flex flex-col">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
-                  <Palette className="size-3" /> Theme
-                </span>
-                <select
-                  disabled={isSaving}
-                  value={theme || "light"}
-                  onChange={(event) => dispatch(updateMetadata({ theme: event.target.value }))}
-                  className="h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-medium outline-none transition focus:border-slate-400 focus:bg-white disabled:opacity-50"
-                >
-                  <option value="light">Light Mode</option>
-                  <option value="dark">Dark Mode</option>
-                  <option value="neon">Neon Cyberpunk</option>
-                </select>
-              </label>
-
+            <div className="mt-6 grid gap-4 border-t border-black/5 pt-6 md:grid-cols-3">
               <div className="space-y-2 flex flex-col">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Expire form</span>
+                <span className="text-xs font-semibold uppercase text-slate-500">Expire form</span>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       disabled={isSaving}
                       variant="outline"
                       className={cn(
-                        "h-11 w-full justify-start text-left font-medium border-slate-200 bg-slate-50 hover:bg-white",
+                        "h-11 w-full justify-start border-black/5 bg-[#f8f7f3] text-left font-medium hover:bg-white",
                         !editorState.expiresAt && "text-slate-500",
                       )}
                     >
@@ -550,21 +823,52 @@ export default function FormEditorPage() {
                 </Popover>
               </div>
 
+              {/* 🚀 UPDATED MAX RESPONSES INPUT */}
               <label className="space-y-2 flex flex-col">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Max responses</span>
+                <span className="text-xs font-semibold uppercase text-slate-500">Max responses</span>
                 <Input
                   disabled={isSaving}
                   type="number"
                   min="1"
                   value={editorState.maxResponses || ""}
-                  onChange={(event) => dispatch(updateMetadata({ maxResponses: event.target.value ? parseInt(event.target.value, 10) : null }))}
-                  className="h-11 w-full border-slate-200 bg-slate-50 focus:bg-white"
-                  placeholder="Unlimited"
+                  onChange={(event) => {
+                    // 1. If they clear the input, set to unlimited (null)
+                    if (!event.target.value) {
+                      dispatch(updateMetadata({ maxResponses: null }));
+                      return;
+                    }
+
+                    const requestedMax = parseInt(event.target.value, 10);
+                    
+                    // 2. Safely grab their limit from the backend (Fallback to 100 for Starter)
+                    const planLimit = usageData?.responses?.limit ?? 100;
+                    const isUnlimited = usageData?.responses?.isUnlimited ?? false;
+
+                    // 3. The Front-End Guard
+                    if (!isUnlimited && requestedMax > planLimit) {
+                      toast.error(`Your current plan limits you to ${planLimit} responses. Upgrade to increase this!`, {
+                        icon: '🛑',
+                        style: { background: '#fff', color: '#0f172a', border: '1px solid #e2e8f0' }
+                      });
+                      
+                      // Auto-cap it to their max allowed limit
+                      dispatch(updateMetadata({ maxResponses: planLimit }));
+                    } else {
+                      // Otherwise, allow the requested number
+                      dispatch(updateMetadata({ maxResponses: requestedMax }));
+                    }
+                  }}
+                  className="h-11 w-full border-black/5 bg-[#f8f7f3] focus:bg-white"
+                  placeholder={
+                    usageData?.responses?.isUnlimited 
+                      ? "Unlimited" 
+                      : `Unlimited (up to ${usageData?.responses?.limit ?? 100})`
+                  }
                 />
               </label>
 
               <label className="space-y-2 flex flex-col">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Password</span>
+                <span className="text-xs font-semibold uppercase text-slate-500">Password</span>
                 <div className="relative w-full">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
                   <Input
@@ -572,7 +876,7 @@ export default function FormEditorPage() {
                     type="password"
                     value={password || ""}
                     onChange={(event) => dispatch(updateMetadata({ password: event.target.value }))}
-                    className="h-11 w-full pl-9 border-slate-200 bg-slate-50 focus:bg-white"
+                    className="h-11 w-full border-black/5 bg-[#f8f7f3] pl-9 focus:bg-white"
                     placeholder="None"
                   />
                 </div>
@@ -581,14 +885,14 @@ export default function FormEditorPage() {
           </section>
 
           {!isNew && (
-            <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="mb-2 text-sm font-bold uppercase tracking-wider text-slate-900">Share form</div>
+            <section className="rounded-lg border border-black/5 bg-white/85 p-5">
+              <div className="mb-2 text-sm font-semibold uppercase text-slate-900">Share form</div>
               <p className="mb-4 text-sm font-medium text-slate-500">
                 {visibility === "UNLISTED" ? "Unlisted forms are accessible only through this link." : "Public forms appear in discovery."}
               </p>
               <div className="flex gap-2">
-                <Input value={shareLink} readOnly className="h-11 border-slate-200 bg-slate-50 font-medium text-slate-600" />
-                <Button type="button" variant="outline" className="h-11 border-slate-200 bg-white" onClick={handleCopyShareLink}>
+                <Input value={shareLink} readOnly className="h-11 border-black/5 bg-[#f8f7f3] font-medium text-slate-600" />
+                <Button type="button" variant="outline" className="h-11 border-black/10 bg-white" onClick={handleCopyShareLink}>
                   {copiedShareLink ? "Copied" : "Copy"}
                 </Button>
               </div>
@@ -604,14 +908,14 @@ export default function FormEditorPage() {
                 key={field.id}
                 onClick={() => dispatch(setActiveField(field.id))}
                 className={cn(
-                  "group rounded-[2rem] border bg-white p-6 shadow-sm transition-all duration-300",
+                  "group rounded-lg border bg-white/85 p-5 transition-all duration-300",
                   activeField?.id === field.id
-                    ? "border-slate-950 ring-1 ring-slate-950 scale-[1.01]"
-                    : "border-slate-200 hover:border-slate-400",
+                    ? "border-slate-950 bg-white"
+                    : "border-black/5 hover:border-black/15",
                 )}
               >
                 <div className="flex flex-col md:flex-row items-start gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-sm font-bold text-slate-950 border border-slate-200">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-black/5 bg-[#f8f7f3] text-sm font-semibold text-slate-950">
                     {index + 1}
                   </div>
                   <div className="min-w-0 flex-1 space-y-4 w-full">
@@ -620,14 +924,14 @@ export default function FormEditorPage() {
                         disabled={isSaving}
                         value={field.label}
                         onChange={(event) => dispatch(updateField({ id: field.id, updates: { label: event.target.value } }))}
-                        className="h-11 border-slate-200 bg-slate-50 font-medium focus:bg-white"
+                        className="h-11 border-black/5 bg-[#f8f7f3] font-medium focus:bg-white"
                         placeholder="Question label"
                       />
                       <select
                         disabled={isSaving}
                         value={field.type}
                         onChange={(event) => handleFieldTypeChange(field, event.target.value)}
-                        className="h-11 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-medium outline-none transition focus:border-slate-400 focus:bg-white disabled:opacity-50"
+                        className="h-11 rounded-lg border border-black/5 bg-[#f8f7f3] px-3 text-sm font-medium outline-none transition focus:border-black/20 focus:bg-white disabled:opacity-50"
                       >
                         {FIELD_TYPES.map((fieldType) => (
                           <option key={fieldType.value} value={fieldType.value}>{fieldType.label}</option>
@@ -636,14 +940,14 @@ export default function FormEditorPage() {
                     </div>
 
                     {OPTION_FIELD_TYPES.has(field.type) && (
-                      <div className="space-y-3 rounded-xl border border-slate-100 bg-slate-50 p-4">
+                      <div className="space-y-3 rounded-lg border border-black/5 bg-[#f8f7f3] p-4">
                         {(field.options || []).map((option, optionIndex) => (
                           <div key={`${field.id}-${optionIndex}`} className="flex items-center gap-2">
                             <Input
                               disabled={isSaving}
                               value={option}
                               onChange={(event) => handleOptionChange(field, optionIndex, event.target.value)}
-                              className="h-10 border-slate-200 bg-white"
+                              className="h-10 border-black/5 bg-white"
                               placeholder={`Option ${optionIndex + 1}`}
                             />
                             <Button
@@ -660,7 +964,7 @@ export default function FormEditorPage() {
                           disabled={isSaving}
                           variant="outline"
                           size="sm"
-                          className="bg-white border-slate-200"
+                          className="border-black/10 bg-white"
                           onClick={() => handleAddOption(field)}
                         >
                           <Plus className="mr-2 size-4 text-slate-400" />
@@ -684,7 +988,7 @@ export default function FormEditorPage() {
                 </div>
 
                 <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <div className="flex items-center gap-2 text-xs font-semibold uppercase text-slate-400">
                     <GripVertical className="size-4" />
                     {fieldTypeLabel(field.type)}
                   </div>
@@ -703,8 +1007,8 @@ export default function FormEditorPage() {
             ))}
 
             {fields.length === 0 && (
-              <div className="rounded-[2rem] border border-dashed border-slate-300 bg-white p-12 text-center shadow-sm">
-                <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-slate-50 border border-slate-200 text-slate-950">
+              <div className="rounded-lg border border-dashed border-black/10 bg-white/85 p-12 text-center">
+                <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-lg border border-black/5 bg-[#f8f7f3] text-slate-950">
                   <Plus className="size-6" />
                 </div>
                 <h2 className="text-lg font-medium text-slate-950">Start with a field</h2>
@@ -714,63 +1018,116 @@ export default function FormEditorPage() {
           </section>
         </main>
 
-        {/* 🚀 RIGHT PREVIEW SIDEBAR (Takes over the screen on mobile if toggled) */}
+        {/* RIGHT PREVIEW SIDEBAR (Takes over the screen on mobile if toggled) */}
         <aside className={cn(
-          "h-fit rounded-2xl border border-slate-200 bg-white p-4 shadow-sm order-3 lg:order-3 lg:block",
+          "order-3 h-fit space-y-4 lg:order-3 lg:sticky lg:top-24 lg:block",
           showMobilePreview ? "block" : "hidden"
         )}>
-          <div className="mb-4 flex items-center justify-between">
+          <section className="rounded-lg border border-black/5 bg-white/85 p-4">
+          <div className="mb-5 flex items-center justify-between">
             <div>
-              <h2 className="font-bold text-slate-950 text-sm uppercase tracking-wider">Preview</h2>
-              <p className="text-xs font-medium text-slate-500 mt-1">Current respondent view</p>
+              <h2 className="text-sm font-semibold uppercase text-slate-950">Design</h2>
+              <p className="mt-1 text-xs font-medium text-slate-500">
+                {themeDesign.color.label} / {themeDesign.font.label}
+              </p>
             </div>
-            <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-600 shadow-sm">
-              {fields.length} fields
-            </span>
+            <div className={cn("flex size-9 items-center justify-center rounded-lg", themeDesign.color.soft, themeDesign.color.text)}>
+              <Brush className="size-4" />
+            </div>
           </div>
 
-          <div className="rounded-xl border border-slate-100 bg-slate-50 p-5">
-            <h3 className="text-lg font-medium text-slate-950">{title || "Untitled Form"}</h3>
-            {description && <p className="mt-2 text-sm font-medium text-slate-500">{description}</p>}
-            
-            <div className="mt-6 space-y-6">
-              {fields.slice(0, 4).map((field) => (
-                <div key={field.id} className="space-y-3">
-                  <div className="text-sm font-medium text-slate-800">
-                    {field.label || "New Question"} {field.required && <span className="text-red-500">*</span>}
-                  </div>
-                  {OPTION_FIELD_TYPES.has(field.type) ? (
-                    <div className="space-y-2">
-                      {(field.options || ["Option 1"]).slice(0, 3).map((option, index) => (
-                        <div key={`${field.id}-preview-${index}`} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-600 shadow-sm">
-                          <span className="size-3.5 rounded-full border border-slate-300" />
-                          {option}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="h-11 rounded-lg border border-slate-200 bg-white shadow-sm" />
-                  )}
-                </div>
-              ))}
-              {fields.length > 4 && (
-                <div className="text-center text-xs font-bold uppercase tracking-wider text-slate-400 pt-4 border-t border-slate-200">
-                  +{fields.length - 4} more fields
-                </div>
-              )}
-              {fields.length === 0 && (
-                <div className="rounded-xl border border-dashed border-slate-200 py-10 text-center text-sm font-medium text-slate-400 bg-white">
-                  Preview appears as you add fields.
-                </div>
-              )}
+          <div className="space-y-5">
+            <div>
+              <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
+                <Palette className="size-3.5" />
+                Colors
+              </div>
+              <div className="grid grid-cols-5 gap-2">
+                {THEME_COLOR_PRESETS.map((preset) => {
+                  const isActive = themeDesign.selection.colorId === preset.id;
+
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => handleThemeColorChange(preset.id)}
+                      className={cn(
+                        "flex h-12 flex-col items-center justify-center rounded-lg border bg-white text-[10px] font-medium text-slate-600 transition",
+                        isActive ? "border-slate-950" : "border-black/5 hover:border-black/20",
+                      )}
+                      aria-label={`Use ${preset.label} colors`}
+                    >
+                      <span className={cn("mb-1 size-4 rounded-full border border-black/10", preset.swatch)} />
+                      {preset.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
+                <Type className="size-3.5" />
+                Typeface
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {THEME_FONT_PRESETS.map((fontPreset) => {
+                  const isActive = themeDesign.selection.fontId === fontPreset.id;
+
+                  return (
+                    <button
+                      key={fontPreset.id}
+                      type="button"
+                      onClick={() => handleThemeFontChange(fontPreset.id)}
+                      className={cn(
+                        "h-10 rounded-lg border bg-white text-sm font-medium transition",
+                        fontPreset.className,
+                        isActive ? "border-slate-950 text-slate-950" : "border-black/5 text-slate-500 hover:border-black/20",
+                      )}
+                    >
+                      {fontPreset.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-black/5 bg-[#f8f7f3] p-3">
+              <div className="mb-3 flex items-center justify-between text-xs font-medium text-slate-500">
+                <span>{fields.length} fields</span>
+                <span>{status}</span>
+              </div>
+              <div className="grid grid-cols-4 gap-1">
+                {[themeDesign.color.accent, themeDesign.color.soft, themeDesign.color.panel, themeDesign.color.canvas].map((colorClass, index) => (
+                  <span key={`${colorClass}-${index}`} className={cn("h-6 rounded-md border border-black/5", colorClass)} />
+                ))}
+              </div>
             </div>
           </div>
+          </section>
+
+          <section className="rounded-lg border border-black/5 bg-white/85 p-4">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-semibold uppercase text-slate-950">Live preview</h2>
+              <p className="mt-1 text-xs font-medium text-slate-500">Respondent view</p>
+            </div>
+            <Eye className="size-4 text-slate-500" />
+          </div>
+
+          <LiveFormPreview
+            title={title}
+            description={description}
+            fields={fields}
+            design={themeDesign}
+          />
+          </section>
         </aside>
 
       </div>
 
       {/* MOBILE BOTTOM NAVIGATION */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-20 items-center justify-around border-t border-slate-200 bg-white px-4 pb-2 pt-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-20 items-center justify-around border-t border-black/5 bg-[#fbfaf7] px-4 pb-2 pt-2 md:hidden">
         <button
           onClick={() => {
             setShowMobilePreview(!showMobilePreview);
@@ -781,10 +1138,9 @@ export default function FormEditorPage() {
             showMobilePreview ? "text-slate-950" : "text-slate-500 hover:text-slate-900"
           )}
         >
-          {/* 🚀 Swaps icon and text so the user knows they can switch back to the Editor */}
-          {showMobilePreview ? <Pencil className="size-5" /> : <Eye className="size-5" />}
-          <span className="text-[10px] font-bold uppercase tracking-wider">
-            {showMobilePreview ? "Editor" : "Preview"}
+          {showMobilePreview ? <Pencil className="size-5" /> : <Palette className="size-5" />}
+          <span className="text-[10px] font-semibold uppercase">
+            {showMobilePreview ? "Editor" : "Design"}
           </span>
         </button>
 
@@ -794,16 +1150,16 @@ export default function FormEditorPage() {
           className="flex flex-col items-center justify-center gap-1 px-4 py-2 text-slate-500 transition-colors hover:text-slate-900 disabled:opacity-50"
         >
           <Save className="size-5" />
-          <span className="text-[10px] font-bold uppercase tracking-wider">Draft</span>
+          <span className="text-[10px] font-semibold uppercase">Draft</span>
         </button>
           
         <button
           onClick={() => handleSave("PUBLISHED")}
           disabled={isSaving}
-          className="flex items-center justify-center gap-2 rounded-full border border-slate-950 bg-slate-950 px-6 py-2.5 text-white shadow-sm transition-colors hover:bg-white hover:text-slate-950 disabled:opacity-50"
+          className="flex items-center justify-center gap-2 rounded-lg border border-slate-950 bg-slate-950 px-6 py-2.5 text-white transition-colors hover:bg-white hover:text-slate-950 disabled:opacity-50"
         >
           <Send className="size-4" />
-          <span className="text-xs font-bold uppercase tracking-wider">Publish</span>
+          <span className="text-xs font-semibold uppercase">Publish</span>
         </button>
       </nav>
 

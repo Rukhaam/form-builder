@@ -31,10 +31,24 @@ export const scalarDocs = apiReference({
             },
           },
         },
-        '/api/auth/google/callback': {
+        '/api/auth/callback/google': {
           get: {
             summary: 'Google OAuth Callback',
             description: 'Handles the code from Google, creates/updates the user, and returns JWT tokens.',
+            tags: ['Authentication'],
+            parameters: [
+              { name: 'code', in: 'query', required: true, schema: { type: 'string' } }
+            ],
+            responses: {
+              302: { description: 'Redirects back to the frontend dashboard with tokens.' },
+              400: { description: 'OAuth failure or missing code.' }
+            },
+          },
+        },
+        '/api/auth/google/callback': {
+          get: {
+            summary: 'Legacy Google OAuth Callback',
+            description: 'Supported callback alias for existing OAuth clients.',
             tags: ['Authentication'],
             parameters: [
               { name: 'code', in: 'query', required: true, schema: { type: 'string' } }

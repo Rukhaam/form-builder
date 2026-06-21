@@ -1,4 +1,5 @@
-import { router, protectedProcedure, publicProcedure } from "../trpc.js";
+import "../utils/loadEnv.js";
+import { router, protectedProcedure, publicProcedure, formResponseProcedure } from "../trpc.js";
 import {
   createFormSchema,
   addFieldSchema,
@@ -20,10 +21,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import dotenv from 'dotenv';
 import { DEFAULT_PLAN_ID, getPlan, hasUnlimited } from "../utils/plans.js";
-
-dotenv.config();
 
 const FORM_UNLOCK_TOKEN_TTL_SECONDS = 10 * 60;
 async function enforceFormCreationLimit(userId) {
@@ -45,6 +43,12 @@ async function enforceFormCreationLimit(userId) {
   }
 }
 
+function currentPeriodKey() {
+  const now = new Date();
+  const month = `${now.getUTCMonth() + 1}`.padStart(2, "0");
+  return `${now.getUTCFullYear()}-${month}`;
+}
+
 async function incrementFormsUsage(userId) {
   await db
     .insert(usageCounters)
@@ -52,6 +56,21 @@ async function incrementFormsUsage(userId) {
       userId,
       metric: "forms_created",
       periodKey: "LIFETIME",
+      usedCount: 1,
+    })
+    .onConflictDoUpdate({
+      target: [usageCounters.userId, usageCounters.metric, usageCounters.periodKey],
+      set: { usedCount: sql`${usageCounters.usedCount} + 1`, updatedAt: new Date() },
+    });
+}
+
+async function incrementResponsesUsage(userId, client = db) {
+  await client
+    .insert(usageCounters)
+    .values({
+      userId,
+      metric: "responses_collected",
+      periodKey: currentPeriodKey(),
       usedCount: 1,
     })
     .onConflictDoUpdate({
@@ -507,7 +526,9 @@ export const formRouter = router({
           ) {
             try {
               finalValue = JSON.parse(curr.value);
-            } catch (e) {}
+            } catch (e) {
+              // Leave finalValue as is if parsing fails
+            }
           }
 
           acc[curr.fieldId] = finalValue;
@@ -741,7 +762,10 @@ export const formRouter = router({
         });
       }
 
-      const unlockToken = jwt.sign({ formId: form.id }, process.env.JWT_SECRET || 'default_jwt_secret', { expiresIn: FORM_UNLOCK_TOKEN_TTL_SECONDS });
+      if (!process.env.JWT_SECRET) {
+        throw new Error("Missing JWT_SECRET environment variable");
+      }
+      const unlockToken = jwt.sign({ formId: form.id }, process.env.JWT_SECRET, { expiresIn: FORM_UNLOCK_TOKEN_TTL_SECONDS });
 
       const fields = await db
         .select()
@@ -752,7 +776,7 @@ export const formRouter = router({
       return { fields, unlockToken };
     }),
 
-  submitResponse: publicProcedure
+  submitResponse: formResponseProcedure
     .input(submitFormSchema)
     .mutation(async ({ input }) => {
       const [form] = await db
@@ -771,8 +795,11 @@ export const formRouter = router({
             message: "This form is password protected. Missing unlock token.",
           });
         }
+        if (!process.env.JWT_SECRET) {
+          throw new Error("Missing JWT_SECRET environment variable");
+        }
         try {
-          const decoded = jwt.verify(input.unlockToken, process.env.JWT_SECRET || 'default_jwt_secret');
+          const decoded = jwt.verify(input.unlockToken, process.env.JWT_SECRET);
           if (decoded.formId !== input.formId) {
              throw new Error("Token mismatch");
           }
@@ -817,6 +844,53 @@ export const formRouter = router({
         }
       }
 
+      const [sub] = await db
+        .select()
+        .from(subscriptions)
+        .where(eq(subscriptions.userId, form.userId))
+        .limit(1);
+
+      const planId = sub && ['active', 'trialing'].includes(sub.status) ? sub.planId : 'FREE';
+      const plan = getPlan(planId);
+      const periodKey = currentPeriodKey();
+
+      const [responseCounter] = await db
+        .select({ usedCount: usageCounters.usedCount })
+        .from(usageCounters)
+        .where(
+          and(
+            eq(usageCounters.userId, form.userId),
+            eq(usageCounters.metric, 'responses_collected'),
+            eq(usageCounters.periodKey, periodKey)
+          )
+        )
+        .limit(1);
+
+      const currentUsage = responseCounter?.usedCount || 0;
+
+      if (!hasUnlimited(plan.maxResponsesPerMonth) && currentUsage >= plan.maxResponsesPerMonth) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "The form owner has reached their monthly response limit. Upgrade to collect more.",
+        });
+      }
+
+      const formFieldsData = await db
+        .select()
+        .from(formFields)
+        .where(eq(formFields.formId, form.id));
+
+      for (const field of formFieldsData) {
+        if (field.required) {
+          const answer = input.answers[field.id];
+          if (answer === undefined || answer === null || String(answer).trim() === '') {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: `Required field missing: ${field.label}`,
+            });
+          }
+        }
+      }
 
       await db.transaction(async (tx) => {
         const [newSubmission] = await tx
@@ -830,13 +904,15 @@ export const formRouter = router({
           ([fieldId, value]) => ({
             submissionId: newSubmission.id,
             fieldId: fieldId,
-            value: typeof value === "string" ? value : JSON.stringify(value),
+            value: typeof value === "object" ? JSON.stringify(value) : String(value),
           }),
         );
 
         if (answersToInsert.length > 0) {
           await tx.insert(fieldResponses).values(answersToInsert);
         }
+
+        await incrementResponsesUsage(form.userId, tx);
       });
 
       return { message: "Response submitted successfully!" };
