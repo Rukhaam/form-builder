@@ -2,6 +2,9 @@ import { initTRPC, TRPCError } from '@trpc/server';
 import jwt from 'jsonwebtoken';
 import { ACCESS_TOKEN_SECRET } from './utils/jwt.js';
 import { checkRateLimit } from './utils/rateLimit.js'; 
+import { db, workspaceMembers } from '@repo/database';
+import { eq, and } from 'drizzle-orm';
+import { z } from 'zod';
 
 const t = initTRPC.context().create();
 
@@ -93,8 +96,51 @@ const isAuthed = t.middleware(async ({ ctx, next }) => {
   }
 });
 
+// --- 5. Workspace Access Middleware ---
+// Verifies the authenticated user is a member of the requested workspace
+// and injects workspaceId + workspaceRole into ctx for downstream RBAC.
+const isWorkspaceMember = t.middleware(async ({ ctx, rawInput, next }) => {
+  // rawInput may be an object with workspaceId at the top level
+  const workspaceId = rawInput?.workspaceId;
+
+  if (!workspaceId || typeof workspaceId !== 'string') {
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: 'workspaceId is required',
+    });
+  }
+
+  const [membership] = await db
+    .select()
+    .from(workspaceMembers)
+    .where(
+      and(
+        eq(workspaceMembers.workspaceId, workspaceId),
+        eq(workspaceMembers.userId, ctx.user.id),
+      )
+    )
+    .limit(1);
+
+  if (!membership) {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'You are not a member of this workspace',
+    });
+  }
+
+  return next({
+    ctx: {
+      ...ctx,
+      workspaceId,
+      workspaceRole: membership.role,
+    },
+  });
+});
+
 // --- EXPORT SPECIFIC PROCEDURES ---
 export const standardPublicProcedure = t.procedure.use(standardRateLimiter);
 export const strictPublicProcedure = t.procedure.use(strictRateLimiter);
 export const formResponseProcedure = t.procedure.use(formResponseRateLimiter);
 export const protectedProcedure = t.procedure.use(isAuthed);
+export const workspaceProcedure = t.procedure.use(isAuthed).use(isWorkspaceMember);
+

@@ -1,19 +1,19 @@
-import './loadEnv.js';
-import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
+import "./loadEnv.js";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 const responseSchema = {
   type: SchemaType.OBJECT,
   properties: {
     summary: {
       type: SchemaType.STRING,
-      description: 'A concise 2-3 sentence summary of the text responses',
+      description: "A concise 2-3 sentence summary of the text responses",
     },
     themes: {
       type: SchemaType.ARRAY,
       items: { type: SchemaType.STRING },
-      description: 'Array of 3-7 common themes extracted from responses',
+      description: "Array of 3-7 common themes extracted from responses",
     },
     sentiment: {
       type: SchemaType.OBJECT,
@@ -22,11 +22,11 @@ const responseSchema = {
         neutral: { type: SchemaType.NUMBER },
         negative: { type: SchemaType.NUMBER },
       },
-      required: ['positive', 'neutral', 'negative'],
-      description: 'Sentiment breakdown as percentages that sum to 100',
+      required: ["positive", "neutral", "negative"],
+      description: "Sentiment breakdown as percentages that sum to 100",
     },
   },
-  required: ['summary', 'themes', 'sentiment'],
+  required: ["summary", "themes", "sentiment"],
 };
 
 /**
@@ -36,9 +36,9 @@ const responseSchema = {
  */
 export async function analyzeTextResponses(fieldResponses) {
   const model = genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash',
+    model: "gemini-2.5-flash",
     generationConfig: {
-      responseMimeType: 'application/json',
+      responseMimeType: "application/json",
       responseSchema,
       temperature: 0.3,
     },
@@ -47,7 +47,9 @@ export async function analyzeTextResponses(fieldResponses) {
   // Build the prompt with field-grouped responses
   const sections = fieldResponses.map(({ fieldLabel, responses }) => {
     const truncatedResponses = responses.slice(0, 200);
-    const listing = truncatedResponses.map((r, i) => `  ${i + 1}. "${r}"`).join('\n');
+    const listing = truncatedResponses
+      .map((r, i) => `  ${i + 1}. "${r}"`)
+      .join("\n");
     return `## Field: "${fieldLabel}" (${truncatedResponses.length} responses)\n${listing}`;
   });
 
@@ -59,15 +61,15 @@ export async function analyzeTextResponses(fieldResponses) {
 
 Here are the responses grouped by field:
 
-${sections.join('\n\n')}
+${sections.join("\n\n")}
 
 Provide your analysis in the required JSON format.`;
 
   const result = await model.generateContent(prompt);
   const text = result.response.text();
-  
+
   const parsed = JSON.parse(text);
-  
+
   // Ensure sentiment sums to 100
   const { positive = 0, neutral = 0, negative = 0 } = parsed.sentiment || {};
   const total = positive + neutral + negative;
@@ -76,7 +78,8 @@ Provide your analysis in the required JSON format.`;
     parsed.sentiment = {
       positive: Math.round(positive * scale),
       neutral: Math.round(neutral * scale),
-      negative: 100 - Math.round(positive * scale) - Math.round(neutral * scale),
+      negative:
+        100 - Math.round(positive * scale) - Math.round(neutral * scale),
     };
   }
 

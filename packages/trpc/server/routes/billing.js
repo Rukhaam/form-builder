@@ -271,21 +271,24 @@ getUsageOverview: protectedProcedure.query(async ({ ctx }) => {
     const responsesUsed = responseCounter?.usedCount || 0;
 
     // Map limits based on plan definitions
-    const formLimit = plan.limits?.max_forms ?? 3;
-    const responseLimit = plan.limits?.max_responses_per_month ?? 100;
+    const formLimit = plan.maxForms ?? 3;
+    const responseLimit = plan.maxResponsesPerMonth ?? 100;
+
+    const formsUnlimited = formLimit === -1;
+    const responsesUnlimited = responseLimit === -1;
 
     return {
       forms: {
         used: formsUsed,
         limit: formLimit,
-        isUnlimited: formLimit >= 999999,
-        percentage: Math.min((formsUsed / formLimit) * 100, 100)
+        isUnlimited: formsUnlimited,
+        percentage: formsUnlimited ? 0 : Math.min((formsUsed / formLimit) * 100, 100)
       },
       responses: {
         used: responsesUsed,
         limit: responseLimit,
-        isUnlimited: responseLimit >= 999999,
-        percentage: Math.min((responsesUsed / responseLimit) * 100, 100),
+        isUnlimited: responsesUnlimited,
+        percentage: responsesUnlimited ? 0 : Math.min((responsesUsed / responseLimit) * 100, 100),
         periodKey
       }
     };

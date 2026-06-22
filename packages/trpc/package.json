@@ -6,6 +6,7 @@
   "exports": {
     "./server/index.js": "./server/index.js",
     "./server/context.js": "./server/context.js",
+    "./server/trpc.js": "./server/trpc.js",
     "./server/utils/jwt.js": "./server/utils/jwt.js",
     "./server/utils/plans.js": "./server/utils/plans.js",
     "./client/index.js": "./client/index.js"

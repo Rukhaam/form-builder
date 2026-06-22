@@ -22,6 +22,7 @@ export const fieldTypeEnum = pgEnum("field_type", [
   "checkbox",
 ]);
 export const authProviderEnum = pgEnum('auth_provider', ['LOCAL', 'GOOGLE', 'GITHUB']);
+export const workspaceRoleEnum = pgEnum('workspace_role', ['OWNER', 'ADMIN', 'EDITOR', 'VIEWER']);
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -35,11 +36,53 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// ── Workspaces ──────────────────────────────────────────────────────────
+export const workspaces = pgTable("workspaces", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const workspaceMembers = pgTable("workspace_members", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  workspaceId: uuid("workspace_id")
+    .references(() => workspaces.id, { onDelete: "cascade" })
+    .notNull(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  role: workspaceRoleEnum("role").default("VIEWER").notNull(),
+  joinedAt: timestamp("joined_at").defaultNow(),
+}, (table) => {
+  return {
+    workspaceUserUnique: uniqueIndex("workspace_user_unique").on(table.workspaceId, table.userId),
+  };
+});
+
+export const workspaceInvites = pgTable("workspace_invites", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  workspaceId: uuid("workspace_id")
+    .references(() => workspaces.id, { onDelete: "cascade" })
+    .notNull(),
+  email: text("email").notNull(),
+  role: workspaceRoleEnum("invite_role").default("VIEWER").notNull(),
+  token: text("token").notNull().unique(),
+  invitedBy: uuid("invited_by")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  acceptedAt: timestamp("accepted_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// ── Forms ───────────────────────────────────────────────────────────────
 export const forms = pgTable("forms", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
+  workspaceId: uuid("workspace_id")
+    .references(() => workspaces.id, { onDelete: "set null" }),
   title: text("title").notNull(),
   description: text("description"),
   slug: text("slug").unique().notNull(),
@@ -90,6 +133,8 @@ export const formReviews = pgTable('form_reviews',{
 export const subscriptions = pgTable('subscriptions', {
   id: uuid('id').defaultRandom().primaryKey().notNull(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull().unique(),
+  workspaceId: uuid('workspace_id')
+    .references(() => workspaces.id, { onDelete: 'set null' }),
   planId: text('plan_id').default('FREE').notNull(), 
   status: text('status').default('active').notNull(), 
   

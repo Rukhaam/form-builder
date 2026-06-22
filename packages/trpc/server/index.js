@@ -4,16 +4,17 @@ import { formRouter } from './routes/forms.js';
 import { reviewsRouter } from './routes/reviews.js';
 import { billingRouter } from './routes/billing.js';
 import { aiRouter } from './routes/ai.js';
-
 import { webhooksRouter } from './routes/webhooks.js';
+import { workspaceRouter } from './routes/workspace.js';
 
 export const appRouter = router({
   auth: authRouter,
   form: formRouter,
-  review:reviewsRouter,
+  review: reviewsRouter,
   billing: billingRouter,
   ai: aiRouter,
   webhook: webhooksRouter,
+  workspace: workspaceRouter,
 });
 
 export { createContext } from './context.js';

@@ -4,9 +4,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { BarChart3, LayoutDashboard, LogOut, Menu, X } from 'lucide-react'; // <-- Added Menu and X icons
+import { BarChart3, LayoutDashboard, LogOut, Menu, X, Users, Settings } from 'lucide-react';
 import { logoutSuccess, setCredentials } from '@/store/slices/authSlice';
+import { setWorkspaces } from '@/store/slices/workspaceSlice';
 import { cn } from '@/lib/utils';
+import { trpc } from '@/utils/trpc';
+import WorkspaceSwitcher from '@/components/WorkspaceSwitcher';
 
 function getUserFromAccessToken(token) {
   try {
@@ -35,6 +38,7 @@ function getUserFromAccessToken(token) {
 
 export default function DashboardLayout({ children }) {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const { activeWorkspaceId } = useSelector((state) => state.workspace);
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useDispatch();
@@ -44,6 +48,14 @@ export default function DashboardLayout({ children }) {
   
   // <-- Added state to toggle sidebar
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // Fetch workspaces on mount
+  const workspacesQuery = trpc.workspace.getMyWorkspaces.useQuery(undefined, {
+    enabled: mounted,
+    onSuccess: (data) => {
+      dispatch(setWorkspaces(data));
+    },
+  });
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -81,6 +93,7 @@ export default function DashboardLayout({ children }) {
   const navItems = [
     { href: '/dashboard', label: 'My Forms', icon: LayoutDashboard, active: pathname === '/dashboard' },
     { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3, active: pathname.startsWith('/dashboard/analytics') },
+    { href: '/dashboard/settings/team', label: 'Team', icon: Users, active: pathname.startsWith('/dashboard/settings/team') },
   ];
 
   return (
@@ -170,8 +183,18 @@ export default function DashboardLayout({ children }) {
           )}
           
           <h1 className="text-xl font-medium text-slate-950">
-            {pathname.startsWith('/dashboard/analytics') ? 'Analytics' : 'Dashboard'}
+            {pathname.startsWith('/dashboard/analytics')
+              ? 'Analytics'
+              : pathname.startsWith('/dashboard/settings/team')
+              ? 'Team Settings'
+              : 'Dashboard'}
           </h1>
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Workspace Switcher */}
+          <WorkspaceSwitcher />
         </header>
         
         <div className="flex-1 overflow-auto p-8">
