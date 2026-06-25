@@ -15,6 +15,8 @@ import razorpayWebhookRouter from "./webhooks/razorpay.js";
 import { scalarDocs } from "./docs.js";
 const app = express();
 
+app.use("/docs", scalarDocs);
+
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
@@ -77,8 +79,6 @@ const trpcMiddleware = trpcExpress.createExpressMiddleware({
   router: appRouter,
   createContext,
 });
-
-app.use("/docs", scalarDocs);
 
 app.use("/trpc", trpcMiddleware);
 app.use("/api/trpc", trpcMiddleware);
