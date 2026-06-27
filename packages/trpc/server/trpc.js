@@ -1,7 +1,7 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import jwt from 'jsonwebtoken';
 import { ACCESS_TOKEN_SECRET } from './utils/jwt.js';
-import { checkRateLimit } from './utils/rateLimit.js'; 
+import { checkRateLimit } from './utils/rateLimit.js';
 import { db, workspaceMembers } from '@repo/database';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
@@ -11,19 +11,12 @@ const t = initTRPC.context().create();
 export const router = t.router;
 export const publicProcedure = t.procedure;
 
-const getClientIp = (req) => {
-  return req?.headers?.['x-forwarded-for']?.split(',')[0] 
-      || req?.socket?.remoteAddress 
-      || req?.ip 
-      || 'unknown-ip';
-};
+// IP extraction is now handled internally by checkRateLimit (see utils/rateLimit.js)
 
 // --- 1. Standard Public Limiter (Browsing forms, fetching templates) ---
 // Policy: 100 requests per 5 minutes
 const standardRateLimiter = t.middleware(async ({ ctx, next }) => {
-  const clientIp = getClientIp(ctx.req);
-  
-  const { allowed } = await checkRateLimit(`ip:standard:${clientIp}`, 100, 300);
+  const { allowed } = await checkRateLimit(ctx.req, { namespace: 'standard', limit: 100, windowSeconds: 300 });
   
   if (!allowed) {
     throw new TRPCError({ 
@@ -39,9 +32,7 @@ const standardRateLimiter = t.middleware(async ({ ctx, next }) => {
 // --- 2. Strict Public Limiter (Auth, Passwords) ---
 // Policy: 5 requests per 15 minutes
 const strictRateLimiter = t.middleware(async ({ ctx, next }) => {
-  const clientIp = getClientIp(ctx.req);
-  
-  const { allowed } = await checkRateLimit(`ip:strict:${clientIp}`, 5, 900);
+  const { allowed } = await checkRateLimit(ctx.req, { namespace: 'strict', limit: 5, windowSeconds: 900 });
   
   if (!allowed) {
     throw new TRPCError({ 
@@ -56,9 +47,7 @@ const strictRateLimiter = t.middleware(async ({ ctx, next }) => {
 // --- 3. Form Response Limiter ---
 // Policy: 5 response submissions per 15 minutes
 const formResponseRateLimiter = t.middleware(async ({ ctx, next }) => {
-  const clientIp = getClientIp(ctx.req);
-
-  const { allowed } = await checkRateLimit(`ip:form-response:${clientIp}`, 5, 900);
+  const { allowed } = await checkRateLimit(ctx.req, { namespace: 'form-response', limit: 5, windowSeconds: 900 });
 
   if (!allowed) {
     throw new TRPCError({
@@ -80,7 +69,7 @@ const isAuthed = t.middleware(async ({ ctx, next }) => {
 
   try {
     const decoded = jwt.verify(authHeader.split(' ')[1], ACCESS_TOKEN_SECRET);
-    const { allowed } = await checkRateLimit(`user:${decoded.id}`, 60, 60);
+    const { allowed } = await checkRateLimit(ctx.req, { namespace: `user:${decoded.id}`, limit: 60, windowSeconds: 60 });
     
     if (!allowed) {
         throw new TRPCError({ 
