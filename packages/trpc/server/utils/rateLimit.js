@@ -1,5 +1,5 @@
-import Redis from 'ioredis';
-import './loadEnv.js';
+import Redis from "ioredis";
+import "./loadEnv.js";
 
 const redisUrl = process.env.REDIS_URL;
 export const redis = new Redis(redisUrl);
@@ -11,16 +11,18 @@ export const redis = new Redis(redisUrl);
  * @returns {string} The client's IP address.
  */
 export const getClientIp = (req) => {
-  const forwarded = req?.headers?.['x-forwarded-for'];
+  const forwarded = req?.headers?.["x-forwarded-for"];
   if (forwarded) {
     // x-forwarded-for can be a comma-separated list; the first entry is the real client
-    return forwarded.split(',')[0].trim();
+    return forwarded.split(",")[0].trim();
   }
 
-  return req?.socket?.remoteAddress
-      || req?.connection?.remoteAddress
-      || req?.ip
-      || 'unknown-ip';
+  return (
+    req?.socket?.remoteAddress ||
+    req?.connection?.remoteAddress ||
+    req?.ip ||
+    "unknown-ip"
+  );
 };
 
 /**
@@ -38,7 +40,10 @@ export const getClientIp = (req) => {
  * @param {number}  [options.windowSeconds=900]  - Length of the sliding window in seconds (default 15 min).
  * @returns {Promise<{allowed: boolean, remaining: number, ip: string, retryAfter: number|null}>}
  */
-export const checkRateLimit = async (req, { namespace = 'global', limit = 5, windowSeconds = 900 } = {}) => {
+export const checkRateLimit = async (
+  req,
+  { namespace = "global", limit = 5, windowSeconds = 900 } = {},
+) => {
   const clientIp = getClientIp(req);
   const key = `ratelimit:${namespace}:${clientIp}`;
 
@@ -67,7 +72,7 @@ export const checkRateLimit = async (req, { namespace = 'global', limit = 5, win
       retryAfter: null,
     };
   } catch (error) {
-    console.error('Redis Rate Limiting Error:', error);
+    console.error("Redis Rate Limiting Error:", error);
     // Fail open — if Redis is down, don't block legitimate users
     return { allowed: true, remaining: 1, ip: clientIp, retryAfter: null };
   }
