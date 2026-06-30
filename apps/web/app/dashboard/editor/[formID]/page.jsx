@@ -26,6 +26,7 @@ import {
   Eye,
   Type,
   Pencil,
+  UserCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -379,6 +380,7 @@ export default function FormEditorPage() {
     password,
     category,
     theme,
+    oneResponsePerPerson,
   } = editorState;
 
   const [copiedShareLink, setCopiedShareLink] = useState(false);
@@ -404,6 +406,7 @@ export default function FormEditorPage() {
           status: data.form.status,
           expiresAt: data.form.expiresAt,
           maxResponses: data.form.maxResponses,
+          oneResponsePerPerson: data.form.oneResponsePerPerson,
           category: data.form.category,
           theme: data.form.theme,
           fields: data.fields,
@@ -463,6 +466,7 @@ export default function FormEditorPage() {
           status: existingForm.form.status,
           expiresAt: existingForm.form.expiresAt,
           maxResponses: existingForm.form.maxResponses,
+          oneResponsePerPerson: existingForm.form.oneResponsePerPerson,
           category: existingForm.form.category,
           theme: existingForm.form.theme,
           fields: existingForm.fields,
@@ -596,6 +600,7 @@ export default function FormEditorPage() {
         : null,
       password: password || undefined,
       category: category || undefined,
+      oneResponsePerPerson: oneResponsePerPerson ?? false,
       theme: serializeThemeValue(themeDesign.selection),
       isTemplate: !!category,
       fields: cleanFields,
@@ -963,6 +968,70 @@ export default function FormEditorPage() {
                     }
                     className="h-11 w-full border-black/5 bg-white pl-9 focus:bg-white"
                     placeholder="None"
+                  />
+                </div>
+              </label>
+            </div>
+
+            <div className="mt-6 border-t border-black/5 pt-6">
+              <label
+                className={cn(
+                  "flex items-center justify-between rounded-lg border bg-white px-4 py-3 transition",
+                  oneResponsePerPerson
+                    ? "border-slate-950"
+                    : "border-black/5 hover:border-black/10",
+                  isSaving
+                    ? "cursor-not-allowed opacity-50"
+                    : "cursor-pointer",
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={cn(
+                      "flex size-9 items-center justify-center rounded-lg transition",
+                      oneResponsePerPerson
+                        ? "bg-slate-950 text-white"
+                        : "bg-slate-100 text-slate-500",
+                    )}
+                  >
+                    <UserCheck className="size-4" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-slate-950">
+                      One response per person
+                    </div>
+                    <div className="text-xs font-medium text-slate-500">
+                      Limit to one submission per IP address
+                    </div>
+                  </div>
+                </div>
+                <div className="relative">
+                  <input
+                    disabled={isSaving}
+                    type="checkbox"
+                    checked={oneResponsePerPerson}
+                    onChange={(event) =>
+                      dispatch(
+                        updateMetadata({
+                          oneResponsePerPerson: event.target.checked,
+                        }),
+                      )
+                    }
+                    className="peer sr-only"
+                  />
+                  <div
+                    className={cn(
+                      "h-6 w-11 rounded-full border transition-colors",
+                      oneResponsePerPerson
+                        ? "border-slate-950 bg-slate-950"
+                        : "border-black/10 bg-slate-200",
+                    )}
+                  />
+                  <div
+                    className={cn(
+                      "absolute left-0.5 top-0.5 size-5 rounded-full bg-white shadow-sm transition-transform",
+                      oneResponsePerPerson && "translate-x-5",
+                    )}
                   />
                 </div>
               </label>

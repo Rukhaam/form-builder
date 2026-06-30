@@ -93,6 +93,7 @@ export const saveEditorFormSchema = z.object({
   isExpired: z.boolean().optional().default(false),
   expiresAt: z.union([z.string().datetime(), z.date(), z.null()]).optional(),
   maxResponses: z.number().int().min(1, "Must be at least 1").nullable().optional(),
+  oneResponsePerPerson: z.boolean().default(false).optional(),
   fields: z.array(
     formFieldSchema.extend({
       id: z.string().uuid("Invalid field ID").optional(),

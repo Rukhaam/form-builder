@@ -96,6 +96,7 @@ export const forms = pgTable("forms", {
   isExpired: boolean("is_expired").default(false).notNull(),
   expiresAt: timestamp("expires_at"),
   maxResponses: integer("max_responses"),
+  oneResponsePerPerson: boolean("one_response_per_person").default(false).notNull(),
 });
 
 export const formFields = pgTable("form_fields", {

@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { ArrowLeft, CheckCircle2, Send, Lock } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Send, Lock, Shield } from 'lucide-react';
 
 import { getSessionUser } from '@/lib/auth';
 import { Footer } from '@/components/site/Footer';
@@ -393,9 +393,11 @@ export default function PublicFormResponsePage() {
             )}
 
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Button onClick={() => { setSubmitted(false); setRating(0); setHasRated(false); }} className={cn(styles.button)}>
-                Submit another response
-              </Button>
+              {!data?.form?.oneResponsePerPerson && (
+                <Button onClick={() => { setSubmitted(false); setRating(0); setHasRated(false); }} className={cn(styles.button)}>
+                  Submit another response
+                </Button>
+              )}
               <Link href="/forms" className={cn(buttonVariants({ variant: 'outline' }), styles.card)}>
                 Browse more forms
               </Link>
@@ -410,6 +412,12 @@ export default function PublicFormResponsePage() {
               <h1 className={cn("text-4xl font-medium", styles.text)}>{data.form.title}</h1>
               {data.form.description && (
                 <p className={cn("mt-3 text-base leading-7", styles.muted)}>{data.form.description}</p>
+              )}
+              {data.form.oneResponsePerPerson && (
+                <div className={cn("mt-4 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium", styles.badge)}>
+                  <Shield className="size-3.5" />
+                  One response per person
+                </div>
               )}
             </section>
 

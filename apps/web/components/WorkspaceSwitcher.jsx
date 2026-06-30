@@ -1,22 +1,27 @@
-'use client';
+"use client";
 
-import { useState, useRef, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { setActiveWorkspace, setWorkspaces } from '@/store/slices/workspaceSlice';
-import { trpc } from '@/utils/trpc';
-import { ChevronDown, Plus, Check, Building2 } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { useState, useRef, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  setActiveWorkspace,
+  setWorkspaces,
+} from "@/store/slices/workspaceSlice";
+import { trpc } from "@/utils/trpc";
+import { ChevronDown, Plus, Check, Building2 } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function WorkspaceSwitcher() {
   const dispatch = useDispatch();
   const { workspaces, activeWorkspaceId } = useSelector((s) => s.workspace);
   const [isOpen, setIsOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const [newName, setNewName] = useState('');
+  const [newName, setNewName] = useState("");
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
 
-  const activeWorkspace = workspaces.find((w) => w.workspaceId === activeWorkspaceId);
+  const activeWorkspace = workspaces.find(
+    (w) => w.workspaceId === activeWorkspaceId,
+  );
 
   // Refetch workspaces helper
   const workspacesQuery = trpc.workspace.getMyWorkspaces.useQuery(undefined, {
@@ -25,7 +30,7 @@ export default function WorkspaceSwitcher() {
 
   const createMutation = trpc.workspace.createWorkspace.useMutation({
     onSuccess: async () => {
-      setNewName('');
+      setNewName("");
       setIsCreating(false);
       const result = await workspacesQuery.refetch();
       if (result.data) {
@@ -43,11 +48,11 @@ export default function WorkspaceSwitcher() {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setIsOpen(false);
         setIsCreating(false);
-        setNewName('');
+        setNewName("");
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Focus input when creating
@@ -69,10 +74,10 @@ export default function WorkspaceSwitcher() {
   }
 
   function handleKeyDown(e) {
-    if (e.key === 'Enter') handleCreate();
-    if (e.key === 'Escape') {
+    if (e.key === "Enter") handleCreate();
+    if (e.key === "Escape") {
       setIsCreating(false);
-      setNewName('');
+      setNewName("");
     }
   }
 
@@ -86,18 +91,18 @@ export default function WorkspaceSwitcher() {
       >
         <Building2 className="size-4 text-slate-500" />
         <span className="max-w-[140px] truncate">
-          {activeWorkspace?.workspaceName || 'Select Workspace'}
+          {activeWorkspace?.workspaceName || "Select Workspace"}
         </span>
         <ChevronDown
-          className={`size-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`size-4 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute left-0 top-full z-50 mt-1 w-64 border-2 border-slate-200 bg-white shadow-sm">
+        <div className="absolute right-0 top-full z-50 mt-1 w-64 border-2 border-slate-200 bg-white shadow-sm">
           {/* Workspace List */}
-          <div className="max-h-64 overflow-y-auto">
+          <div className="max-h-64 overflow-y-auto ">
             {workspaces.length === 0 ? (
               <div className="px-4 py-6 text-center text-sm text-slate-400">
                 No workspaces yet
@@ -107,21 +112,21 @@ export default function WorkspaceSwitcher() {
                 <button
                   key={ws.workspaceId}
                   onClick={() => handleSwitch(ws.workspaceId)}
-                  className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm transition-colors hover:bg-slate-50 ${
+                  className={`flex w-full items-center justify-center px-4 py-3 text-left text-sm transition-colors hover:bg-slate-50 ${
                     ws.workspaceId === activeWorkspaceId
-                      ? 'bg-slate-950 text-white hover:bg-slate-900'
-                      : 'text-slate-950'
+                      ? "bg-slate-950 text-white hover:bg-slate-900"
+                      : "text-slate-950"
                   }`}
                 >
-                  <div className="flex flex-col">
+                  <div className="flex flex-col items-center justify-center ">
                     <span className="font-medium truncate max-w-[160px]">
                       {ws.workspaceName}
                     </span>
                     <span
                       className={`mt-0.5 text-[10px] font-bold uppercase tracking-wider ${
                         ws.workspaceId === activeWorkspaceId
-                          ? 'text-slate-300'
-                          : 'text-slate-400'
+                          ? "text-slate-300"
+                          : "text-slate-400"
                       }`}
                     >
                       {ws.role}
@@ -157,12 +162,12 @@ export default function WorkspaceSwitcher() {
                   disabled={!newName.trim() || createMutation.isLoading}
                   className="flex-1 bg-slate-950 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-slate-800 active:scale-[0.98] disabled:opacity-50"
                 >
-                  {createMutation.isLoading ? 'Creating…' : 'Create'}
+                  {createMutation.isLoading ? "Creating…" : "Create"}
                 </button>
                 <button
                   onClick={() => {
                     setIsCreating(false);
-                    setNewName('');
+                    setNewName("");
                   }}
                   className="border-2 border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 transition-all hover:border-slate-300"
                 >
@@ -173,7 +178,7 @@ export default function WorkspaceSwitcher() {
           ) : (
             <button
               onClick={() => setIsCreating(true)}
-              className="flex w-full items-center gap-2 px-4 py-3 text-sm font-semibold text-slate-950 transition-colors hover:bg-slate-50"
+              className="flex w-full items-center justify-center gap-2 px-4 py-3 text-sm font-semibold text-slate-950 transition-colors hover:bg-slate-50"
             >
               <Plus className="size-4" />
               New Workspace

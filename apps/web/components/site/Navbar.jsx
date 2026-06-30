@@ -1,21 +1,27 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { ArrowRight, LayoutDashboard, LogIn, Sparkles, Menu, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  ArrowRight,
+  LayoutDashboard,
+  LogIn,
+  Sparkles,
+  Menu,
+  X,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
-import { getSessionUser } from '@/lib/auth';
-import { buttonVariants } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { getSessionUser } from "@/lib/auth";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { label: 'Browse forms', href: '/forms' },
-  { label: 'Pricing', href: '/pricing' },
-  { label: 'Templates', href: '/templates' },
-  { label: 'About Us', href: '/about' },
-
+  { label: "Browse forms", href: "/forms" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Templates", href: "/templates" },
+  { label: "About Us", href: "/about" },
 ];
 
 export function Navbar() {
@@ -30,12 +36,12 @@ export function Navbar() {
   // Prevent background scrolling when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isMobileMenuOpen]);
 
@@ -46,14 +52,17 @@ export function Navbar() {
 
   return (
     <header className="sticky-header sticky top-0 inset-x-0 z-50 px-4 pt-4 md:px-6">
-      <nav className="nav-bar mx-auto flex w-full max-w-6xl items-center justify-between rounded-full border border-white/40 bg-white/70 px-4 py-3 shadow-lg shadow-slate-200/20 backdrop-blur-xl transition-all duration-300">
-        
+      <nav className="nav-bar liquid-bg mx-auto flex w-full max-w-6xl items-center justify-between rounded-full border border-white/40 px-4 py-3 shadow-lg shadow-slate-200/20 backdrop-blur-xl transition-all duration-300">
         {/* LOGO */}
         <Link href="/" className="flex items-center gap-3">
-          <span className="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-slate-900 to-slate-800 text-sm font-medium text-white shadow-md transition-transform active:scale-105">
-            FB
+          <img
+            src="https://pub-749dd85c25e04947af34140aef9172fc.r2.dev/form-builder/ChatGPT%20Image%20Jun%2030%2C%202026%2C%2011_22_18%20PM.png"
+            alt="FormBuilder Logo"
+            className="size-10 rounded-full object-contain transition-transform active:scale-105"
+          />
+          <span className="text-lg font-medium tracking-tight text-slate-950">
+            FormBuilder
           </span>
-          <span className="text-lg font-medium tracking-tight text-slate-950">FormBuilder</span>
         </Link>
 
         {/* DESKTOP LINKS */}
@@ -78,18 +87,36 @@ export function Navbar() {
               <span className="max-w-[160px] truncate px-2 text-sm font-medium text-slate-500">
                 {user.email}
               </span>
-              <Link href="/dashboard" className={cn(buttonVariants({ size: 'sm' }), 'rounded-full bg-slate-950 px-5 text-white shadow-md transition-transform active:scale-105 active:bg-slate-800')}>
+              <Link
+                href="/dashboard"
+                className={cn(
+                  buttonVariants({ size: "sm" }),
+                  "rounded-full bg-slate-950 px-5 text-white shadow-md transition-transform active:scale-105 active:bg-slate-800",
+                )}
+              >
                 <LayoutDashboard className="mr-2 size-4" />
                 Dashboard
               </Link>
             </>
           ) : (
             <>
-              <Link href="/login" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'rounded-full font-medium text-slate-600 active:text-slate-950')}>
+              <Link
+                href="/login"
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "sm" }),
+                  "rounded-full font-medium text-slate-600 active:text-slate-950",
+                )}
+              >
                 <LogIn className="mr-2 size-4" />
                 Sign in
               </Link>
-              <Link href="/register" className={cn(buttonVariants({ size: 'sm' }), 'rounded-full bg-slate-950 px-5 text-white shadow-md transition-transform active:scale-105 active:bg-slate-800')}>
+              <Link
+                href="/register"
+                className={cn(
+                  buttonVariants({ size: "sm" }),
+                  "rounded-full bg-slate-950 px-5 text-white shadow-md transition-transform active:scale-105 active:bg-slate-800",
+                )}
+              >
                 <Sparkles className="mr-2 size-4 text-violet-300" />
                 Get Started
               </Link>
@@ -122,18 +149,26 @@ export function Navbar() {
 
             {/* Sliding Sidebar */}
             <motion.div
-              initial={{ x: '100%' }}
+              initial={{ x: "100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className="fixed inset-y-0 right-0 z-[70] flex w-[85%] max-w-[320px] flex-col border-l border-white/40 bg-white/90 p-6 shadow-2xl backdrop-blur-2xl md:hidden"
             >
               <div className="flex items-center justify-between pb-6">
-                <Link href="/" className="flex items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>
-                  <span className="flex size-9 items-center justify-center rounded-full bg-slate-950 text-xs font-medium text-white shadow-md">
-                    FB
+                <Link
+                  href="/"
+                  className="flex items-center gap-3"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <img
+                    src="https://pub-749dd85c25e04947af34140aef9172fc.r2.dev/form-builder/ChatGPT%20Image%20Jun%2030%2C%202026%2C%2011_22_18%20PM.png"
+                    alt="FormBuilder Logo"
+                    className="size-9 object-contain"
+                  />
+                  <span className="text-lg font-medium text-slate-950">
+                    FormBuilder
                   </span>
-                  <span className="text-lg font-medium text-slate-950">FormBuilder</span>
                 </Link>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -161,21 +196,39 @@ export function Navbar() {
                 {user ? (
                   <>
                     <div className="px-2 pb-2 text-sm font-medium text-slate-500 truncate">
-                      Signed in as <br/>
+                      Signed in as <br />
                       <span className="text-slate-900">{user.email}</span>
                     </div>
-                    <Link href="/dashboard" className={cn(buttonVariants({ size: 'lg' }), 'w-full rounded-xl bg-slate-950 text-white')}>
+                    <Link
+                      href="/dashboard"
+                      className={cn(
+                        buttonVariants({ size: "lg" }),
+                        "w-full rounded-xl bg-slate-950 text-white",
+                      )}
+                    >
                       <LayoutDashboard className="mr-2 size-5" />
                       Dashboard
                     </Link>
                   </>
                 ) : (
                   <>
-                    <Link href="/login" className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'w-full rounded-xl border-slate-200 bg-white')}>
+                    <Link
+                      href="/login"
+                      className={cn(
+                        buttonVariants({ variant: "outline", size: "lg" }),
+                        "w-full rounded-xl border-slate-200 bg-white",
+                      )}
+                    >
                       <LogIn className="mr-2 size-5" />
                       Sign in
                     </Link>
-                    <Link href="/register" className={cn(buttonVariants({ size: 'lg' }), 'w-full rounded-xl bg-slate-950 text-white')}>
+                    <Link
+                      href="/register"
+                      className={cn(
+                        buttonVariants({ size: "lg" }),
+                        "w-full rounded-xl bg-slate-950 text-white",
+                      )}
+                    >
                       <Sparkles className="mr-2 size-5 text-violet-300" />
                       Get Started Free
                       <ArrowRight className="ml-auto size-5" />

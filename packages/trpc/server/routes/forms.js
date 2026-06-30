@@ -20,6 +20,7 @@ import { eq, and, inArray, desc, count, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import bcrypt from "bcrypt";
+import { checkOneResponsePerIp } from "../utils/rateLimit.js";
 import jwt from "jsonwebtoken";
 import { DEFAULT_PLAN_ID, getPlan, hasUnlimited } from "../utils/plans.js";
 
@@ -146,6 +147,7 @@ export const formRouter = router({
             visibility: 'UNLISTED',
             status: 'DRAFT',
             isTemplate: false,
+            oneResponsePerPerson: templateForm.oneResponsePerPerson,
           })
           .returning();
 
@@ -294,6 +296,7 @@ export const formRouter = router({
         status: input.status,
         expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
         maxResponses: input.maxResponses ?? null,
+        oneResponsePerPerson: input.oneResponsePerPerson ?? false,
         theme: input.theme ?? "light",          
         isTemplate: input.isTemplate ?? false,  
         category: input.category ?? null,       
@@ -709,6 +712,7 @@ export const formRouter = router({
         description: form.description,
         slug: form.slug,
         theme: form.theme,
+        oneResponsePerPerson: form.oneResponsePerPerson,
       };
 
       if (form.password) {
@@ -778,7 +782,7 @@ export const formRouter = router({
 
   submitResponse: formResponseProcedure
     .input(submitFormSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const [form] = await db
         .select()
         .from(forms)
@@ -840,6 +844,17 @@ export const formRouter = router({
           throw new TRPCError({
             code: "FORBIDDEN",
             message: "This form has reached its maximum number of responses",
+          });
+        }
+      }
+
+      // One-response-per-person IP check
+      if (form.oneResponsePerPerson) {
+        const { allowed } = await checkOneResponsePerIp(ctx.req, form.id);
+        if (!allowed) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You have already submitted a response to this form. Only one response per person is allowed.",
           });
         }
       }

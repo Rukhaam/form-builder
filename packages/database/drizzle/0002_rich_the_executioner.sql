@@ -1,0 +1,1 @@
+ALTER TABLE "forms" ADD COLUMN "one_response_per_person" boolean DEFAULT false NOT NULL;

@@ -77,3 +77,28 @@ export const checkRateLimit = async (
     return { allowed: true, remaining: 1, ip: clientIp, retryAfter: null };
   }
 };
+
+/**
+ * Checks if an IP has already submitted a response to a specific form.
+ * Uses a Redis SET per form to store all IPs that have submitted.
+ * Unlike the sliding-window `checkRateLimit`, this is a permanent record
+ * (no expiry) so the same IP can never submit twice.
+ *
+ * @param {object} req    - The incoming HTTP request (used to extract the client IP).
+ * @param {string} formId - The form UUID to scope the check to.
+ * @returns {Promise<{allowed: boolean, ip: string}>}
+ */
+export const checkOneResponsePerIp = async (req, formId) => {
+  const clientIp = getClientIp(req);
+  const key = `one-response:${formId}`;
+
+  try {
+    // SADD returns 1 if the member was newly added, 0 if it already existed
+    const added = await redis.sadd(key, clientIp);
+    return { allowed: added === 1, ip: clientIp };
+  } catch (error) {
+    console.error("Redis One-Response-Per-IP Error:", error);
+    // Fail open — if Redis is down, don't block legitimate users
+    return { allowed: true, ip: clientIp };
+  }
+};
