@@ -63,28 +63,51 @@ const filteredTemplates = templates.filter(t =>
       {/* CATEGORY FILTER */}
       <section className="mx-auto max-w-7xl px-4 pb-8">
         <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4">
-          {dynamicCategories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={cn(
-                "rounded-full px-5 py-2 text-sm font-medium transition-all duration-300",
-                activeCategory === cat 
-                  ? "bg-slate-950 text-white shadow-md" 
-                  : "bg-white border border-slate-200 text-slate-600 active:border-violet-300 active:text-violet-700"
-              )}
-            >
-              {cat}
-            </button>
-          ))}
+          {isLoading ? (
+            [...Array(5)].map((_, i) => (
+              <div key={i} className="h-9 w-24 animate-pulse rounded-full bg-slate-200/60"></div>
+            ))
+          ) : (
+            dynamicCategories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={cn(
+                  "rounded-full px-5 py-2 text-sm font-medium transition-all duration-300",
+                  activeCategory === cat 
+                    ? "bg-slate-950 text-white shadow-md" 
+                    : "bg-white border border-slate-200 text-slate-600 active:border-violet-300 active:text-violet-700"
+                )}
+              >
+                {cat}
+              </button>
+            ))
+          )}
         </div>
       </section>
 
       {/* TEMPLATES GRID */}
       <section className="mx-auto max-w-7xl px-4 pb-32">
         {isLoading ? (
-          <div className="flex justify-center py-20">
-            <div className="size-8 animate-spin rounded-full border-4 border-violet-600 border-t-transparent"></div>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {[...Array(6)].map((_, i) => (
+              <div 
+                key={i} 
+                className="flex flex-col justify-between rounded-[2rem] border border-slate-100 bg-white/40 p-2 shadow-sm"
+              >
+                <div className="h-48 w-full animate-pulse rounded-[1.5rem] bg-slate-200/60"></div>
+                <div className="p-6">
+                  <div className="mb-4 flex items-center justify-between">
+                    <div className="h-3 w-16 animate-pulse rounded bg-slate-200/60"></div>
+                    <div className="h-4 w-12 animate-pulse rounded bg-slate-200/60"></div>
+                  </div>
+                  <div className="mb-3 h-6 w-3/4 animate-pulse rounded-lg bg-slate-200/60"></div>
+                  <div className="mb-2 h-4 w-full animate-pulse rounded bg-slate-200/60"></div>
+                  <div className="mb-6 h-4 w-5/6 animate-pulse rounded bg-slate-200/60"></div>
+                  <div className="h-10 w-full animate-pulse rounded-xl bg-slate-200/60"></div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">

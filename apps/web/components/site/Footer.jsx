@@ -96,14 +96,14 @@ export function Footer() {
           </h2>
           <div className="mt-4 grid gap-3 text-sm font-medium text-slate-600">
             <a
-              href="mailto:hello@formbuilder.local"
+              href="mailto:summitdigital.in@gmail.com"
               className="flex items-center gap-2 active:text-slate-950"
             >
               <Mail className="size-4" />
-              hello@formbuilder.local
+              summitdigital.in@gmail.com
             </a>
             <a
-              href="https://github.com"
+              href="https://github.com/Rukhaam"
               className="flex items-center gap-2 active:text-slate-950"
             >
               <ExternalLink className="size-4" />
@@ -114,7 +114,23 @@ export function Footer() {
       </div>
 
       <div className="mx-auto mt-8 flex max-w-6xl flex-wrap items-center justify-between gap-3 border-t border-slate-200/70 pt-5 text-xs font-medium text-slate-500">
-        <span>© 2026 FormBuilder. Crafted for clean collection.</span>
+        <div className="flex items-center gap-6">
+          <span>© 2026 FormBuilder. Crafted for clean collection.</span>
+          <div className="flex gap-4">
+            <Link
+              href="/privacy-policy"
+              className="hover:text-slate-900 transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              href="/refund-policy"
+              className="hover:text-slate-900 transition-colors"
+            >
+              Refund Policy
+            </Link>
+          </div>
+        </div>
         <span>
           {user ? `Signed in as ${user.email}` : "Create, publish, collect."}
         </span>

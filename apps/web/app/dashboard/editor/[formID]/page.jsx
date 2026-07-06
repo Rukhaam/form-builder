@@ -185,15 +185,114 @@ const LEGACY_THEME_MAP = {
   default: { colorId: "paper", fontId: "sans" },
 };
 
+function hexToHSL(hex) {
+  let r = 0,
+    g = 0,
+    b = 0;
+  if (hex.length === 4) {
+    r = parseInt(hex[1] + hex[1], 16);
+    g = parseInt(hex[2] + hex[2], 16);
+    b = parseInt(hex[3] + hex[3], 16);
+  } else if (hex.length === 7) {
+    r = parseInt(hex.substring(1, 3), 16);
+    g = parseInt(hex.substring(3, 5), 16);
+    b = parseInt(hex.substring(5, 7), 16);
+  }
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b);
+  let h = 0,
+    s = 0,
+    l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0);
+        break;
+      case g:
+        h = (b - r) / d + 2;
+        break;
+      case b:
+        h = (r - g) / d + 4;
+        break;
+    }
+    h /= 6;
+  }
+  return {
+    h: Math.round(h * 360),
+    s: Math.round(s * 100),
+    l: Math.round(l * 100),
+  };
+}
+
+function CustomThemeStyle({ hslString }) {
+  if (!hslString || !hslString.startsWith("hsl(")) return null;
+  const match = hslString.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+  if (!match) return null;
+  const h = parseInt(match[1], 10);
+  const s = parseInt(match[2], 10);
+  const l = parseInt(match[3], 10);
+
+  const css = `
+    .theme-custom-swatch { background-color: ${hslString} !important; }
+    .theme-custom-page { background-color: hsl(${h},${s}%,96%) !important; }
+    .theme-custom-panel { background-color: white !important; }
+    .theme-custom-canvas { background-color: hsl(${h},${s}%,98%) !important; }
+    .theme-custom-field { background-color: white !important; }
+    .theme-custom-soft { background-color: hsl(${h},${s}%,92%) !important; }
+    .theme-custom-border { border-color: hsl(${h},${s}%,85%) !important; }
+    .theme-custom-softBorder { border-color: hsl(${h},${s}%,92%) !important; }
+    .theme-custom-text { color: hsl(${h},${s}%,15%) !important; }
+    .theme-custom-muted { color: hsl(${h},${s}%,40%) !important; }
+    .theme-custom-input { border-color: hsl(${h},${s}%,85%) !important; background-color: white !important; }
+    .theme-custom-input:focus { border-color: ${hslString} !important; }
+    .theme-custom-choice { border-color: hsl(${h},${s}%,85%) !important; background-color: white !important; }
+    .theme-custom-accent { background-color: ${hslString} !important; }
+    .theme-custom-accentText { color: white !important; }
+    .theme-custom-accentBorder { border-color: ${hslString} !important; }
+    .theme-custom-button { background-color: ${hslString} !important; color: white !important; }
+    .theme-custom-button:hover { opacity: 0.9 !important; }
+  `;
+  return <style dangerouslySetInnerHTML={{ __html: css }} />;
+}
+
+function generateCustomTheme(hslString) {
+  return {
+    id: hslString,
+    label: "Custom",
+    swatch: "theme-custom-swatch",
+    page: "theme-custom-page",
+    panel: "theme-custom-panel",
+    canvas: "theme-custom-canvas",
+    field: "theme-custom-field",
+    soft: "theme-custom-soft",
+    border: "theme-custom-border",
+    softBorder: "theme-custom-softBorder",
+    text: "theme-custom-text",
+    muted: "theme-custom-muted",
+    input: "theme-custom-input",
+    choice: "theme-custom-choice",
+    accent: "theme-custom-accent",
+    accentText: "theme-custom-accentText",
+    accentBorder: "theme-custom-accentBorder",
+    button: "theme-custom-button",
+  };
+}
+
 function parseThemeValue(themeValue) {
   if (!themeValue) return { colorId: "paper", fontId: "sans" };
   if (LEGACY_THEME_MAP[themeValue]) return LEGACY_THEME_MAP[themeValue];
 
   const [colorId, fontId] = String(themeValue).split(":");
+  const isValidColor =
+    colorId.startsWith("hsl(") ||
+    THEME_COLOR_PRESETS.some((preset) => preset.id === colorId);
   return {
-    colorId: THEME_COLOR_PRESETS.some((preset) => preset.id === colorId)
-      ? colorId
-      : "paper",
+    colorId: isValidColor ? colorId : "paper",
     fontId: THEME_FONT_PRESETS.some((preset) => preset.id === fontId)
       ? fontId
       : "sans",
@@ -206,11 +305,18 @@ function serializeThemeValue(themeSelection) {
 
 function getThemeDesign(themeValue) {
   const selection = parseThemeValue(themeValue);
+  let color;
+  if (selection.colorId.startsWith("hsl(")) {
+    color = generateCustomTheme(selection.colorId);
+  } else {
+    color =
+      THEME_COLOR_PRESETS.find((preset) => preset.id === selection.colorId) ||
+      THEME_COLOR_PRESETS[0];
+  }
+
   return {
     selection,
-    color:
-      THEME_COLOR_PRESETS.find((preset) => preset.id === selection.colorId) ||
-      THEME_COLOR_PRESETS[0],
+    color,
     font:
       THEME_FONT_PRESETS.find((preset) => preset.id === selection.fontId) ||
       THEME_FONT_PRESETS[0],
@@ -642,7 +748,8 @@ export default function FormEditorPage() {
   }
 
   return (
-    <div className="-m-8 min-h-screen bg-white pb-24 text-black md:pb-0">
+    <div className="-m-8 min-h-screen bg-white pb-24 text-black md:pb-0 overflow-y-auto z-[100]">
+      <CustomThemeStyle hslString={themeDesign.selection.colorId} />
       {/* HEADER (Desktop & Mobile Top) */}
       <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-r-4 border-black/10 bg-white px-4 md:px-8 mb-10 ">
         <div className="flex min-w-0 flex-1 items-center gap-4">
@@ -980,9 +1087,7 @@ export default function FormEditorPage() {
                   oneResponsePerPerson
                     ? "border-slate-950"
                     : "border-black/5 hover:border-black/10",
-                  isSaving
-                    ? "cursor-not-allowed opacity-50"
-                    : "cursor-pointer",
+                  isSaving ? "cursor-not-allowed opacity-50" : "cursor-pointer",
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -1276,7 +1381,7 @@ export default function FormEditorPage() {
                   <Palette className="size-3.5" />
                   Colors
                 </div>
-                <div className="grid grid-cols-5 gap-2">
+                <div className="grid grid-cols-6 gap-2">
                   {THEME_COLOR_PRESETS.map((preset) => {
                     const isActive =
                       themeDesign.selection.colorId === preset.id;
@@ -1304,6 +1409,37 @@ export default function FormEditorPage() {
                       </button>
                     );
                   })}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      className={cn(
+                        "flex h-12 w-full flex-col items-center justify-center rounded-lg border bg-white text-[10px] font-medium text-slate-600 transition overflow-hidden",
+                        themeDesign.selection.colorId.startsWith("hsl(")
+                          ? "border-slate-950"
+                          : "border-black/5 hover:border-black/20",
+                      )}
+                    >
+                      <input
+                        type="color"
+                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                        onChange={(e) => {
+                          const { h, s, l } = hexToHSL(e.target.value);
+                          handleThemeColorChange(`hsl(${h}, ${s}%, ${l}%)`);
+                        }}
+                      />
+                      <span
+                        className="mb-1 size-4 rounded-full border border-black/10 shadow-inner"
+                        style={{
+                          background: themeDesign.selection.colorId.startsWith(
+                            "hsl(",
+                          )
+                            ? themeDesign.selection.colorId
+                            : "conic-gradient(red, yellow, lime, aqua, blue, magenta, red)",
+                        }}
+                      />
+                      Custom
+                    </button>
+                  </div>
                 </div>
               </div>
 

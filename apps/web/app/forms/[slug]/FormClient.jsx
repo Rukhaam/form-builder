@@ -79,8 +79,52 @@ const PUBLIC_THEME_FONTS = {
   mono: "font-mono",
 };
 
+function CustomFormStyle({ hslString }) {
+  if (!hslString || !hslString.startsWith('hsl(')) return null;
+  const match = hslString.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+  if (!match) return null;
+  const h = parseInt(match[1], 10);
+  const s = parseInt(match[2], 10);
+  const l = parseInt(match[3], 10);
+  
+  const css = `
+    .public-theme-custom-main { background-color: hsl(${h},${s}%,96%) !important; color: hsl(${h},${s}%,10%) !important; }
+    .public-theme-custom-card { background-color: white !important; border-color: hsl(${h},${s}%,85%) !important; color: hsl(${h},${s}%,10%) !important; box-shadow: 0 20px 25px -5px hsl(${h},${s}%,90%), 0 8px 10px -6px hsl(${h},${s}%,90%) !important; }
+    .public-theme-custom-input { background-color: white !important; border-color: hsl(${h},${s}%,85%) !important; color: hsl(${h},${s}%,20%) !important; }
+    .public-theme-custom-input::placeholder { color: hsl(${h},${s}%,50%) !important; }
+    .public-theme-custom-input:focus { border-color: ${hslString} !important; box-shadow: 0 0 0 4px hsl(${h},${s}%,90%) !important; }
+    .public-theme-custom-choiceLabel { background-color: white !important; border-color: hsl(${h},${s}%,85%) !important; color: hsl(${h},${s}%,30%) !important; }
+    .public-theme-custom-choiceLabel:hover { background-color: hsl(${h},${s}%,98%) !important; }
+    .public-theme-custom-badge { background-color: hsl(${h},${s}%,92%) !important; color: hsl(${h},${s}%,30%) !important; }
+    .public-theme-custom-text { color: hsl(${h},${s}%,10%) !important; }
+    .public-theme-custom-muted { color: hsl(${h},${s}%,40%) !important; }
+    .public-theme-custom-button { background-color: ${hslString} !important; color: white !important; box-shadow: 0 4px 6px -1px hsl(${h},${s}%,80%), 0 2px 4px -2px hsl(${h},${s}%,80%) !important; }
+    .public-theme-custom-button:hover { opacity: 0.9 !important; }
+  `;
+  return <style dangerouslySetInnerHTML={{ __html: css }} />;
+}
+
+function generateCustomThemeStyles(hslString, fontId) {
+  return {
+    main: "public-theme-custom-main",
+    card: "public-theme-custom-card",
+    input: "public-theme-custom-input",
+    choiceLabel: "public-theme-custom-choiceLabel",
+    badge: "public-theme-custom-badge",
+    text: "public-theme-custom-text",
+    muted: "public-theme-custom-muted",
+    button: "public-theme-custom-button",
+    font: PUBLIC_THEME_FONTS[fontId] || PUBLIC_THEME_FONTS.sans,
+  };
+}
+
 const getThemeStyles = (theme) => {
   const [colorId, fontId = "sans"] = String(theme || "").split(":");
+  
+  if (colorId.startsWith("hsl(")) {
+    return generateCustomThemeStyles(colorId, fontId);
+  }
+
   if (PUBLIC_THEME_COLOR_PRESETS[colorId]) {
     return {
       ...PUBLIC_THEME_COLOR_PRESETS[colorId],
@@ -315,6 +359,7 @@ export default function PublicFormResponsePage() {
 
   return (
     <main className={cn("min-h-screen transition-colors duration-500", styles.main, styles.font)}>
+      <CustomFormStyle hslString={currentTheme} />
       <Navbar />
 
       <section className="mx-auto max-w-3xl px-4 pb-20 pt-32">

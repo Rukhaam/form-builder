@@ -10,6 +10,7 @@ import {
   Sparkles,
   Menu,
   X,
+  Search,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -18,6 +19,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
+  { label: "Home", href: "/" },
   { label: "Browse forms", href: "/forms" },
   { label: "Pricing", href: "/pricing" },
   { label: "Templates", href: "/templates" },
@@ -51,195 +53,197 @@ export function Navbar() {
   }, [pathname]);
 
   return (
-    <header className="sticky-header sticky top-0 inset-x-0 z-50 px-4 pt-4 md:px-6">
-      <nav className="nav-bar liquid-bg mx-auto flex w-full max-w-6xl items-center justify-between rounded-full border border-white/40 px-4 py-3 shadow-lg shadow-slate-200/20 backdrop-blur-xl transition-all duration-300">
-        {/* LOGO */}
-        <Link href="/" className="flex items-center gap-3">
-          <img
-            src="https://pub-749dd85c25e04947af34140aef9172fc.r2.dev/form-builder/ChatGPT%20Image%20Jun%2030%2C%202026%2C%2011_22_18%20PM.png"
-            alt="FormBuilder Logo"
-            className="size-10 rounded-full object-contain transition-transform active:scale-105"
-          />
-          <span className="text-lg font-medium tracking-tight text-slate-950">
-            FormBuilder
-          </span>
-        </Link>
+    <>
+      {/* DESKTOP NAV — hidden on mobile */}
+      <header className="sticky top-0 z-50 hidden md:block">
+        <nav className="mx-auto flex w-full items-center justify-center gap-x-40 py-3.5 text-[15px] font-medium text-slate-800/90 tracking-tight bg-white/95">
+          {/* LOGO */}
+          <Link
+            href="/"
+            className="flex items-center transition-opacity hover:opacity-60 gap-3"
+          >
+            <img
+              src="https://pub-749dd85c25e04947af34140aef9172fc.r2.dev/form-builder/ChatGPT%20Image%20Jun%2030%2C%202026%2C%2011_22_18%20PM.png"
+              alt="FormBuilder Logo"
+              className="size-[30px] object-contain opacity-90 "
+            />
+            <span className="text-lg font-medium text-slate-950">
+              FormBuilder
+            </span>
+          </Link>
 
-        {/* DESKTOP LINKS */}
-        <div className="hidden items-center gap-8 md:flex">
-          <div className="flex items-center gap-6 rounded-full bg-white/40 px-6 py-2 shadow-inner shadow-white/50 ring-1 ring-black/5 backdrop-blur-md">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="text-sm font-medium text-slate-600 transition-colors active:text-violet-600"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-        </div>
+          {/* DESKTOP LINKS */}
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.label}
+              href={link.href}
+              className="transition-opacity hover:opacity-60"
+            >
+              {link.label}
+            </Link>
+          ))}
 
-        {/* DESKTOP AUTH / ACTIONS */}
-        <div className="hidden items-center gap-3 md:flex">
+          {/* DESKTOP AUTH / ACTIONS */}
           {user ? (
-            <>
-              <span className="max-w-[160px] truncate px-2 text-sm font-medium text-slate-500">
-                {user.email}
-              </span>
-              <Link
-                href="/dashboard"
-                className={cn(
-                  buttonVariants({ size: "sm" }),
-                  "rounded-full bg-slate-950 px-5 text-white shadow-md transition-transform active:scale-105 active:bg-slate-800",
-                )}
-              >
-                <LayoutDashboard className="mr-2 size-4" />
-                Dashboard
-              </Link>
-            </>
+            <Link
+              href="/dashboard"
+              className="transition-opacity hover:opacity-60 flex items-center"
+            >
+              <LayoutDashboard
+                className="size-[15px] opacity-90"
+                strokeWidth={2}
+              />
+            </Link>
           ) : (
             <>
               <Link
                 href="/login"
-                className={cn(
-                  buttonVariants({ variant: "ghost", size: "sm" }),
-                  "rounded-full font-medium text-slate-600 active:text-slate-950",
-                )}
+                className="transition-opacity hover:opacity-60"
               >
-                <LogIn className="mr-2 size-4" />
                 Sign in
               </Link>
               <Link
                 href="/register"
-                className={cn(
-                  buttonVariants({ size: "sm" }),
-                  "rounded-full bg-slate-950 px-5 text-white shadow-md transition-transform active:scale-105 active:bg-slate-800",
-                )}
+                className="transition-opacity hover:opacity-60"
               >
-                <Sparkles className="mr-2 size-4 text-violet-300" />
                 Get Started
               </Link>
             </>
           )}
-        </div>
+        </nav>
+      </header>
 
-        {/* MOBILE MENU TOGGLE */}
-        <button
-          className="flex size-10 items-center justify-center rounded-full bg-white/50 text-slate-900 ring-1 ring-black/5 backdrop-blur-md transition-colors active:bg-white md:hidden"
-          onClick={() => setIsMobileMenuOpen(true)}
-          aria-label="Open menu"
-        >
-          <Menu className="size-5" />
-        </button>
-      </nav>
+      {/* MOBILE: Floating hamburger icon only — no bar */}
+      <button
+        className="fixed top-5 right-5 z-50 flex size-11 items-center justify-center rounded-full bg-white/60 text-slate-900 ring-1 ring-black/10 backdrop-blur-md shadow-lg transition-all active:scale-95 active:bg-white md:hidden"
+        onClick={() => setIsMobileMenuOpen(true)}
+        aria-label="Open menu"
+      >
+        <Menu className="size-5" />
+      </button>
 
-      {/* MOBILE SIDEBAR (Framer Motion) */}
+      {/* MOBILE: Logo on left */}
+      <Link
+        href="/"
+        className="fixed top-5 left-5 z-50 flex items-center gap-2 bg-white/60 backdrop-blur-md px-3 py-2 rounded-full ring-1 ring-black/10 shadow-lg md:hidden transition-all active:scale-95 active:bg-white"
+      >
+        <img
+          src="https://pub-749dd85c25e04947af34140aef9172fc.r2.dev/form-builder/ChatGPT%20Image%20Jun%2030%2C%202026%2C%2011_22_18%20PM.png"
+          alt="Logo"
+          className="size-6 object-contain"
+        />
+        <span className="text-sm font-medium text-slate-950 pr-1">
+          FormBuilder
+        </span>
+      </Link>
+
+      {/* MOBILE: Full-screen circular reveal overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <>
-            {/* Backdrop Blur Overlay */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 z-[60] bg-slate-900/20 backdrop-blur-sm md:hidden"
-            />
+          <motion.div
+            initial={{ clipPath: "circle(0% at calc(100% - 1.75rem) 1.75rem)" }}
+            animate={{
+              clipPath: "circle(150% at calc(100% - 1.75rem) 1.75rem)",
+            }}
+            exit={{ clipPath: "circle(0% at calc(100% - 1.75rem) 1.75rem)" }}
+            transition={{ type: "spring", damping: 25, stiffness: 180 }}
+            className="fixed inset-0 z-[80] flex flex-col bg-white md:hidden"
+          >
+            {/* Close button — top right, matching hamburger position */}
+            <div className="flex justify-end px-5 pt-5">
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex size-11 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition-all active:scale-95 active:bg-slate-200"
+                aria-label="Close menu"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
 
-            {/* Sliding Sidebar */}
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 right-0 z-[70] flex w-[85%] max-w-[320px] flex-col border-l border-white/40 bg-white/90 p-6 shadow-2xl backdrop-blur-2xl md:hidden"
-            >
-              <div className="flex items-center justify-between pb-6">
-                <Link
-                  href="/"
-                  className="flex items-center gap-3"
-                  onClick={() => setIsMobileMenuOpen(false)}
+            {/* Nav links — centered, staggered entrance */}
+            <div className="flex flex-1 flex-col items-center justify-center gap-2 px-8">
+              {NAV_LINKS.map((link, i) => (
+                <motion.div
+                  key={link.label}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 30 }}
+                  transition={{
+                    delay: 0.08 * i,
+                    type: "spring",
+                    damping: 20,
+                    stiffness: 180,
+                  }}
                 >
-                  <img
-                    src="https://pub-749dd85c25e04947af34140aef9172fc.r2.dev/form-builder/ChatGPT%20Image%20Jun%2030%2C%202026%2C%2011_22_18%20PM.png"
-                    alt="FormBuilder Logo"
-                    className="size-9 object-contain"
-                  />
-                  <span className="text-lg font-medium text-slate-950">
-                    FormBuilder
-                  </span>
-                </Link>
-                <button
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex size-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors active:bg-slate-200 active:text-slate-900"
-                >
-                  <X className="size-5" />
-                </button>
-              </div>
-
-              {/* Mobile Links */}
-              <div className="flex flex-col gap-2 py-6">
-                {NAV_LINKS.map((link) => (
                   <Link
-                    key={link.label}
                     href={link.href}
-                    className="rounded-xl px-4 py-3 text-lg font-medium text-slate-700 transition-colors active:bg-slate-100 active:text-violet-600"
+                    className="block rounded-2xl px-6 py-4 text-center text-3xl font-semibold text-slate-800 transition-colors active:text-violet-600"
                   >
                     {link.label}
                   </Link>
-                ))}
-              </div>
+                </motion.div>
+              ))}
+            </div>
 
-              {/* Mobile Auth/Actions */}
-              <div className="mt-auto flex flex-col gap-3 pt-6 border-t border-slate-200/50">
-                {user ? (
-                  <>
-                    <div className="px-2 pb-2 text-sm font-medium text-slate-500 truncate">
-                      Signed in as <br />
-                      <span className="text-slate-900">{user.email}</span>
-                    </div>
-                    <Link
-                      href="/dashboard"
-                      className={cn(
-                        buttonVariants({ size: "lg" }),
-                        "w-full rounded-xl bg-slate-950 text-white",
-                      )}
-                    >
-                      <LayoutDashboard className="mr-2 size-5" />
-                      Dashboard
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <Link
-                      href="/login"
-                      className={cn(
-                        buttonVariants({ variant: "outline", size: "lg" }),
-                        "w-full rounded-xl border-slate-200 bg-white",
-                      )}
-                    >
-                      <LogIn className="mr-2 size-5" />
-                      Sign in
-                    </Link>
-                    <Link
-                      href="/register"
-                      className={cn(
-                        buttonVariants({ size: "lg" }),
-                        "w-full rounded-xl bg-slate-950 text-white",
-                      )}
-                    >
-                      <Sparkles className="mr-2 size-5 text-violet-300" />
-                      Get Started Free
-                      <ArrowRight className="ml-auto size-5" />
-                    </Link>
-                  </>
-                )}
-              </div>
+            {/* Auth actions — bottom */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
+              transition={{
+                delay: 0.3,
+                type: "spring",
+                damping: 22,
+                stiffness: 170,
+              }}
+              className="flex flex-col gap-3 px-8 pb-12"
+            >
+              {user ? (
+                <>
+                  <div className="px-2 pb-2 text-center text-sm font-medium text-slate-500 truncate">
+                    Signed in as{" "}
+                    <span className="text-slate-900">{user.email}</span>
+                  </div>
+                  <Link
+                    href="/dashboard"
+                    className={cn(
+                      buttonVariants({ size: "lg" }),
+                      "w-full rounded-2xl bg-slate-950 text-white",
+                    )}
+                  >
+                    <LayoutDashboard className="mr-2 size-5" />
+                    Dashboard
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className={cn(
+                      buttonVariants({ variant: "outline", size: "lg" }),
+                      "w-full rounded-2xl border-slate-200 bg-white",
+                    )}
+                  >
+                    <LogIn className="mr-2 size-5" />
+                    Sign in
+                  </Link>
+                  <Link
+                    href="/register"
+                    className={cn(
+                      buttonVariants({ size: "lg" }),
+                      "w-full rounded-2xl bg-slate-950 text-white",
+                    )}
+                  >
+                    <Sparkles className="mr-2 size-5 text-violet-300" />
+                    Get Started Free
+                    <ArrowRight className="ml-auto size-5" />
+                  </Link>
+                </>
+              )}
             </motion.div>
-          </>
+          </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </>
   );
 }

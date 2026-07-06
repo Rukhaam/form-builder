@@ -679,6 +679,67 @@ export const formRouter = router({
       };
     }),
 
+  getFormsByRatings: publicProcedure
+    .query(async () => {
+      const condition = and(
+        eq(forms.visibility, "PUBLIC"), 
+        eq(forms.status, "PUBLISHED"), 
+        eq(forms.isExpired, false)
+      );
+
+      const topFormsRaw = await db
+        .select({
+          form: forms,
+          avgRating: sql`COALESCE(AVG(${formReviews.rating}), 0)::numeric(10,1)`.mapWith(Number),
+        })
+        .from(forms)
+        .leftJoin(formReviews, eq(forms.id, formReviews.formId))
+        .where(condition)
+        .groupBy(forms.id)
+        .orderBy(desc(sql`COALESCE(AVG(${formReviews.rating}), 0)`))
+        .limit(5);
+
+      if (topFormsRaw.length === 0) {
+        return { forms: [] };
+      }
+
+      const formIds = topFormsRaw.map((f) => f.form.id);
+
+      const fieldStats = await db
+        .select({ formId: formFields.formId, count: count() })
+        .from(formFields)
+        .where(inArray(formFields.formId, formIds))
+        .groupBy(formFields.formId);
+
+      const subStats = await db
+        .select({ formId: formSubmissions.formId, count: count() })
+        .from(formSubmissions)
+        .where(inArray(formSubmissions.formId, formIds))
+        .groupBy(formSubmissions.formId);
+
+      const mappedForms = topFormsRaw.map((row) => {
+        const form = row.form;
+        const fCount = fieldStats.find(f => f.formId === form.id);
+        const sCount = subStats.find(s => s.formId === form.id);
+        
+        return {
+          id: form.id,
+          title: form.title,
+          description: form.description,
+          slug: form.slug,
+          createdAt: form.createdAt,
+          isProtected: !!form.password, 
+          fieldCount: fCount ? Number(fCount.count) : 0,
+          submissionCount: sCount ? Number(sCount.count) : 0,
+          rating: row.avgRating,
+        };
+      });
+
+      return {
+        forms: mappedForms,
+      };
+    }),
+
   getPublicFormBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ input }) => {
