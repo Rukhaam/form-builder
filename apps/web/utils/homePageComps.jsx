@@ -44,10 +44,10 @@ export function AnimatedBuilder() {
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes builder-drift {
           0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
+          50% { transform: translateY(-6px); }
         }
         @keyframes builder-pop {
-          0% { opacity: 0; transform: translateY(14px) scale(.98); }
+          0% { opacity: 0; transform: translateY(10px) scale(.985); }
           100% { opacity: 1; transform: translateY(0) scale(1); }
         }
         @keyframes builder-caret {
@@ -56,34 +56,35 @@ export function AnimatedBuilder() {
         }
         @keyframes builder-sweep {
           0% { transform: translateX(-115%); opacity: 0; }
-          18%, 72% { opacity: .75; }
+          18%, 72% { opacity: .55; }
           100% { transform: translateX(115%); opacity: 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          [data-animated-builder] *, [data-animated-builder] { animation: none !important; transition-duration: 0ms !important; }
         }
       `}} />
 
-      <div className="relative overflow-hidden rounded-lg border border-gray-300 bg-white shadow-[0_24px_70px_-45px_rgba(0,0,0,0.75)] [animation:builder-drift_9s_ease-in-out_infinite] mb-19">
-        <div className="flex h-11 items-center justify-between border-b border-black bg-white px-3 sm:px-5">
+      <div data-animated-builder className="relative mb-0 overflow-hidden rounded-2xl border border-slate-200 bg-white [animation:builder-drift_9s_ease-in-out_infinite]">
+        <div className="flex h-12 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-5">
           <div className="flex items-center gap-2">
-            <span className="size-2.5 rounded-full border border-black bg-white" />
-            <span className="size-2.5 rounded-full border border-black bg-black" />
-            <span className="size-2.5 rounded-full border border-black bg-white" />
+            <span className="size-2 rounded-full bg-slate-300" />
+            <span className="size-2 rounded-full bg-slate-400" />
+            <span className="size-2 rounded-full bg-slate-300" />
           </div>
           <div className="hidden min-w-0 items-center gap-2 text-xs font-medium text-slate-600 sm:flex">
             <LayoutTemplate className="size-3.5 text-slate-500" />
             <span className="truncate">FormBuilder / customer-intake</span>
           </div>
-          <button type="button" className="inline-flex h-7 items-center gap-1.5 rounded-md border border-black bg-black px-2.5 text-xs font-medium text-white">
+          <button type="button" className="inline-flex h-7 items-center gap-1.5 rounded-md bg-slate-900 px-2.5 text-xs font-medium text-white">
             <Send className="size-3" />
             Publish
           </button>
         </div>
 
-        <div className="relative h-[520px] overflow-hidden bg-white p-3 sm:h-[560px] sm:p-4 lg:h-[590px]">
-          <div className="absolute inset-x-0 top-0 h-px bg-black/20" />
-          <div className="absolute inset-y-0 left-0 w-px bg-black/20" />
+        <div className="relative h-[470px] overflow-hidden bg-slate-50/80 p-2 sm:h-[520px] sm:p-3 lg:h-[550px]">
 
-          <div className="grid h-full grid-cols-1 gap-3 lg:grid-cols-[220px_minmax(0,1fr)_280px]">
-            <aside className="hidden rounded-lg border border-slate-200 bg-white p-3 lg:block">
+          <div className="grid h-full grid-cols-1 gap-2.5 lg:grid-cols-[200px_minmax(0,1fr)_250px]">
+            <aside className="hidden rounded-xl border border-slate-200 bg-white p-3.5 lg:block">
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Field toolbox</span>
                 <Plus className="size-3.5 text-slate-500" />
@@ -100,8 +101,8 @@ export function AnimatedBuilder() {
                       className={cn(
                         "flex h-10 items-center gap-2 rounded-md border px-2.5 text-left text-xs font-medium transition-all duration-700 ease-out",
                         isActive
-                          ? "border-black bg-black text-white shadow-[0_10px_30px_-22px_rgba(0,0,0,0.8)]"
-                          : "border-slate-200 bg-white text-slate-600",
+                          ? "border-slate-900 bg-slate-900 text-white"
+                          : "border-transparent bg-slate-50 text-slate-600",
                       )}
                     >
                       <Icon className={cn("size-3.5 transition-colors duration-700", isActive ? "text-white" : "text-slate-500")} />
@@ -112,8 +113,8 @@ export function AnimatedBuilder() {
               </div>
             </aside>
 
-            <main className="grid h-full min-h-0 gap-3 sm:grid-cols-5 sm:grid-rows-[132px_minmax(0,1fr)]">
-              <section className="rounded-lg border border-slate-200 bg-white p-4 sm:col-span-3">
+            <main className="grid h-full min-h-0 gap-2.5 sm:grid-cols-5 sm:grid-rows-[124px_minmax(0,1fr)]">
+              <section className="rounded-xl border border-slate-200 bg-white p-4 sm:col-span-3">
                 <div className="mb-3 flex items-center justify-between">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Form details</span>
                   <span className="rounded-md border border-slate-200 px-2 py-1 text-[11px] font-medium text-slate-600">Draft</span>
@@ -128,7 +129,7 @@ export function AnimatedBuilder() {
                 </div>
               </section>
 
-              <section className="hidden rounded-lg border border-slate-200 bg-white p-4 sm:col-span-2 sm:block">
+              <section className="hidden rounded-xl border border-slate-200 bg-white p-4 sm:col-span-2 sm:block">
                 <div className="mb-3 flex items-center justify-between">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Settings</span>
                   <span className="size-2 rounded-full bg-black" />
@@ -142,7 +143,7 @@ export function AnimatedBuilder() {
                 </div>
               </section>
 
-              <section className="relative min-h-0 overflow-hidden rounded-lg border border-slate-200 bg-white p-3 sm:col-span-5">
+              <section className="relative min-h-0 overflow-hidden rounded-xl border border-slate-200 bg-white p-4 sm:col-span-5">
                 <div className="mb-3 flex items-center justify-between">
                   <div>
                     <div className="text-xs font-bold uppercase tracking-wider text-slate-500">Builder canvas</div>
@@ -154,7 +155,7 @@ export function AnimatedBuilder() {
                   </div>
                 </div>
 
-                <div className="grid h-[300px] min-h-0 grid-cols-2 gap-2 sm:h-[calc(100%-48px)]">
+                <div className="grid h-[280px] min-h-0 grid-cols-2 gap-2.5 sm:h-[calc(100%-48px)]">
                   {builderFields.slice(0, 4).map((field, index) => {
                     const isActive = index === activeIndex || (activeIndex > 3 && index === 3);
                     const Icon = field.icon;
@@ -164,7 +165,7 @@ export function AnimatedBuilder() {
                         key={field.type}
                         className={cn(
                           "relative overflow-hidden rounded-lg border bg-white p-3 transition-all duration-700 ease-[cubic-bezier(.22,1,.36,1)]",
-                          isActive ? "border-black shadow-[0_16px_35px_-28px_rgba(0,0,0,0.9)]" : "border-slate-200",
+                          isActive ? "scale-[1.01] border-slate-900" : "border-slate-200",
                         )}
                         style={{ animation: 'builder-pop 620ms ease both', animationDelay: `${index * 80}ms` }}
                       >
@@ -211,8 +212,8 @@ export function AnimatedBuilder() {
               </section>
             </main>
 
-            <aside className="hidden min-h-0 grid-rows-[1fr_132px] gap-3 lg:grid">
-              <section className="rounded-lg border border-slate-200 bg-white p-4">
+            <aside className="hidden min-h-0 grid-rows-[1fr_124px] gap-2.5 lg:grid">
+              <section className="rounded-xl border border-slate-200 bg-white p-4">
                 <div className="mb-4 flex items-center justify-between">
                   <div>
                     <div className="text-xs font-bold uppercase tracking-wider text-slate-500">Preview</div>
@@ -220,7 +221,7 @@ export function AnimatedBuilder() {
                   </div>
                   <Eye className="size-4 text-slate-500" />
                 </div>
-                <div className="space-y-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <div className="space-y-4 rounded-lg bg-slate-50 p-3">
                   <div>
                     <div className="text-base font-semibold text-slate-950">Customer intake form</div>
                     <div className="mt-1 text-xs font-medium leading-relaxed text-slate-500">A clean public form preview.</div>
@@ -237,7 +238,7 @@ export function AnimatedBuilder() {
                 </div>
               </section>
 
-              <section className="rounded-lg border border-black bg-black p-4 text-white">
+              <section className="rounded-xl bg-slate-900 p-4 text-white">
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="text-xs font-bold uppercase tracking-wider text-white/55">Active field</div>

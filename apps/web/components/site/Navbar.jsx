@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -29,10 +29,18 @@ const NAV_LINKS = [
 export function Navbar() {
   const [user, setUser] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
     setUser(getSessionUser());
+  }, []);
+
+  // Switch navbar from transparent → white after scrolling past ~80px
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 80);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Prevent background scrolling when mobile menu is open
@@ -55,63 +63,103 @@ export function Navbar() {
   return (
     <>
       {/* DESKTOP NAV — hidden on mobile */}
-      <header className="sticky top-0 z-50 hidden md:block">
-        <nav className="mx-auto flex w-full items-center justify-center gap-x-40 py-3.5 text-[15px] font-medium text-slate-800/90 tracking-tight bg-white/95">
+      <motion.header
+        className="fixed top-0 left-0 right-0 z-50 hidden md:block"
+        animate={{
+          backgroundColor: scrolled ? "rgba(255,255,255,0.97)" : "rgba(0,0,0,0)",
+          backdropFilter: scrolled ? "blur(12px)" : "blur(0px)",
+          borderBottomColor: scrolled ? "rgba(148,163,184,0.2)" : "rgba(0,0,0,0)",
+          borderBottomWidth: "1px",
+          borderBottomStyle: "solid",
+        }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <nav className="mx-auto flex w-full max-w-7xl items-center justify-between px-8 py-4 text-[15px] font-medium tracking-tight">
           {/* LOGO */}
           <Link
             href="/"
-            className="flex items-center transition-opacity hover:opacity-60 gap-3"
+            className="flex items-center gap-3 transition-opacity hover:opacity-70"
           >
             <img
               src="https://pub-749dd85c25e04947af34140aef9172fc.r2.dev/form-builder/ChatGPT%20Image%20Jun%2030%2C%202026%2C%2011_22_18%20PM.png"
               alt="FormBuilder Logo"
-              className="size-[30px] object-contain opacity-90 "
+              className="size-[30px] object-contain"
+              style={{ filter: scrolled ? "none" : "brightness(0) invert(1)" }}
             />
-            <span className="text-lg font-medium text-slate-950">
+            <motion.span
+              className="text-lg font-semibold"
+              animate={{ color: scrolled ? "#0f172a" : "#ffffff" }}
+              transition={{ duration: 0.3 }}
+            >
               FormBuilder
-            </span>
+            </motion.span>
           </Link>
 
           {/* DESKTOP LINKS */}
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="transition-opacity hover:opacity-60"
-            >
-              {link.label}
-            </Link>
-          ))}
+          <div className="flex items-center gap-8">
+            {NAV_LINKS.filter((l) => l.label !== "Home").map((link) => (
+              <motion.div
+                key={link.label}
+                animate={{
+                  color: scrolled ? "#475569" : "rgba(255,255,255,0.82)",
+                }}
+                transition={{ duration: 0.3 }}
+              >
+                <Link
+                  href={link.href}
+                  className="transition-opacity hover:opacity-70 text-[14px]"
+                >
+                  {link.label}
+                </Link>
+              </motion.div>
+            ))}
+          </div>
 
           {/* DESKTOP AUTH / ACTIONS */}
-          {user ? (
-            <Link
-              href="/dashboard"
-              className="transition-opacity hover:opacity-60 flex items-center"
-            >
-              <LayoutDashboard
-                className="size-[15px] opacity-90"
-                strokeWidth={2}
-              />
-            </Link>
-          ) : (
-            <>
+          <div className="flex items-center gap-5">
+            {user ? (
               <Link
-                href="/login"
-                className="transition-opacity hover:opacity-60"
+                href="/dashboard"
+                className="transition-opacity hover:opacity-70 flex items-center"
               >
-                Sign in
+                <motion.div
+                  animate={{ color: scrolled ? "#0f172a" : "#ffffff" }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <LayoutDashboard className="size-[18px]" strokeWidth={2} />
+                </motion.div>
               </Link>
-              <Link
-                href="/register"
-                className="transition-opacity hover:opacity-60"
-              >
-                Get Started
-              </Link>
-            </>
-          )}
+            ) : (
+              <>
+                <motion.div
+                  animate={{
+                    color: scrolled ? "#475569" : "rgba(255,255,255,0.85)",
+                  }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Link
+                    href="/login"
+                    className="transition-opacity hover:opacity-70 text-[14px] font-medium"
+                  >
+                    Sign in
+                  </Link>
+                </motion.div>
+                <Link
+                  href="/register"
+                  className={cn(
+                    "h-9 rounded-full px-5 text-[13px] font-semibold transition-all duration-300 flex items-center justify-center",
+                    scrolled
+                      ? "bg-slate-950 text-white hover:bg-slate-800"
+                      : "bg-white/15 text-white border border-white/30 backdrop-blur-sm hover:bg-white/25",
+                  )}
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
+          </div>
         </nav>
-      </header>
+      </motion.header>
 
       {/* MOBILE: Floating hamburger icon only — no bar */}
       <button

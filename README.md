@@ -56,6 +56,11 @@ GOOGLE_CLIENT_SECRET=your_google_client_secret
 GOOGLE_REDIRECT_URI=http://localhost:4000/api/auth/google/callback
 DATABASE_URL=postgresql://user:password@localhost:5432/formbuilder
 JWT_SECRET=your_super_secret_key
+VALKEY_URL=valkey://localhost:6379
+
+# Railway's public PostgreSQL TCP proxy uses a self-signed certificate.
+# Set this to true only when you provide a trusted CA certificate.
+DATABASE_SSL_REJECT_UNAUTHORIZED=false
 apps/chat-service/.env
 
 Code snippet

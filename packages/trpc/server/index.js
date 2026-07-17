@@ -6,6 +6,7 @@ import { billingRouter } from './routes/billing.js';
 import { aiRouter } from './routes/ai.js';
 import { webhooksRouter } from './routes/webhooks.js';
 import { workspaceRouter } from './routes/workspace.js';
+import { formAssistantRouter } from './routes/formAssistant.js';
 
 export const appRouter = router({
   auth: authRouter,
@@ -15,6 +16,7 @@ export const appRouter = router({
   ai: aiRouter,
   webhook: webhooksRouter,
   workspace: workspaceRouter,
+  formAssistant: formAssistantRouter,
 });
 
 export { createContext } from './context.js';

@@ -6,12 +6,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   BarChart3,
+  CreditCard,
   LayoutDashboard,
   LogOut,
   Menu,
+  Sparkles,
   X,
   Users,
-  Settings,
 } from "lucide-react";
 import { logoutSuccess, setCredentials } from "@/store/slices/authSlice";
 import { setWorkspaces } from "@/store/slices/workspaceSlice";
@@ -117,6 +118,18 @@ export default function DashboardLayout({ children }) {
       icon: Users,
       active: pathname.startsWith("/dashboard/settings/team"),
     },
+    {
+      href: "/dashboard/assistant",
+      label: "AI Assistant",
+      icon: Sparkles,
+      active: pathname.startsWith("/dashboard/assistant"),
+    },
+    {
+      href: "/billing",
+      label: "Billing",
+      icon: CreditCard,
+      active: pathname === "/billing",
+    },
   ];
 
   return (
@@ -216,8 +229,12 @@ export default function DashboardLayout({ children }) {
             {pathname.startsWith("/dashboard/analytics")
               ? "Analytics"
               : pathname.startsWith("/dashboard/settings/team")
-                ? "Team Settings"
-                : "Dashboard"}
+              ? "Team Settings"
+                : pathname.startsWith("/dashboard/assistant")
+                  ? "AI Form Assistant"
+                : pathname === "/billing"
+                  ? "Billing"
+                  : "Dashboard"}
           </h1>
 
           {/* Spacer */}

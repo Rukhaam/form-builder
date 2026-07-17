@@ -222,9 +222,9 @@ importers:
       drizzle-orm:
         specifier: ^0.30.10
         version: 0.30.10(pg@8.21.0)(react@18.3.1)
-      ioredis:
-        specifier: ^5.10.1
-        version: 5.10.1
+      iovalkey:
+        specifier: 0.3.3
+        version: 0.3.3
       jsonwebtoken:
         specifier: ^9.0.3
         version: 9.0.3
@@ -1081,8 +1081,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@ioredis/commands@1.5.1':
-    resolution: {integrity: sha512-JH8ZL/ywcJyR9MmJ5BNqZllXNZQqQbnVZOqpPQqE1vHiFgAw4NHbvE0FOduNU8IX9babitBT46571OnPTT0Zcw==}
+  '@iovalkey/commands@0.1.0':
+    resolution: {integrity: sha512-/B9W4qKSSITDii5nkBCHyPkIkAi+ealUtr1oqBJsLxjSRLka4pxun2VvMNSmcwgAMxgXtQfl0qRv7TE+udPJzg==}
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -2568,9 +2568,9 @@ packages:
     resolution: {integrity: sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==}
     engines: {node: '>=12'}
 
-  ioredis@5.10.1:
-    resolution: {integrity: sha512-HuEDBTI70aYdx1v6U97SbNx9F1+svQKBDo30o0b9fw055LMepzpOOd0Ccg9Q6tbqmBSJaMuY0fB7yw9/vjBYCA==}
-    engines: {node: '>=12.22.0'}
+  iovalkey@0.3.3:
+    resolution: {integrity: sha512-4rTJX6Q5wTYEvxboXi8DsEiUo+OvqJGtLYOSGm37KpdRXsG5XJjbVtYKGJpPSWP+QT7rWscA4vsrdmzbEbenpw==}
+    engines: {node: '>=18.12.0'}
 
   ip-address@10.2.0:
     resolution: {integrity: sha512-/+S6j4E9AHvW9SWMSEY9Xfy66O5PWvVEJ08O0y5JGyEKQpojb0K0GKpz/v5HJ/G0vi3D2sjGK78119oXZeE0qA==}
@@ -4674,7 +4674,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 25.9.1
 
-  '@ioredis/commands@1.5.1': {}
+  '@iovalkey/commands@0.1.0': {}
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -6024,9 +6024,9 @@ snapshots:
 
   internmap@2.0.3: {}
 
-  ioredis@5.10.1:
+  iovalkey@0.3.3:
     dependencies:
-      '@ioredis/commands': 1.5.1
+      '@iovalkey/commands': 0.1.0
       cluster-key-slot: 1.1.2
       debug: 4.4.3(supports-color@5.5.0)
       denque: 2.1.0

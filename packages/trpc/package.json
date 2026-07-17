@@ -21,7 +21,7 @@
     "bcryptjs": "^3.0.3",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.30.10",
-    "ioredis": "^5.10.1",
+    "iovalkey": "0.3.3",
     "jsonwebtoken": "^9.0.3",
     "node-cron": "^4.2.1",
     "razorpay": "^2.9.6",

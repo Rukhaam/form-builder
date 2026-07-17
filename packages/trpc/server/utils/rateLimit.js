@@ -1,8 +1,19 @@
-import Redis from "ioredis";
+import Valkey from "iovalkey";
 import "./loadEnv.js";
 
-const redisUrl = process.env.REDIS_URL;
-export const redis = new Redis(redisUrl);
+const valkeyUrl = process.env.VALKEY_URL;
+const valkeyOptions = {
+  lazyConnect: true,
+  maxRetriesPerRequest: 1,
+};
+
+export const valkey = valkeyUrl
+  ? new Valkey(valkeyUrl, valkeyOptions)
+  : new Valkey(valkeyOptions);
+
+valkey.on("error", (error) => {
+  console.error("Valkey connection error:", error.message);
+});
 
 /**
  * Extracts the client IP address from an Express/tRPC request object.
@@ -26,7 +37,7 @@ export const getClientIp = (req) => {
 };
 
 /**
- * IP-based rate limiter backed by Redis.
+ * IP-based rate limiter backed by Valkey.
  *
  * Uses a sliding-window counter per (namespace + client IP) pair.
  * The identifier is always the client's IP address, extracted automatically
@@ -48,15 +59,15 @@ export const checkRateLimit = async (
   const key = `ratelimit:${namespace}:${clientIp}`;
 
   try {
-    const currentCount = await redis.incr(key);
+    const currentCount = await valkey.incr(key);
 
     if (currentCount === 1) {
-      await redis.expire(key, windowSeconds);
+      await valkey.expire(key, windowSeconds);
     }
 
     if (currentCount > limit) {
       // Fetch remaining TTL so callers can surface a Retry-After header/message
-      const ttl = await redis.ttl(key);
+      const ttl = await valkey.ttl(key);
       return {
         allowed: false,
         remaining: 0,
@@ -72,15 +83,52 @@ export const checkRateLimit = async (
       retryAfter: null,
     };
   } catch (error) {
-    console.error("Redis Rate Limiting Error:", error);
-    // Fail open — if Redis is down, don't block legitimate users
+    console.error("Valkey Rate Limiting Error:", error);
+    // Fail open — if Valkey is down, don't block legitimate users
     return { allowed: true, remaining: 1, ip: clientIp, retryAfter: null };
   }
 };
 
 /**
+ * User-scoped companion to the IP limiter. Use this for authenticated,
+ * cost-bearing actions so changing networks cannot bypass a burst limit.
+ */
+export const checkUserRateLimit = async (
+  userId,
+  { namespace = "user", limit = 5, windowSeconds = 900 } = {},
+) => {
+  const key = `ratelimit:${namespace}:user:${userId}`;
+
+  try {
+    const currentCount = await valkey.incr(key);
+
+    if (currentCount === 1) {
+      await valkey.expire(key, windowSeconds);
+    }
+
+    if (currentCount > limit) {
+      const ttl = await valkey.ttl(key);
+      return {
+        allowed: false,
+        remaining: 0,
+        retryAfter: ttl > 0 ? ttl : windowSeconds,
+      };
+    }
+
+    return {
+      allowed: true,
+      remaining: limit - currentCount,
+      retryAfter: null,
+    };
+  } catch (error) {
+    console.error("Valkey User Rate Limiting Error:", error);
+    return { allowed: true, remaining: limit, retryAfter: null };
+  }
+};
+
+/**
  * Checks if an IP has already submitted a response to a specific form.
- * Uses a Redis SET per form to store all IPs that have submitted.
+ * Uses a Valkey SET per form to store all IPs that have submitted.
  * Unlike the sliding-window `checkRateLimit`, this is a permanent record
  * (no expiry) so the same IP can never submit twice.
  *
@@ -94,11 +142,11 @@ export const checkOneResponsePerIp = async (req, formId) => {
 
   try {
     // SADD returns 1 if the member was newly added, 0 if it already existed
-    const added = await redis.sadd(key, clientIp);
+    const added = await valkey.sadd(key, clientIp);
     return { allowed: added === 1, ip: clientIp };
   } catch (error) {
-    console.error("Redis One-Response-Per-IP Error:", error);
-    // Fail open — if Redis is down, don't block legitimate users
+    console.error("Valkey One-Response-Per-IP Error:", error);
+    // Fail open — if Valkey is down, don't block legitimate users
     return { allowed: true, ip: clientIp };
   }
 };

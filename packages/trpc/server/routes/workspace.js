@@ -16,7 +16,7 @@ import crypto from "crypto";
 import { sendWorkspaceInviteEmail } from "../utils/email.js";
 import { getPlan, DEFAULT_PLAN_ID } from "../utils/plans.js";
 
-// ── Helpers ─────────────────────────────────────────────────────────────
+// ── Helpers─────────────────────────────────────────────────────────────
 
 const INVITE_EXPIRY_DAYS = 7;
 
@@ -152,7 +152,7 @@ export const workspaceRouter = router({
         workspaceId: z.string().uuid(),
         email: z.string().email(),
         role: z.enum(["ADMIN", "EDITOR", "VIEWER"]).default("VIEWER"),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       requireAdminOrOwner(ctx.workspaceRole);
@@ -180,8 +180,8 @@ export const workspaceRouter = router({
           .where(
             and(
               eq(workspaceMembers.workspaceId, ctx.workspaceId),
-              eq(workspaceMembers.userId, existingUser.id)
-            )
+              eq(workspaceMembers.userId, existingUser.id),
+            ),
           )
           .limit(1);
 
@@ -220,7 +220,7 @@ export const workspaceRouter = router({
         workspace.name,
         ctx.user.email,
         token,
-        input.role
+        input.role,
       );
 
       return { message: `Invitation sent to ${input.email}` };
@@ -264,8 +264,8 @@ export const workspaceRouter = router({
         .where(
           and(
             eq(workspaceMembers.workspaceId, invite.workspaceId),
-            eq(workspaceMembers.userId, ctx.user.id)
-          )
+            eq(workspaceMembers.userId, ctx.user.id),
+          ),
         )
         .limit(1);
 
@@ -276,7 +276,10 @@ export const workspaceRouter = router({
           .set({ acceptedAt: new Date() })
           .where(eq(workspaceInvites.id, invite.id));
 
-        return { message: "You are already a member of this workspace", workspaceId: invite.workspaceId };
+        return {
+          message: "You are already a member of this workspace",
+          workspaceId: invite.workspaceId,
+        };
       }
 
       // Add user to workspace and mark invite as accepted
@@ -293,7 +296,10 @@ export const workspaceRouter = router({
           .where(eq(workspaceInvites.id, invite.id));
       });
 
-      return { message: "You have joined the workspace!", workspaceId: invite.workspaceId };
+      return {
+        message: "You have joined the workspace!",
+        workspaceId: invite.workspaceId,
+      };
     }),
 
   /** Get invite details by token (public for displaying invite info) */
@@ -360,7 +366,7 @@ export const workspaceRouter = router({
       z.object({
         workspaceId: z.string().uuid(),
         memberId: z.string().uuid(), // workspaceMembers.id
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       requireAdminOrOwner(ctx.workspaceRole);
@@ -371,8 +377,8 @@ export const workspaceRouter = router({
         .where(
           and(
             eq(workspaceMembers.id, input.memberId),
-            eq(workspaceMembers.workspaceId, ctx.workspaceId)
-          )
+            eq(workspaceMembers.workspaceId, ctx.workspaceId),
+          ),
         )
         .limit(1);
 
@@ -413,7 +419,7 @@ export const workspaceRouter = router({
         workspaceId: z.string().uuid(),
         memberId: z.string().uuid(),
         role: z.enum(["ADMIN", "EDITOR", "VIEWER"]),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       if (ctx.workspaceRole !== "OWNER") {
@@ -429,8 +435,8 @@ export const workspaceRouter = router({
         .where(
           and(
             eq(workspaceMembers.id, input.memberId),
-            eq(workspaceMembers.workspaceId, ctx.workspaceId)
-          )
+            eq(workspaceMembers.workspaceId, ctx.workspaceId),
+          ),
         )
         .limit(1);
 
@@ -465,13 +471,14 @@ export const workspaceRouter = router({
         workspaceId: z.string().uuid(),
         title: z.string().min(1).max(200),
         description: z.string().optional(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       if (ctx.workspaceRole === "VIEWER") {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "Viewers cannot create forms. Contact your workspace admin for elevated permissions.",
+          message:
+            "Viewers cannot create forms. Contact your workspace admin for elevated permissions.",
         });
       }
 

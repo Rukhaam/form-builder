@@ -7,7 +7,8 @@ import {
   jsonb,
   integer,
   pgEnum,
-  uniqueIndex
+  uniqueIndex,
+  index,
 } from "drizzle-orm/pg-core";
 
 export const visibilityEnum = pgEnum("visibility", ["PUBLIC", "UNLISTED"]);
@@ -166,6 +167,33 @@ export const usageCounters = pgTable('usage_counters', {
     userMetricPeriodUnique: uniqueIndex('user_metric_period_unique').on(table.userId, table.metric, table.periodKey),
   };
 });
+
+// Persisted form-assistant conversations. Usage is tracked separately in
+// `usage_counters` so plan limits remain enforceable across every session.
+export const aiAssistantConversations = pgTable('ai_assistant_conversations', {
+  id: uuid('id').defaultRandom().primaryKey().notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  title: text('title').notNull(),
+  formId: uuid('form_id').references(() => forms.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => ({
+  userUpdatedAtIndex: index('ai_assistant_conversations_user_updated_at_idx').on(table.userId, table.updatedAt),
+}));
+
+export const aiAssistantMessages = pgTable('ai_assistant_messages', {
+  id: uuid('id').defaultRandom().primaryKey().notNull(),
+  conversationId: uuid('conversation_id')
+    .references(() => aiAssistantConversations.id, { onDelete: 'cascade' })
+    .notNull(),
+  role: text('role').notNull(),
+  content: text('content').notNull(),
+  formId: uuid('form_id').references(() => forms.id, { onDelete: 'set null' }),
+  formSnapshot: jsonb('form_snapshot'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  conversationCreatedAtIndex: index('ai_assistant_messages_conversation_created_at_idx').on(table.conversationId, table.createdAt),
+}));
 
 export const aiSummaries = pgTable('ai_summaries', {
   id: uuid('id').primaryKey().defaultRandom(),
