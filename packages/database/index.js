@@ -31,9 +31,18 @@ function createPoolConfig(connectionString) {
   return config;
 }
 
-const pool = new Pool({
-  ...createPoolConfig(process.env.DATABASE_URL),
-});
+let pool;
+let dbInstance;
 
-export const db = drizzle(pool, { schema });
+export const db = new Proxy({}, {
+  get(target, prop) {
+    if (!dbInstance) {
+      pool = new Pool({
+        ...createPoolConfig(process.env.DATABASE_URL),
+      });
+      dbInstance = drizzle(pool, { schema });
+    }
+    return dbInstance[prop];
+  }
+});
 export * from './schema.js';
