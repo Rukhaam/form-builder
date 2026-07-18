@@ -11,6 +11,7 @@ const initialState = {
   maxResponses: null,
   oneResponsePerPerson: false,
   category: '',
+  coverImageUrl: '',
   theme: 'light',
   fields: [],
   activeFieldId: null, 
@@ -23,7 +24,7 @@ export const formEditorSlice = createSlice({
   reducers: {
     // 1. Load an existing form from the database into Redux
     loadForm: (state, action) => {
-      const { id, title, description, visibility, status, expiresAt, maxResponses, oneResponsePerPerson, password, category, theme, fields } = action.payload;
+      const { id, title, description, visibility, status, expiresAt, maxResponses, oneResponsePerPerson, password, category, coverImageUrl, theme, fields } = action.payload;
       state.formId = id;
       state.title = title;
       state.description = description || '';
@@ -34,6 +35,7 @@ export const formEditorSlice = createSlice({
       state.maxResponses = maxResponses || null;
       state.oneResponsePerPerson = oneResponsePerPerson || false;
       state.category = category || '';
+      state.coverImageUrl = coverImageUrl || '';
       state.theme = theme || 'light';
       state.fields = fields || [];
       state.activeFieldId = null;
@@ -43,7 +45,7 @@ export const formEditorSlice = createSlice({
     
     // 3. Update the main form details
     updateMetadata: (state, action) => {
-      const { title, description, visibility, status, expiresAt, maxResponses, oneResponsePerPerson, password, category, theme } = action.payload;
+      const { title, description, visibility, status, expiresAt, maxResponses, oneResponsePerPerson, password, category, coverImageUrl, theme } = action.payload;
       if (title !== undefined) state.title = title;
       if (description !== undefined) state.description = description;
       if (visibility !== undefined) state.visibility = visibility;
@@ -53,6 +55,7 @@ export const formEditorSlice = createSlice({
       if (oneResponsePerPerson !== undefined) state.oneResponsePerPerson = oneResponsePerPerson;
       if (password !== undefined) state.password = password;
       if (category !== undefined) state.category = category;
+      if (coverImageUrl !== undefined) state.coverImageUrl = coverImageUrl;
       if (theme !== undefined) state.theme = theme;
     },
 

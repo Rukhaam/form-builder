@@ -36,12 +36,20 @@ export function Navbar() {
     setUser(getSessionUser());
   }, []);
 
+  const isHomePage = pathname === "/";
+
   // Switch navbar from transparent → white after scrolling past ~80px
+  // Only applies on the homepage; other pages always use the solid style
   useEffect(() => {
+    if (!isHomePage) {
+      setScrolled(true);
+      return;
+    }
     const handleScroll = () => setScrolled(window.scrollY > 80);
+    handleScroll(); // check initial position
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isHomePage]);
 
   // Prevent background scrolling when mobile menu is open
   useEffect(() => {

@@ -485,6 +485,7 @@ export default function FormEditorPage() {
     activeFieldId,
     password,
     category,
+    coverImageUrl,
     theme,
     oneResponsePerPerson,
   } = editorState;
@@ -514,6 +515,7 @@ export default function FormEditorPage() {
           maxResponses: data.form.maxResponses,
           oneResponsePerPerson: data.form.oneResponsePerPerson,
           category: data.form.category,
+          coverImageUrl: data.form.coverImageUrl,
           theme: data.form.theme,
           fields: data.fields,
         }),
@@ -574,6 +576,7 @@ export default function FormEditorPage() {
           maxResponses: existingForm.form.maxResponses,
           oneResponsePerPerson: existingForm.form.oneResponsePerPerson,
           category: existingForm.form.category,
+          coverImageUrl: existingForm.form.coverImageUrl,
           theme: existingForm.form.theme,
           fields: existingForm.fields,
         }),
@@ -706,6 +709,7 @@ export default function FormEditorPage() {
         : null,
       password: password || undefined,
       category: category || undefined,
+      coverImageUrl: coverImageUrl || null,
       oneResponsePerPerson: oneResponsePerPerson ?? false,
       theme: serializeThemeValue(themeDesign.selection),
       isTemplate: !!category,
@@ -934,6 +938,32 @@ export default function FormEditorPage() {
                 </select>
               </label>
             </div>
+
+            {/* Cover Image URL */}
+            <label className="mt-6 block space-y-2">
+              <span className="text-xs font-semibold uppercase text-slate-500">
+                Cover Image URL
+              </span>
+              <Input
+                disabled={isSaving}
+                value={coverImageUrl || ""}
+                onChange={(event) =>
+                  dispatch(updateMetadata({ coverImageUrl: event.target.value }))
+                }
+                className="h-11 border-black/5 bg-white text-sm focus:bg-white"
+                placeholder="https://images.unsplash.com/..."
+              />
+              {coverImageUrl && (
+                <div className="mt-2 overflow-hidden rounded-lg border border-black/5">
+                  <img
+                    src={coverImageUrl}
+                    alt="Cover preview"
+                    className="h-32 w-full object-cover"
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                  />
+                </div>
+              )}
+            </label>
 
             <label className="mt-6 block space-y-2">
               <span className="text-xs font-semibold uppercase text-slate-500">

@@ -300,6 +300,7 @@ export const formRouter = router({
         theme: input.theme ?? "light",          
         isTemplate: input.isTemplate ?? false,  
         category: input.category ?? null,       
+        coverImageUrl: input.coverImageUrl ?? null,
         ...(hashedPassword !== undefined && { password: hashedPassword }),
       };
 
@@ -588,6 +589,7 @@ export const formRouter = router({
           description: forms.description,
           theme: forms.theme,
           category: forms.category,
+          coverImageUrl: forms.coverImageUrl,
           slug: forms.slug,
         }) 
         .from(forms)

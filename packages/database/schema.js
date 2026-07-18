@@ -93,6 +93,7 @@ export const forms = pgTable("forms", {
   theme: text('theme').default('light'), 
   isTemplate: boolean('is_template').default(false), 
   category: text('category'),
+  coverImageUrl: text('cover_image_url'),
   createdAt: timestamp("created_at").defaultNow(),
   isExpired: boolean("is_expired").default(false).notNull(),
   expiresAt: timestamp("expires_at"),

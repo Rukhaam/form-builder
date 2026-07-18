@@ -89,6 +89,7 @@ export const saveEditorFormSchema = z.object({
  theme: z.string().default("light").optional(),
   isTemplate: z.boolean().default(false).optional(),
   category: z.string().nullable().optional(),
+  coverImageUrl: z.string().url("Must be a valid URL").nullable().optional(),
   status: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT"),
   isExpired: z.boolean().optional().default(false),
   expiresAt: z.union([z.string().datetime(), z.date(), z.null()]).optional(),
