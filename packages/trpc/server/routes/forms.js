@@ -730,6 +730,7 @@ export const formRouter = router({
           description: form.description,
           slug: form.slug,
           createdAt: form.createdAt,
+          coverImageUrl: form.coverImageUrl,
           isProtected: !!form.password, 
           fieldCount: fCount ? Number(fCount.count) : 0,
           submissionCount: sCount ? Number(sCount.count) : 0,

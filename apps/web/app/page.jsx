@@ -185,44 +185,47 @@ export default function Home() {
       <section className="relative z-20 mx-auto mt-8 mb-20 w-full max-w-7xl overflow-hidden px-4 sm:mt-10 sm:mb-24">
         <div className="mx-auto w-full max-w-6xl border-y border-slate-200/80">
           <div className="[mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
-          <motion.div
-            className="flex w-max items-center py-5 sm:py-6"
-            animate={{ x: ["0%", "-50%"] }}
-            transition={{ ease: "linear", duration: 25, repeat: Infinity }}
-          >
-            {[
-              ["7+", "field types"],
-              ["1 link", "to share"],
-              ["Live", "analytics"],
-              ["AI", "assistant"],
-              ["100%", "type-safe"],
-              ["Webhooks", "integrated"],
-              ["7+", "field types"],
-              ["1 link", "to share"],
-              ["Live", "analytics"],
-              ["AI", "assistant"],
-              ["100%", "type-safe"],
-              ["Webhooks", "integrated"],
-            ].map(([value, label], index) => (
-              <div
-                key={index}
-                className="flex flex-shrink-0 items-baseline gap-2.5 border-r border-slate-200/70 px-7 sm:px-10"
-              >
-                <span className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
-                  {value}
-                </span>
-                <span className="text-sm font-medium text-slate-400 sm:text-[15px]">
-                  {label}
-                </span>
-              </div>
-            ))}
-          </motion.div>
+            <motion.div
+              className="flex w-max items-center py-5 sm:py-6"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{ ease: "linear", duration: 25, repeat: Infinity }}
+            >
+              {[
+                ["7+", "field types"],
+                ["1 link", "to share"],
+                ["Live", "analytics"],
+                ["AI", "assistant"],
+                ["100%", "type-safe"],
+                ["Webhooks", "integrated"],
+                ["7+", "field types"],
+                ["1 link", "to share"],
+                ["Live", "analytics"],
+                ["AI", "assistant"],
+                ["100%", "type-safe"],
+                ["Webhooks", "integrated"],
+              ].map(([value, label], index) => (
+                <div
+                  key={index}
+                  className="flex flex-shrink-0 items-baseline gap-2.5 border-r border-slate-200/70 px-7 sm:px-10"
+                >
+                  <span className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
+                    {value}
+                  </span>
+                  <span className="text-sm font-medium text-slate-400 sm:text-[15px]">
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="relative mx-auto max-w-7xl px-5 py-24 sm:px-8 lg:py-32">
+      <section
+        id="features"
+        className="relative mx-auto max-w-7xl px-5 py-24 sm:px-8 lg:py-32"
+      >
         <ParallaxElement range={["24px", "-24px"]} className="mb-16 lg:mb-20">
           <motion.div
             initial={{ opacity: 0, y: 24 }}

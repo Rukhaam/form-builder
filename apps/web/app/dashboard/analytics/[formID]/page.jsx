@@ -296,7 +296,7 @@ export default function FormAnalyticsPage() {
           <CardContent>
             {timeSeriesData.length > 0 ? (
               <div className="h-[350px] w-full mt-4">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={200}>
                   <AreaChart data={timeSeriesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} dy={10} />
@@ -347,7 +347,7 @@ export default function FormAnalyticsPage() {
               </CardHeader>
               <CardContent>
                 <div className="h-[250px] w-full mt-4">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={200}>
                     <BarChart 
                       data={fieldData.data} 
                       layout="vertical" 

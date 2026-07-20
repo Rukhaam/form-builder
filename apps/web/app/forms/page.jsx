@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   ArrowRight,
   FileText,
+  ImageOff,
   Inbox,
   Search,
   Users,
@@ -94,61 +95,79 @@ export default function PublicFormsPage() {
               {forms.map((form, index) => (
                 <article
                   key={form.id}
-                  className="animate-rise-in rounded-2xl border border-white/70 bg-white/70 p-5 shadow-xl shadow-slate-200/60 backdrop-blur-xl transition active:-translate-y-1 active:border-emerald-200"
+                  className="animate-rise-in overflow-hidden rounded-2xl border border-white/70 bg-white/70 shadow-xl shadow-slate-200/60 backdrop-blur-xl transition active:-translate-y-1 active:border-emerald-200"
                   style={{ animationDelay: `${index * 70}ms` }}
                 >
-                  <div className="mb-5 flex items-start justify-between gap-4">
-                    <span className="flex size-11 items-center justify-center rounded-2xl bg-slate-950 text-white">
-                      <FileText className="size-5" />
-                    </span>
-                    <div className="flex flex-col items-end gap-2">
-                      <span className="flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700 shadow-sm">
+                  {/* Cover image with fallback */}
+                  <div className="relative h-40 w-full">
+                    {form.coverImageUrl ? (
+                      <img
+                        src={form.coverImageUrl}
+                        alt={`${form.title} cover`}
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                          e.currentTarget.nextElementSibling.style.display = "flex";
+                        }}
+                      />
+                    ) : null}
+                    <div
+                      className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300"
+                      style={{ display: form.coverImageUrl ? "none" : "flex" }}
+                    >
+                      <ImageOff className="size-10 text-slate-400" />
+                    </div>
+                    {/* Rating & date badges over image */}
+                    <div className="absolute right-3 top-3 flex flex-col items-end gap-2">
+                      <span className="flex items-center gap-1 rounded-full bg-amber-100/90 px-2.5 py-1 text-xs font-medium text-amber-700 shadow-sm backdrop-blur-sm">
                         <Star className="size-3.5 fill-amber-500 text-amber-500" />
                         {form.rating > 0 ? form.rating.toFixed(1) : "New"}
                       </span>
-                      <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-slate-600 shadow-sm">
+                      <span className="rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-slate-600 shadow-sm backdrop-blur-sm">
                         {formatDate(form.createdAt)}
                       </span>
                     </div>
                   </div>
 
-                  <h2 className="line-clamp-2 text-xl font-medium text-slate-950">
-                    {form.title}
-                  </h2>
-                  <p className="mt-3 line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-slate-600">
-                    {form.description || "No description provided."}
-                  </p>
+                  <div className="p-5">
+                    <h2 className="line-clamp-2 text-xl font-medium text-slate-950">
+                      {form.title}
+                    </h2>
+                    <p className="mt-3 line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-slate-600">
+                      {form.description || "No description provided."}
+                    </p>
 
-                  <div className="mt-5 grid grid-cols-2 gap-2">
-                    <div className="rounded-xl bg-white/70 p-3">
-                      <div className="text-xs font-medium uppercase text-slate-400">
-                        Fields
+                    <div className="mt-5 grid grid-cols-2 gap-2">
+                      <div className="rounded-xl bg-white/70 p-3">
+                        <div className="text-xs font-medium uppercase text-slate-400">
+                          Fields
+                        </div>
+                        <div className="mt-1 text-xl font-medium text-slate-950">
+                          {form.fieldCount}
+                        </div>
                       </div>
-                      <div className="mt-1 text-xl font-medium text-slate-950">
-                        {form.fieldCount}
+                      <div className="rounded-xl bg-white/70 p-3">
+                        <div className="flex items-center gap-1.5 text-xs font-medium uppercase text-slate-400">
+                          <Users className="size-3" />
+                          Answers
+                        </div>
+                        <div className="mt-1 text-xl font-medium text-slate-950">
+                          {form.submissionCount}
+                        </div>
                       </div>
                     </div>
-                    <div className="rounded-xl bg-white/70 p-3">
-                      <div className="flex items-center gap-1.5 text-xs font-medium uppercase text-slate-400">
-                        <Users className="size-3" />
-                        Answers
-                      </div>
-                      <div className="mt-1 text-xl font-medium text-slate-950">
-                        {form.submissionCount}
-                      </div>
-                    </div>
+
+                    <Link
+                      href={`/forms/${form.slug}`}
+                      className={cn(
+                        buttonVariants({ size: "lg" }),
+                        "mt-5 w-full bg-slate-950 text-white active:bg-slate-800",
+                      )}
+                    >
+                      Answer form
+                      <ArrowRight className="ml-2 size-4" />
+                    </Link>
                   </div>
-
-                  <Link
-                    href={`/forms/${form.slug}`}
-                    className={cn(
-                      buttonVariants({ size: "lg" }),
-                      "mt-5 w-full bg-slate-950 text-white active:bg-slate-800",
-                    )}
-                  >
-                    Answer form
-                    <ArrowRight className="ml-2 size-4" />
-                  </Link>
                 </article>
               ))}
             </div>
