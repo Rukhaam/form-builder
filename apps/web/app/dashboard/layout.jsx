@@ -146,14 +146,12 @@ export default function DashboardLayout({ children }) {
         {/* Inner wrapper forces a fixed width so text doesn't wrap/crush during the slide animation */}
         <div className="flex w-64 flex-1 flex-col">
           <div className="flex h-16 items-center justify-between border-b border-white/70 px-6">
-            <div className="flex items-center">
-              <img
-                src="https://pub-749dd85c25e04947af34140aef9172fc.r2.dev/form-builder/ChatGPT%20Image%20Jun%2030%2C%202026%2C%2011_22_18%20PM.png"
-                alt="FormBuilder Logo"
-                className="size-9 object-contain"
-              />
+            <div className="flex items-center gap-3">
+              <div className="flex size-9 items-center justify-center rounded-xl bg-slate-950 text-white shadow-md">
+                <Sparkles className="size-5 text-amber-400" />
+              </div>
               <Link href={"/"}>
-                <span className="ml-3 text-lg font-medium text-slate-950">
+                <span className="text-lg font-bold text-slate-950">
                   FormBuilder
                 </span>
               </Link>

@@ -88,14 +88,27 @@ export function Navbar() {
             href="/"
             className="flex items-center gap-3 transition-opacity hover:opacity-70"
           >
-            <img
-              src="https://pub-749dd85c25e04947af34140aef9172fc.r2.dev/form-builder/ChatGPT%20Image%20Jun%2030%2C%202026%2C%2011_22_18%20PM.png"
-              alt="FormBuilder Logo"
-              className="size-[30px] object-contain"
-              style={{ filter: scrolled ? "none" : "brightness(0) invert(1)" }}
-            />
+            <motion.div
+              className="flex size-8 items-center justify-center rounded-xl shadow-sm"
+              animate={{
+                backgroundColor: scrolled
+                  ? "#0f172a"
+                  : "rgba(255, 255, 255, 0.15)",
+                borderColor: scrolled
+                  ? "rgba(15, 23, 42, 0.1)"
+                  : "rgba(255, 255, 255, 0.3)",
+              }}
+              style={{
+                borderWidth: "1px",
+                borderStyle: "solid",
+                backdropFilter: scrolled ? "none" : "blur(8px)",
+              }}
+              transition={{ duration: 0.3 }}
+            >
+              <Sparkles className="size-4 text-amber-400" />
+            </motion.div>
             <motion.span
-              className="text-lg font-semibold"
+              className="text-lg font-bold tracking-tight"
               animate={{ color: scrolled ? "#0f172a" : "#ffffff" }}
               transition={{ duration: 0.3 }}
             >
@@ -181,14 +194,12 @@ export function Navbar() {
       {/* MOBILE: Logo on left */}
       <Link
         href="/"
-        className="fixed top-5 left-5 z-50 flex items-center gap-2 bg-white/60 backdrop-blur-md px-3 py-2 rounded-full ring-1 ring-black/10 shadow-lg md:hidden transition-all active:scale-95 active:bg-white"
+        className="fixed top-5 left-5 z-50 flex items-center gap-2 bg-white/70 backdrop-blur-md px-3.5 py-2 rounded-full ring-1 ring-black/10 shadow-lg md:hidden transition-all active:scale-95 active:bg-white"
       >
-        <img
-          src="https://pub-749dd85c25e04947af34140aef9172fc.r2.dev/form-builder/ChatGPT%20Image%20Jun%2030%2C%202026%2C%2011_22_18%20PM.png"
-          alt="Logo"
-          className="size-6 object-contain"
-        />
-        <span className="text-sm font-medium text-slate-950 pr-1">
+        <div className="flex size-6 items-center justify-center rounded-lg bg-slate-950 text-white">
+          <Sparkles className="size-3.5 text-amber-400" />
+        </div>
+        <span className="text-sm font-bold text-slate-950 pr-1">
           FormBuilder
         </span>
       </Link>

@@ -25,13 +25,11 @@ export function Footer() {
     <footer className="border-t border-white/70 bg-white/60 px-4 py-10 backdrop-blur-xl">
       <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
-          <Link href="/" className="flex items-center gap-3">
-            <img
-              src="https://pub-749dd85c25e04947af34140aef9172fc.r2.dev/form-builder/ChatGPT%20Image%20Jun%2030%2C%202026%2C%2011_22_18%20PM.png"
-              alt="FormBuilder Logo"
-              className="size-10 object-contain"
-            />
-            <span className="text-lg font-medium text-slate-950">
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="flex size-9 items-center justify-center rounded-xl bg-slate-950 text-white shadow-md">
+              <Sparkles className="size-5 text-amber-400" />
+            </div>
+            <span className="text-lg font-bold text-slate-950">
               FormBuilder
             </span>
           </Link>
