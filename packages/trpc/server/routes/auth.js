@@ -1,4 +1,4 @@
-import { router, publicProcedure,strictPublicProcedure} from "../trpc.js";
+import { router, publicProcedure, strictPublicProcedure } from "../trpc.js";
 import {
   registerSchema,
   loginSchema,
@@ -92,37 +92,39 @@ export const authRouter = router({
       };
     }),
 
-  login: strictPublicProcedure.input(loginSchema).mutation(async ({ input, ctx }) => {
-    const { email, password } = input;
+  login: strictPublicProcedure
+    .input(loginSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { email, password } = input;
 
-    const [user] = await ctx.db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
-    if (!user || !user.passwordHash)
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "Invalid credentials",
-      });
+      const [user] = await ctx.db
+        .select()
+        .from(users)
+        .where(eq(users.email, email))
+        .limit(1);
+      if (!user || !user.passwordHash)
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Invalid credentials",
+        });
 
-    if (!user.isEmailVerified)
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message:
-          "Please verify your email before logging in. If you lost your code, please register again.",
-      });
+      if (!user.isEmailVerified)
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message:
+            "Please verify your email before logging in. If you lost your code, please register again.",
+        });
 
-    const validPassword = await bcrypt.compare(password, user.passwordHash);
-    if (!validPassword)
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "Invalid credentials",
-      });
+      const validPassword = await bcrypt.compare(password, user.passwordHash);
+      if (!validPassword)
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Invalid credentials",
+        });
 
-    const tokens = generateTokens(user);
-    return { user: { id: user.id, email: user.email }, ...tokens };
-  }),
+      const tokens = generateTokens(user);
+      return { user: { id: user.id, email: user.email }, ...tokens };
+    }),
 
   forgotPassword: strictPublicProcedure
     .input(forgotPasswordSchema)

@@ -1,5 +1,5 @@
-import '../utils/loadEnv.js';
-import { router, protectedProcedure } from '../trpc.js';
+import "../utils/loadEnv.js";
+import { router, protectedProcedure } from "../trpc.js";
 import {
   db,
   forms,
@@ -8,26 +8,22 @@ import {
   fieldResponses,
   aiSummaries,
   subscriptions,
-} from '@repo/database';
-import { eq, and, inArray, desc } from 'drizzle-orm';
-import { TRPCError } from '@trpc/server';
-import { z } from 'zod';
-import { createHash } from 'crypto';
-import { analyzeTextResponses } from '../utils/gemini.js';
-import { getPlan, DEFAULT_PLAN_ID } from '../utils/plans.js';
+} from "@repo/database";
+import { eq, and, inArray, desc } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
+import { createHash } from "crypto";
+import { analyzeTextResponses } from "../utils/gemini.js";
+import { getPlan, DEFAULT_PLAN_ID } from "../utils/plans.js";
 
-const TEXT_FIELD_TYPES = ['short_text', 'long_text'];
+const TEXT_FIELD_TYPES = ["short_text", "long_text"];
 const MAX_RESPONSES_PER_FIELD = 200;
 
-/**
- * Compute a SHA-256 hash of the text response content.
- * If the hash matches the cached version, the analysis is still valid.
- */
 function computeResponsesHash(fieldResponseData) {
   const content = fieldResponseData
-    .map(({ fieldLabel, responses }) => `${fieldLabel}::${responses.join('|')}`)
-    .join('|||');
-  return createHash('sha256').update(content).digest('hex');
+    .map(({ fieldLabel, responses }) => `${fieldLabel}::${responses.join("|")}`)
+    .join("|||");
+  return createHash("sha256").update(content).digest("hex");
 }
 
 export const aiRouter = router({
@@ -51,8 +47,8 @@ export const aiRouter = router({
 
       if (!form) {
         throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Form not found or unauthorized',
+          code: "NOT_FOUND",
+          message: "Form not found or unauthorized",
         });
       }
 
@@ -64,11 +60,11 @@ export const aiRouter = router({
         .limit(1);
 
       const plan = getPlan(sub?.planId ?? DEFAULT_PLAN_ID);
-      if (plan.tier === 'starter') {
+      if (plan.tier === "starter") {
         return {
           available: false,
           locked: true,
-          reason: 'Upgrade to Pro or Business to unlock AI-powered insights.',
+          reason: "Upgrade to Pro or Business to unlock AI-powered insights.",
         };
       }
 
@@ -79,15 +75,15 @@ export const aiRouter = router({
         .where(
           and(
             eq(formFields.formId, formId),
-            inArray(formFields.type, TEXT_FIELD_TYPES)
-          )
+            inArray(formFields.type, TEXT_FIELD_TYPES),
+          ),
         );
 
       if (textFields.length === 0) {
         return {
           available: false,
           locked: false,
-          reason: 'This form has no text fields to analyze.',
+          reason: "This form has no text fields to analyze.",
         };
       }
 
@@ -104,7 +100,7 @@ export const aiRouter = router({
         return {
           available: false,
           locked: false,
-          reason: 'No submissions yet. Collect some responses first.',
+          reason: "No submissions yet. Collect some responses first.",
         };
       }
 
@@ -117,24 +113,26 @@ export const aiRouter = router({
         .where(
           and(
             inArray(fieldResponses.submissionId, submissionIds),
-            inArray(fieldResponses.fieldId, textFieldIds)
-          )
+            inArray(fieldResponses.fieldId, textFieldIds),
+          ),
         );
 
       // Group responses by field
-      const fieldResponseData = textFields.map((field) => ({
-        fieldLabel: field.label,
-        responses: textResponses
-          .filter((r) => r.fieldId === field.id && r.value.trim() !== '')
-          .map((r) => r.value)
-          .slice(0, MAX_RESPONSES_PER_FIELD),
-      })).filter((f) => f.responses.length > 0);
+      const fieldResponseData = textFields
+        .map((field) => ({
+          fieldLabel: field.label,
+          responses: textResponses
+            .filter((r) => r.fieldId === field.id && r.value.trim() !== "")
+            .map((r) => r.value)
+            .slice(0, MAX_RESPONSES_PER_FIELD),
+        }))
+        .filter((f) => f.responses.length > 0);
 
       if (fieldResponseData.length === 0) {
         return {
           available: false,
           locked: false,
-          reason: 'No text responses to analyze yet.',
+          reason: "No text responses to analyze yet.",
         };
       }
 
@@ -165,10 +163,10 @@ export const aiRouter = router({
       try {
         analysis = await analyzeTextResponses(fieldResponseData);
       } catch (err) {
-        console.error('[AI] Gemini analysis failed:', err);
+        console.error("[AI] Gemini analysis failed:", err);
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'AI analysis failed. Please try again later.',
+          code: "INTERNAL_SERVER_ERROR",
+          message: "AI analysis failed. Please try again later.",
         });
       }
 
@@ -190,7 +188,9 @@ export const aiRouter = router({
           .set(upsertValues)
           .where(eq(aiSummaries.formId, formId));
       } else {
-        await db.insert(aiSummaries).values({ ...upsertValues, createdAt: now });
+        await db
+          .insert(aiSummaries)
+          .values({ ...upsertValues, createdAt: now });
       }
 
       return {
@@ -223,15 +223,13 @@ export const aiRouter = router({
 
       if (!form) {
         throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Form not found or unauthorized',
+          code: "NOT_FOUND",
+          message: "Form not found or unauthorized",
         });
       }
 
       // Delete cached entry to force regeneration
-      await db
-        .delete(aiSummaries)
-        .where(eq(aiSummaries.formId, formId));
+      await db.delete(aiSummaries).where(eq(aiSummaries.formId, formId));
 
       return { success: true };
     }),

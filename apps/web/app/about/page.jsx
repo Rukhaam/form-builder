@@ -7,8 +7,33 @@ import { Footer } from '@/components/site/Footer';
 import { Navbar } from '@/components/site/Navbar';
 
 export const metadata = {
-  title: 'About Us | FormBuilder',
-  description: 'Learn more about FormBuilder and our mission.',
+  title: 'About Us — Our Mission & Story',
+  description:
+    "Learn about FormBuilder's mission to make form building effortless. Discover how our community-first, no-code platform helps modern teams create beautiful forms, collect responses, and understand data.",
+  keywords: [
+    'about FormBuilder',
+    'form builder mission',
+    'no-code form platform',
+    'team form builder',
+    'community-driven forms',
+    'form building tool story',
+  ],
+  openGraph: {
+    title: 'About Us — Our Mission & Story',
+    description:
+      "Learn about FormBuilder's mission to make form building effortless for modern teams.",
+    url: 'https://formbuilder.summitdigital.in/about',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'About FormBuilder — Our Mission & Story',
+    description:
+      'Discover how FormBuilder helps modern teams create beautiful forms without code.',
+  },
+  alternates: {
+    canonical: 'https://formbuilder.summitdigital.in/about',
+  },
 };
 
 const stats = [

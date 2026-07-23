@@ -2,8 +2,33 @@ import { Navbar } from '@/components/site/Navbar';
 import { Footer } from '@/components/site/Footer';
 
 export const metadata = {
-  title: 'Privacy Policy - FormBuilder',
-  description: 'Privacy policy and data handling for FormBuilder.',
+  title: 'Privacy Policy',
+  description:
+    "Read FormBuilder's privacy policy to understand how we collect, use, and protect your personal data and form responses. Your privacy and data security are our top priorities.",
+  keywords: [
+    'FormBuilder privacy policy',
+    'data protection',
+    'form data privacy',
+    'user data security',
+    'GDPR compliance',
+    'privacy SaaS',
+  ],
+  openGraph: {
+    title: 'Privacy Policy — FormBuilder',
+    description:
+      'Understand how FormBuilder handles your data. Read our privacy and data protection policy.',
+    url: 'https://formbuilder.summitdigital.in/privacy-policy',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Privacy Policy — FormBuilder',
+    description:
+      'Understand how FormBuilder handles your data. Read our privacy and data protection policy.',
+  },
+  alternates: {
+    canonical: 'https://formbuilder.summitdigital.in/privacy-policy',
+  },
 };
 
 export default function PrivacyPolicyPage() {

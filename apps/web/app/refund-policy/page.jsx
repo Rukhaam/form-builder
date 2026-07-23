@@ -3,8 +3,33 @@ import { Footer } from '@/components/site/Footer';
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Refund Policy - FormBuilder',
-  description: 'Refund and cancellation policy for FormBuilder.',
+  title: 'Refund & Cancellation Policy',
+  description:
+    "Review FormBuilder's refund and subscription cancellation policy. Learn about billing, refund eligibility, and how to contact our support team for account assistance.",
+  keywords: [
+    'FormBuilder refund policy',
+    'subscription cancellation',
+    'billing support',
+    'refund eligibility',
+    'SaaS refund',
+    'cancel subscription',
+  ],
+  openGraph: {
+    title: 'Refund & Cancellation Policy — FormBuilder',
+    description:
+      "Review FormBuilder's refund and subscription cancellation policy for billing and account assistance.",
+    url: 'https://formbuilder.summitdigital.in/refund-policy',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Refund & Cancellation Policy — FormBuilder',
+    description:
+      "Review FormBuilder's refund and subscription cancellation policy.",
+  },
+  alternates: {
+    canonical: 'https://formbuilder.summitdigital.in/refund-policy',
+  },
 };
 
 export default function RefundPolicyPage() {

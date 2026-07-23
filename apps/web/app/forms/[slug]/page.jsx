@@ -25,19 +25,34 @@ export async function generateMetadata({ params }) {
     };
   }
 
+  const pageTitle = `${form.title} — Fill Out This Form`;
+  const pageDescription = form.description || `Submit your response to "${form.title}" on FormBuilder. Fast, secure, and easy to complete.`;
+
   return {
-    title: form.title,
-    description: form.description,
+    title: pageTitle,
+    description: pageDescription,
+    keywords: [
+      form.title,
+      'online form',
+      'submit form',
+      'public form',
+      'form response',
+      'FormBuilder',
+    ],
     openGraph: {
-      title: form.title,
-      description: form.description,
+      title: pageTitle,
+      description: pageDescription,
       type: 'website',
       url: `${baseUrl}/forms/${slug}`,
+      siteName: 'FormBuilder',
     },
     twitter: {
       card: 'summary_large_image',
-      title: form.title,
-      description: form.description,
+      title: pageTitle,
+      description: pageDescription,
+    },
+    alternates: {
+      canonical: `${baseUrl}/forms/${slug}`,
     },
   };
 }
