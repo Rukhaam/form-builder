@@ -110,7 +110,7 @@ export default function Home() {
                     delay: 0.2,
                     ease: [0.22, 1, 0.36, 1],
                   }}
-                  className="text-[2rem] sm:text-[2.75rem] lg:text-[4.5rem] font-semibold tracking-tight leading-[1.15] text-white mb-6"
+                  className="text-xl sm:text-[2.75rem] lg:text-[4.5rem] font-semibold tracking-tight leading-[1.2] text-white mb-6"
                   style={{ textShadow: "0 2px 24px rgba(0,0,0,0.4)" }}
                 >
                   Build forms that feel like magic.
@@ -137,7 +137,7 @@ export default function Home() {
                     delay: 0.55,
                     ease: [0.22, 1, 0.36, 1],
                   }}
-                  className="mt-8 text-[1rem] sm:text-[1.1rem] font-normal leading-[1.75] tracking-wide text-white/70 max-w-[480px]"
+                  className="mt-6 text-xs sm:text-base font-normal leading-relaxed tracking-wide text-white/70 max-w-[480px]"
                   style={{ textShadow: "0 1px 8px rgba(0,0,0,0.3)" }}
                 >
                   A focused workspace for creating beautiful public forms,
@@ -237,12 +237,12 @@ export default function Home() {
             <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
               Built for focus
             </p>
-            <h2 className="text-balance text-4xl font-medium tracking-tight text-slate-950 md:text-5xl lg:text-[3.5rem]">
+            <h2 className="text-balance text-xl md:text-5xl lg:text-[3.5rem] font-medium tracking-tight text-slate-950">
               Everything you need.
               <br />
               Nothing you don't.
             </h2>
-            <p className="mt-5 max-w-md text-base font-medium leading-relaxed text-slate-500 sm:text-lg">
+            <p className="mt-4 max-w-md text-xs sm:text-lg font-medium leading-relaxed text-slate-500">
               Three focused tools. Infinite possibilities.
             </p>
           </motion.div>
@@ -333,7 +333,7 @@ export default function Home() {
                 <h3 className="mt-2 text-xl font-medium tracking-tight text-slate-950 sm:text-2xl">
                   Fast, intuitive form builder.
                 </h3>
-                <p className="mt-2 text-sm font-medium leading-relaxed text-slate-500">
+                <p className="mt-2 text-xs sm:text-sm font-medium leading-relaxed text-slate-500">
                   Compose clean forms with field controls, choice options,
                   drafts, and publishing in one focused workspace.
                 </p>
@@ -411,7 +411,7 @@ export default function Home() {
                 <h3 className="mt-2 text-xl font-medium tracking-tight text-slate-950 sm:text-2xl">
                   Live analytics &amp; reporting.
                 </h3>
-                <p className="mt-2 text-sm font-medium leading-relaxed text-slate-500">
+                <p className="mt-2 text-xs sm:text-sm font-medium leading-relaxed text-slate-500">
                   Track responses and understand completion rates at a
                   glance—without leaving the dashboard.
                 </p>
@@ -511,7 +511,7 @@ export default function Home() {
                 <h3 className="mt-2 text-xl font-medium tracking-tight text-slate-950 sm:text-2xl">
                   Seamless public sharing.
                 </h3>
-                <p className="mt-2 text-sm font-medium leading-relaxed text-slate-500">
+                <p className="mt-2 text-xs sm:text-sm font-medium leading-relaxed text-slate-500">
                   Publish to a public gallery or send a secure link. One click,
                   instantly live.
                 </p>
@@ -585,7 +585,7 @@ export default function Home() {
                 <h3 className="mt-2 text-xl font-medium tracking-tight text-slate-950 sm:text-2xl">
                   Built-in AI assistant.
                 </h3>
-                <p className="mt-2 text-sm font-medium leading-relaxed text-slate-500">
+                <p className="mt-2 text-xs sm:text-sm font-medium leading-relaxed text-slate-500">
                   Describe what you need. The AI generates your form structure
                   instantly — no config required.
                 </p>
@@ -620,10 +620,10 @@ export default function Home() {
       >
         <div className="mx-auto max-w-7xl px-4">
           <div className="mb-16 flex flex-col items-center text-center">
-            <h2 className="text-4xl font-medium tracking-tight text-slate-950 md:text-5xl font-medium">
+            <h2 className="text-xl md:text-5xl font-medium tracking-tight text-slate-950">
               Don't start from scratch.
             </h2>
-            <p className="mt-4 max-w-2xl text-lg text-slate-600">
+            <p className="mt-3 max-w-2xl text-xs sm:text-lg text-slate-600">
               Choose from dozens of beautiful, pre-built templates and themes
               designed for conversion.
             </p>
@@ -645,14 +645,14 @@ export default function Home() {
                 </div>
 
                 {/* Content & CTA */}
-                <div className="flex flex-1 flex-col p-8">
-                  <span className="mb-4 w-fit rounded-lg bg-slate-100 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-slate-500">
+                <div className="flex flex-1 flex-col p-6 sm:p-7">
+                  <span className="mb-3 w-fit rounded-lg bg-slate-100 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-slate-500">
                     {tpl.category}
                   </span>
-                  <h3 className="mb-3 text-2xl font-medium text-slate-950 font-medium ">
+                  <h3 className="mb-2 text-base sm:text-lg font-medium text-slate-950">
                     {tpl.title}
                   </h3>
-                  <p className="mb-8 text-sm font-medium leading-relaxed text-slate-600">
+                  <p className="mb-5 text-xs sm:text-xs font-medium leading-relaxed text-slate-500">
                     {tpl.description}
                   </p>
 
@@ -661,7 +661,7 @@ export default function Home() {
                       href={user ? "/templates" : "/register"}
                       className={cn(
                         buttonVariants({ size: "lg" }),
-                        "w-full rounded-xl transition-all duration-300",
+                        "w-full rounded-xl transition-all duration-300 text-xs sm:text-sm h-11",
                         user
                           ? "bg-slate-950 text-white active:bg-slate-800"
                           : "bg-white text-black active:bg-black active:text-white shadow-md active:shadow-lg",
@@ -679,7 +679,7 @@ export default function Home() {
           <div className="mt-12 flex justify-center">
             <Link
               href="/templates"
-              className="group flex items-center text-sm font-medium text-violet-600 active:text-violet-700"
+              className="group flex items-center text-xs sm:text-sm font-medium text-violet-600 active:text-violet-700"
             >
               View all templates
               <ArrowRight className="ml-1 size-4 transition-transform group-active:translate-x-1" />
@@ -689,31 +689,31 @@ export default function Home() {
       </ParallaxSection>
 
       {/* FAQ Section */}
-      <section id="faq" className="mx-auto max-w-4xl px-4 py-24">
+      <section id="faq" className="mx-auto max-w-4xl px-4 py-20">
         <ParallaxElement range={["20px", "-20px"]}>
-          <div className="mb-16 text-center">
+          <div className="mb-12 text-center">
             <div className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium uppercase tracking-wider text-slate-600">
               FAQ
             </div>
-            <h2 className="mt-4 text-4xl font-medium tracking-tight text-slate-950 md:text-5xl font-medium">
+            <h2 className="mt-3 text-lg md:text-3xl font-medium tracking-tight text-slate-950">
               Common questions.
             </h2>
           </div>
-          <div className="grid gap-6">
+          <div className="grid gap-4 sm:gap-5">
             {faqs.map((faq) => (
               <details
                 key={faq.question}
-                className="group rounded-[2rem] border border-slate-200 bg-white p-8 shadow-md shadow-slate-200/30 transition-all open:bg-slate-50 open:shadow-none"
+                className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all open:bg-slate-50 open:shadow-none"
               >
-                <summary className="cursor-pointer list-none text-xl font-medium text-slate-950 outline-none">
-                  <span className="flex items-center justify-between gap-4 font-medium text-slate-700">
+                <summary className="cursor-pointer list-none text-sm sm:text-base font-medium text-slate-950 outline-none">
+                  <span className="flex items-center justify-between gap-4 font-medium text-slate-800">
                     {faq.question}
-                    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-transform group-open:rotate-45 group-open:bg-slate-950 group-open:text-white">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-transform group-open:rotate-45 group-open:bg-slate-950 group-open:text-white text-sm">
                       +
                     </span>
                   </span>
                 </summary>
-                <p className="mt-6 text-lg font-medium leading-relaxed text-slate-600 animate-rise-in">
+                <p className="mt-3 text-xs sm:text-sm font-normal leading-relaxed text-slate-500 animate-rise-in">
                   {faq.answer}
                 </p>
               </details>
@@ -732,10 +732,10 @@ export default function Home() {
                 <FileText className="size-4" />
                 Public gallery
               </div>
-              <h2 className="text-4xl font-medium tracking-tight md:text-5xl lg:text-6xl text-balance">
+              <h2 className="text-xl md:text-5xl lg:text-6xl font-medium tracking-tight text-balance">
                 Answer forms from the community.
               </h2>
-              <p className="mt-6 text-lg leading-relaxed text-slate-500 font-medium text-balance">
+              <p className="mt-4 text-xs sm:text-lg leading-relaxed text-slate-500 font-medium text-balance">
                 Published forms show up in one clean place, ready for visitors
                 to open and submit without needing an account.
               </p>

@@ -15,36 +15,33 @@ import { buttonVariants } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
 /* ─────────────────────────────────────────────────────────────
-   Billing Navbar
+   Billing Navbar — Flat Minimalist Monochromatic
    ───────────────────────────────────────────────────────────── */
 function BillingNavbar() {
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-14 max-w-5xl items-center gap-2 px-4 sm:px-6">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-70 shrink-0">
-          <img
-            src="https://pub-749dd85c25e04947af34140aef9172fc.r2.dev/form-builder/ChatGPT%20Image%20Jun%2030%2C%202026%2C%2011_22_18%20PM.png"
-            alt="FormBuilder"
-            className="size-7 object-contain"
-          />
-          <span className="text-base font-semibold text-slate-900 hidden sm:inline">FormBuilder</span>
-        </Link>
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white">
+      <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
+        {/* Logo & Breadcrumb */}
+        <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-80">
+            <div className="flex size-8 items-center justify-center rounded-xl bg-slate-950 text-white">
+              <Sparkles className="size-4 text-amber-400" />
+            </div>
+            <span className="text-base font-bold text-slate-950">FormBuilder</span>
+          </Link>
 
-        {/* Breadcrumb */}
-        <ChevronRight className="size-4 text-slate-300 shrink-0" />
-        <span className="flex items-center gap-1.5 rounded-lg bg-violet-50 px-2.5 py-1 text-sm font-medium text-violet-700">
-          <CreditCard className="size-3.5 shrink-0" />
-          Billing
-        </span>
+          <ChevronRight className="size-4 text-slate-300" />
 
-        {/* Spacer */}
-        <div className="flex-1" />
+          <span className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-slate-800">
+            <CreditCard className="size-3.5" />
+            Billing
+          </span>
+        </div>
 
         {/* Back to dashboard */}
         <Link
           href="/dashboard"
-          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+          className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-slate-950"
         >
           Dashboard
           <ArrowRight className="size-3.5" />
@@ -55,148 +52,111 @@ function BillingNavbar() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Cancel Confirmation Modal
+   Cancel Confirmation Modal — Minimalist B&W
    ───────────────────────────────────────────────────────────── */
 function CancelModal({ isOpen, onClose, onConfirm, isCanceling, planName, accessEndDate }) {
   if (!isOpen) return null;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
-      style={{ background: 'rgba(15, 23, 42, 0.55)', backdropFilter: 'blur(4px)' }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-fade-in"
       onClick={(e) => { if (e.target === e.currentTarget && !isCanceling) onClose(); }}
     >
-      {/* Modal card — slides up from bottom on mobile, scales in on desktop */}
-      <div
-        className="relative w-full sm:max-w-md rounded-t-[2rem] sm:rounded-[2rem] border border-white/70 bg-white shadow-2xl overflow-hidden"
-        style={{ animation: 'modalIn 0.22s cubic-bezier(0.34,1.4,0.64,1)' }}
-      >
-        {/* Red top stripe */}
-        <div className="h-1.5 w-full bg-gradient-to-r from-red-400 via-rose-500 to-red-600" />
-
-        {/* Mobile drag handle */}
-        <div className="flex justify-center pt-3 sm:hidden">
-          <div className="h-1 w-10 rounded-full bg-slate-200" />
+      <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-slate-950">
+              <Ban className="size-5" />
+            </span>
+            <div>
+              <h2 className="text-base font-bold text-slate-950">Cancel Subscription</h2>
+              <p className="text-xs text-slate-500 font-medium">{planName} plan</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            disabled={isCanceling}
+            className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-950 disabled:opacity-40"
+            aria-label="Close"
+          >
+            <X className="size-4" />
+          </button>
         </div>
 
-        <div className="p-5 sm:p-7">
-          {/* Header */}
-          <div className="flex items-start justify-between mb-5">
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-2xl bg-red-100">
-                <Ban className="size-5 text-red-600" />
-              </span>
-              <div>
-                <h2 className="text-base sm:text-lg font-semibold text-slate-900 leading-snug">Cancel Subscription?</h2>
-                <p className="text-xs sm:text-sm text-slate-500">{planName} plan</p>
-              </div>
-            </div>
-            <button
-              onClick={onClose}
-              disabled={isCanceling}
-              className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:opacity-40 shrink-0"
-              aria-label="Close"
-            >
-              <X className="size-4" />
-            </button>
-          </div>
-
-          {/* Info items */}
-          <div className="space-y-2.5 mb-6">
-            {/* Access until period end */}
-            <div className="flex items-start gap-3 rounded-xl bg-slate-50 border border-slate-200 p-3.5">
-              <CalendarClock className="size-4 sm:size-5 shrink-0 text-violet-600 mt-0.5" />
-              <div>
-                <p className="text-sm font-semibold text-slate-800">You keep access until your cycle ends</p>
-                {accessEndDate ? (
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Pro features stay active until <strong>{accessEndDate}</strong>. No further charges after that.
-                  </p>
-                ) : (
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Pro features remain active until the end of the current billing cycle.
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* No refund */}
-            <div className="flex items-start gap-3 rounded-xl bg-amber-50 border border-amber-200 p-3.5">
-              <AlertTriangle className="size-4 sm:size-5 shrink-0 text-amber-600 mt-0.5" />
-              <div>
-                <p className="text-sm font-semibold text-amber-900">No refund will be issued</p>
-                <p className="text-xs text-amber-700 mt-0.5">
-                  Per our{' '}
-                  <Link href="/refund-policy" className="underline underline-offset-2 hover:text-amber-900" target="_blank">
-                    refund policy
-                  </Link>
-                  , payments already made are non-refundable.
-                </p>
-              </div>
-            </div>
-
-            {/* Downgrade note */}
-            <div className="flex items-start gap-3 rounded-xl bg-red-50 border border-red-200 p-3.5">
-              <ShieldAlert className="size-4 sm:size-5 shrink-0 text-red-600 mt-0.5" />
-              <div>
-                <p className="text-sm font-semibold text-red-900">Your account reverts to Free</p>
-                <p className="text-xs text-red-700 mt-0.5">
-                  After your cycle ends you&#39;ll lose Pro features and limits reset to the Free tier.
-                </p>
-              </div>
+        {/* Info list */}
+        <div className="space-y-3 mb-6">
+          <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3.5">
+            <CalendarClock className="size-4 shrink-0 text-slate-950 mt-0.5" />
+            <div>
+              <p className="text-xs font-semibold text-slate-950">Access retained until billing cycle ends</p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Pro features remain active until {formattedAccessDate(accessEndDate)}. No further charges will occur.
+              </p>
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:gap-3">
-            <button
-              onClick={onClose}
-              disabled={isCanceling}
-              className="flex-1 h-11 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:opacity-50"
-            >
-              Keep my subscription
-            </button>
-            <button
-              id="confirm-cancel-subscription"
-              onClick={onConfirm}
-              disabled={isCanceling}
-              className="flex-1 h-11 flex items-center justify-center gap-2 rounded-xl bg-red-600 text-sm font-semibold text-white transition hover:bg-red-700 active:bg-red-800 disabled:opacity-60"
-            >
-              {isCanceling ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" />
-                  Canceling…
-                </>
-              ) : (
-                <>
-                  <Ban className="size-4" />
-                  Yes, cancel
-                </>
-              )}
-            </button>
+          <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3.5">
+            <AlertTriangle className="size-4 shrink-0 text-slate-950 mt-0.5" />
+            <div>
+              <p className="text-xs font-semibold text-slate-950">Non-refundable payment</p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Per our{' '}
+                <Link href="/refund-policy" className="underline underline-offset-2 font-medium text-slate-950" target="_blank">
+                  refund policy
+                </Link>
+                , payments already processed are final.
+              </p>
+            </div>
           </div>
+
+          <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3.5">
+            <ShieldAlert className="size-4 shrink-0 text-slate-950 mt-0.5" />
+            <div>
+              <p className="text-xs font-semibold text-slate-950">Account reverts to Free tier</p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                After your access period finishes, your plan limits revert automatically to the Free plan.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:gap-3">
+          <button
+            onClick={onClose}
+            disabled={isCanceling}
+            className="flex-1 h-11 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-950 transition hover:bg-slate-50 disabled:opacity-50"
+          >
+            Keep subscription
+          </button>
+          <button
+            id="confirm-cancel-subscription"
+            onClick={onConfirm}
+            disabled={isCanceling}
+            className="flex-1 h-11 flex items-center justify-center gap-2 rounded-xl bg-slate-950 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
+          >
+            {isCanceling ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Canceling…
+              </>
+            ) : (
+              'Confirm cancellation'
+            )}
+          </button>
         </div>
       </div>
-
-      {/* Keyframe animation */}
-      <style>{`
-        @keyframes modalIn {
-          from { opacity: 0; transform: scale(0.94) translateY(12px); }
-          to   { opacity: 1; transform: scale(1)    translateY(0);     }
-        }
-        @media (max-width: 639px) {
-          @keyframes modalIn {
-            from { opacity: 0; transform: translateY(60px); }
-            to   { opacity: 1; transform: translateY(0);    }
-          }
-        }
-      `}</style>
     </div>
   );
 }
 
+function formattedAccessDate(accessEndDate) {
+  return accessEndDate ? accessEndDate : 'the end of your current cycle';
+}
+
 /* ─────────────────────────────────────────────────────────────
-   Main Billing Page
+   Main Billing Page — Monochromatic Minimalist UI
    ───────────────────────────────────────────────────────────── */
 export default function BillingPage() {
   const utils = trpc.useUtils();
@@ -213,26 +173,26 @@ export default function BillingPage() {
     try {
       setIsCanceling(true);
       await cancelMutation.mutateAsync();
-      toast.success('Subscription canceled. You retain access until your billing cycle ends.');
+      toast.success('Subscription canceled. Access remains until cycle ends.');
       await utils.billing.getSubscription.invalidate();
       setShowCancelModal(false);
     } catch (error) {
-      toast.error(error.message || 'Could not cancel subscription. Please try again.');
+      toast.error(error.message || 'Could not cancel subscription.');
     } finally {
       setIsCanceling(false);
     }
   };
 
-  /* ── Loading skeleton ── */
+  /* ── Skeleton state ── */
   if (isLoading || !subData || !usageData) {
     return (
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,#ede9fe,transparent_30%),linear-gradient(135deg,#f8fafc,#eef2ff_52%,#fff7ed)]">
+      <div className="min-h-screen bg-slate-50 text-slate-950">
         <BillingNavbar />
-        <div className="mx-auto max-w-5xl space-y-5 p-4 pt-6 sm:p-6 lg:p-8">
-          <Skeleton className="h-36 w-full rounded-[2rem]" />
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Skeleton className="h-72 rounded-[2rem]" />
-            <Skeleton className="h-72 rounded-[2rem]" />
+        <div className="mx-auto max-w-5xl space-y-6 p-4 pt-8 sm:p-6 lg:p-8">
+          <Skeleton className="h-32 w-full rounded-2xl bg-white border border-slate-200" />
+          <div className="grid gap-6 sm:grid-cols-2">
+            <Skeleton className="h-64 rounded-2xl bg-white border border-slate-200" />
+            <Skeleton className="h-64 rounded-2xl bg-white border border-slate-200" />
           </div>
         </div>
       </div>
@@ -251,7 +211,6 @@ export default function BillingPage() {
 
   return (
     <>
-      {/* ── Cancel Modal ── */}
       <CancelModal
         isOpen={showCancelModal}
         onClose={() => !isCanceling && setShowCancelModal(false)}
@@ -261,164 +220,164 @@ export default function BillingPage() {
         accessEndDate={formattedEndDate}
       />
 
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,#ede9fe,transparent_30%),linear-gradient(135deg,#f8fafc,#eef2ff_52%,#fff7ed)] text-slate-950">
-        {/* ── NAVBAR ── */}
+      <div className="min-h-screen bg-slate-50 text-slate-950">
+        {/* Navbar */}
         <BillingNavbar />
 
-        <div className="mx-auto max-w-5xl space-y-5 p-4 pt-6 sm:p-6 sm:pt-8 lg:p-8 lg:pt-10">
+        <div className="mx-auto max-w-5xl space-y-6 p-4 pt-6 sm:p-6 sm:pt-8 lg:p-8">
 
-          {/* ── PAGE HEADER ── */}
-          <section className="rounded-2xl sm:rounded-[2rem] border border-white/70 bg-white/65 p-5 shadow-xl shadow-slate-200/60 backdrop-blur-xl sm:p-7">
+          {/* Page Header Card */}
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-violet-100 px-3 py-1.5 text-xs sm:text-sm font-medium text-violet-700">
-                  <CreditCard className="size-3.5 sm:size-4" />
-                  Billing &amp; Limits
+                <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-slate-800">
+                  <CreditCard className="size-3.5" />
+                  Account &amp; Subscriptions
                 </div>
-                <h1 className="text-2xl font-semibold text-slate-950 sm:text-3xl md:text-4xl">Plan Management</h1>
-                <p className="mt-1.5 text-sm font-medium text-slate-500 max-w-md">
-                  Manage your subscription, view usage, and adjust your limits.
+                <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">Billing &amp; Limits</h1>
+                <p className="mt-1 text-xs sm:text-sm font-medium text-slate-500">
+                  Manage your subscription tier, track active usage, and review account capacity.
                 </p>
               </div>
+
               {isFree && (
                 <Link
                   href="/pricing"
-                  className={cn(
-                    buttonVariants({ size: 'default' }),
-                    'bg-violet-600 text-white hover:bg-violet-700 shadow-md rounded-xl self-start sm:self-auto whitespace-nowrap',
-                  )}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 text-xs font-semibold text-white transition hover:bg-slate-800 self-start sm:self-auto"
                 >
                   Upgrade to Pro
-                  <Zap className="ml-2 size-4" />
+                  <Zap className="size-3.5" />
                 </Link>
               )}
             </div>
           </section>
 
-          {/* ── CARDS GRID ── */}
-          <div className="grid gap-5 sm:grid-cols-2 lg:items-start">
+          {/* Cards Grid */}
+          <div className="grid gap-6 sm:grid-cols-2 lg:items-start">
 
-            {/* ── CURRENT PLAN CARD ── */}
-            <section className="rounded-2xl sm:rounded-[2rem] border border-white/70 bg-white/70 p-5 shadow-lg shadow-slate-200/60 backdrop-blur-xl sm:p-7">
-              <h2 className="text-lg font-semibold text-slate-900 mb-5 flex items-center gap-2">
-                <Sparkles className="size-5 text-amber-500" /> Current Plan
+            {/* Current Plan Card */}
+            <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-7">
+              <h2 className="text-base font-bold text-slate-950 mb-6 flex items-center gap-2">
+                <Sparkles className="size-4 text-slate-950" /> Current Plan
               </h2>
 
-              {/* Plan name + status badge */}
-              <div className="flex items-end justify-between border-b border-slate-200 pb-5 mb-5">
+              {/* Plan name + badge */}
+              <div className="flex items-end justify-between border-b border-slate-100 pb-5 mb-5">
                 <div>
-                  <div className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">Your Tier</div>
-                  <div className="text-3xl sm:text-4xl font-semibold text-slate-950">{plan.name}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Active Tier</div>
+                  <div className="text-3xl font-bold text-slate-950">{plan.name}</div>
                 </div>
                 <span className={cn(
-                  'inline-block rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide shrink-0 ml-2',
+                  'inline-block rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wider border shrink-0',
                   isFree
-                    ? 'bg-slate-200 text-slate-600'
+                    ? 'border-slate-200 bg-slate-100 text-slate-700'
                     : isCancelingAtEnd
-                      ? 'bg-amber-100 text-amber-700'
-                      : 'bg-emerald-100 text-emerald-700',
+                      ? 'border-slate-400 bg-slate-900 text-slate-100'
+                      : 'border-slate-950 bg-slate-950 text-white',
                 )}>
-                  {isFree ? 'Free' : isCancelingAtEnd ? 'Cancels Soon' : 'Active'}
+                  {isFree ? 'Free Tier' : isCancelingAtEnd ? 'Cancels Soon' : 'Active'}
                 </span>
               </div>
 
-              {/* Plan details */}
-              <div className="space-y-3 mb-7">
+              {/* Plan Details List */}
+              <div className="space-y-3 mb-6 text-xs">
                 {!isFree && formattedEndDate && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-500 font-medium">{isCancelingAtEnd ? 'Access ends on' : 'Next billing date'}</span>
-                    <span className="text-slate-900 font-semibold text-right ml-4">{formattedEndDate}</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500 font-medium">{isCancelingAtEnd ? 'Access ends' : 'Renewal date'}</span>
+                    <span className="text-slate-950 font-semibold">{formattedEndDate}</span>
                   </div>
                 )}
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-500 font-medium">Plan price</span>
-                  <span className="text-slate-900 font-semibold">₹{plan.priceMonthly} / mo</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500 font-medium">Monthly cost</span>
+                  <span className="text-slate-950 font-semibold">₹{plan.priceMonthly} / month</span>
                 </div>
               </div>
 
-              {/* Action area */}
+              {/* Action Button / State Banner */}
               {isFree ? (
-                <div className="rounded-xl bg-slate-50 p-4 border border-slate-200 text-sm font-medium text-slate-600 text-center leading-relaxed">
-                  You&#39;re on the Free plan.{' '}
-                  <Link href="/pricing" className="text-violet-600 underline underline-offset-2">Upgrade</Link>{' '}
-                  to unlock unlimited potential.
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs font-medium text-slate-600 leading-relaxed text-center">
+                  You are currently on the Free plan.{' '}
+                  <Link href="/pricing" className="font-bold text-slate-950 underline underline-offset-2">
+                    Upgrade to Pro
+                  </Link>{' '}
+                  for expanded limits.
                 </div>
               ) : isCancelingAtEnd ? (
-                <div className="rounded-xl bg-amber-50 p-4 border border-amber-200 text-sm font-medium text-amber-800 flex items-start gap-3">
-                  <AlertTriangle className="size-5 shrink-0 mt-0.5" />
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs font-medium text-slate-800 leading-relaxed flex items-start gap-2.5">
+                  <AlertTriangle className="size-4 shrink-0 mt-0.5 text-slate-950" />
                   <p>
-                    Your subscription cancels at the end of the current billing cycle.
-                    {formattedEndDate && (
-                      <> You retain Pro access until <strong>{formattedEndDate}</strong>.</>
-                    )}
+                    Your plan cancels at cycle end. Access remains active until <strong>{formattedEndDate}</strong>.
                   </p>
                 </div>
               ) : (
                 <button
                   id="open-cancel-subscription-modal"
                   onClick={() => setShowCancelModal(true)}
-                  className="w-full h-11 flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 text-sm font-medium text-red-600 transition hover:bg-red-100 active:bg-red-200"
+                  className="w-full h-11 flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-slate-950 hover:border-slate-300"
                 >
-                  <ShieldAlert className="size-4 shrink-0" />
+                  <Ban className="size-3.5" />
                   Cancel Subscription
                 </button>
               )}
             </section>
 
-            {/* ── USAGE & LIMITS CARD ── */}
-            <section className="rounded-2xl sm:rounded-[2rem] border border-white/70 bg-white/70 p-5 shadow-lg shadow-slate-200/60 backdrop-blur-xl sm:p-7">
-              <h2 className="text-lg font-semibold text-slate-900 mb-5 flex items-center gap-2">
-                <BarChart3 className="size-5 text-blue-500" /> Usage &amp; Limits
+            {/* Usage & Limits Card */}
+            <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-7">
+              <h2 className="text-base font-bold text-slate-950 mb-6 flex items-center gap-2">
+                <BarChart3 className="size-4 text-slate-950" /> Usage &amp; Capacity
               </h2>
 
-              <div className="space-y-7">
-                {/* Forms */}
+              <div className="space-y-6">
+                {/* Forms Usage */}
                 <div>
-                  <div className="flex justify-between text-sm font-medium mb-2">
-                    <span className="text-slate-700">Forms Created</span>
-                    <span className={usageData.forms.percentage >= 100 ? 'text-red-600 font-semibold' : 'text-slate-500'}>
+                  <div className="flex justify-between text-xs font-semibold mb-2">
+                    <span className="text-slate-950">Forms Created</span>
+                    <span className="text-slate-600">
                       {usageData.forms.used} / {usageData.forms.isUnlimited ? '∞' : usageData.forms.limit}
                     </span>
                   </div>
                   {!usageData.forms.isUnlimited && (
-                    <div className="h-2.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200">
                       <div
-                        className={cn('h-full transition-all duration-700 rounded-full', usageData.forms.percentage >= 100 ? 'bg-red-500' : 'bg-blue-500')}
-                        style={{ width: `${usageData.forms.percentage}%` }}
+                        className="h-full bg-slate-950 transition-all duration-500 rounded-full"
+                        style={{ width: `${Math.min(usageData.forms.percentage, 100)}%` }}
                       />
                     </div>
                   )}
-                  <p className="text-xs font-medium text-slate-400 mt-2">Lifetime limit based on your active plan.</p>
+                  <p className="text-[11px] font-medium text-slate-400 mt-2">Active forms count towards account plan limits.</p>
                 </div>
 
-                {/* Responses */}
+                {/* Responses Usage */}
                 <div>
-                  <div className="flex justify-between text-sm font-medium mb-2">
-                    <span className="text-slate-700">Responses Collected</span>
-                    <span className={usageData.responses.percentage >= 100 ? 'text-red-600 font-semibold' : 'text-slate-500'}>
+                  <div className="flex justify-between text-xs font-semibold mb-2">
+                    <span className="text-slate-950">Monthly Responses</span>
+                    <span className="text-slate-600">
                       {usageData.responses.used} / {usageData.responses.isUnlimited ? '∞' : usageData.responses.limit}
                     </span>
                   </div>
                   {!usageData.responses.isUnlimited && (
-                    <div className="h-2.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200">
                       <div
-                        className={cn('h-full transition-all duration-700 rounded-full', usageData.responses.percentage >= 100 ? 'bg-red-500' : 'bg-emerald-500')}
-                        style={{ width: `${usageData.responses.percentage}%` }}
+                        className="h-full bg-slate-950 transition-all duration-500 rounded-full"
+                        style={{ width: `${Math.min(usageData.responses.percentage, 100)}%` }}
                       />
                     </div>
                   )}
-                  <p className="text-xs font-medium text-slate-400 mt-2">Resets automatically at the start of next month.</p>
+                  <p className="text-[11px] font-medium text-slate-400 mt-2">Resets automatically at the beginning of each billing cycle.</p>
                 </div>
               </div>
 
               {isFree && (
-                <div className="mt-7 border-t border-slate-200 pt-6">
-                  <Link href="/pricing" className="group flex items-center justify-between rounded-xl bg-slate-950 p-4 text-white transition hover:bg-slate-800 active:bg-slate-700">
+                <div className="mt-6 border-t border-slate-100 pt-5">
+                  <Link
+                    href="/pricing"
+                    className="group flex items-center justify-between rounded-xl bg-slate-950 p-4 text-white transition hover:bg-slate-800"
+                  >
                     <div>
-                      <div className="text-sm font-semibold">Hit a limit?</div>
-                      <div className="text-xs text-slate-400 mt-0.5">Upgrade to unlock unlimited forms.</div>
+                      <div className="text-xs font-bold">Need more responses?</div>
+                      <div className="text-[11px] text-slate-400 mt-0.5">Upgrade for higher monthly limits.</div>
                     </div>
-                    <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
+                    <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </div>
               )}
@@ -430,3 +389,4 @@ export default function BillingPage() {
     </>
   );
 }
+

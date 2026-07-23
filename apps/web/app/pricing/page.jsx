@@ -457,15 +457,15 @@ export default function PricingPage() {
               key={faq.question}
               className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all active:shadow-md"
             >
-              <summary className="cursor-pointer list-none text-base font-medium text-slate-950">
+              <summary className="cursor-pointer list-none text-xs sm:text-sm font-medium text-slate-950">
                 <span className="flex items-center justify-between gap-4">
                   {faq.question}
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 transition-all group-active:bg-slate-950 group-active:text-white group-open:rotate-45">
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 transition-all group-active:bg-slate-950 group-active:text-white group-open:rotate-45 text-xs">
                     +
                   </span>
                 </span>
               </summary>
-              <p className="mt-4 text-sm font-medium leading-relaxed text-slate-500">
+              <p className="mt-3 text-xs font-normal leading-relaxed text-slate-500">
                 {faq.answer}
               </p>
             </details>

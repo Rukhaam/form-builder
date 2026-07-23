@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import {
   ArrowRight,
   LayoutDashboard,
@@ -21,6 +22,7 @@ import { cn } from "@/lib/utils";
 const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Browse forms", href: "/forms" },
+  { label: "AI Assistant", href: "/dashboard/assistant", protected: true },
   { label: "Pricing", href: "/pricing" },
   { label: "Templates", href: "/templates" },
   { label: "About Us", href: "/about" },
@@ -31,6 +33,20 @@ export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleProtectedLinkClick = (e, link) => {
+    if (link.protected) {
+      e.preventDefault();
+      const currentUser = getSessionUser();
+      if (!currentUser) {
+        toast.error("Please sign in to access AI Assistant.");
+        router.push("/login");
+      } else {
+        router.push(link.href);
+      }
+    }
+  };
 
   useEffect(() => {
     setUser(getSessionUser());
@@ -128,6 +144,7 @@ export function Navbar() {
               >
                 <Link
                   href={link.href}
+                  onClick={(e) => handleProtectedLinkClick(e, link)}
                   className="transition-opacity hover:opacity-70 text-[14px]"
                 >
                   {link.label}
@@ -244,6 +261,10 @@ export function Navbar() {
                 >
                   <Link
                     href={link.href}
+                    onClick={(e) => {
+                      setIsMobileMenuOpen(false);
+                      handleProtectedLinkClick(e, link);
+                    }}
                     className="block rounded-2xl px-6 py-4 text-center text-3xl font-semibold text-slate-800 transition-colors active:text-violet-600"
                   >
                     {link.label}

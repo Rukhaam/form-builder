@@ -178,8 +178,8 @@ const filteredTemplates = templates.filter(t =>
                       {template.theme} theme
                     </span>
                   </div>
-                  <h3 className="text-xl font-medium text-slate-950 mb-2">{template.title}</h3>
-                  <p className="text-sm text-slate-600 line-clamp-2 mb-6">
+                  <h3 className="text-base sm:text-lg font-medium text-slate-950 mb-1.5">{template.title}</h3>
+                  <p className="text-xs text-slate-500 line-clamp-2 mb-5">
                     {template.description || 'A beautiful starting point for your next form.'}
                   </p>
                   
